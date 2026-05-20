@@ -30,9 +30,17 @@ Next ID = max + 1 (or 001 if none exist).
 mkdir -p tasks/{backlog,in-progress,done}
 ```
 
-## Step 4: Read task template
+## Step 4: Read task template and discover reuse candidates
 
 Read `~/.claude/skills/you-got-skills/templates/task.md` for structure.
+
+Before decomposing, scan for existing implementations that overlap with the planned work:
+```bash
+# Find existing patterns, utilities, similar features
+grep -rl "relevant_keyword" src/ lib/ 2>/dev/null | head -10
+```
+
+Note reuse candidates in task descriptions — "extend existing X" is better than "build new Y" when X already does 80% of what's needed.
 
 ## Step 5: Hierarchical decomposition
 

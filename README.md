@@ -17,16 +17,30 @@ AI agents accelerate coding but also accelerate entropy. Without discipline, you
 ## Install
 
 ```bash
-git clone https://github.com/bhatti/you-got-skills.git ~/.claude/skills/you-got-skills
+git clone https://github.com/bhatti/you-got-skills.git && cd you-got-skills && ./setup
 ```
 
-Or from an existing clone:
+Or install directly into `~/.claude/skills/`:
 
 ```bash
-./setup
+curl -fsSL https://raw.githubusercontent.com/bhatti/you-got-skills/main/setup | bash
 ```
 
-This symlinks the repo to `~/.claude/skills/you-got-skills` where Claude Code discovers skills automatically.
+### Update
+
+Pull latest changes and refresh symlinks:
+
+```bash
+~/.claude/skills/you-got-skills/setup update
+```
+
+### Uninstall
+
+```bash
+~/.claude/skills/you-got-skills/setup uninstall
+```
+
+The setup script symlinks each skill into `~/.claude/skills/` where Claude Code discovers them automatically.
 
 ## Skills
 

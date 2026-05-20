@@ -1,24 +1,110 @@
 #!/usr/bin/env bash
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_URL="https://github.com/bhatti/you-got-skills.git"
 SKILLS_BASE="$HOME/.claude/skills"
+INSTALL_DIR="$SKILLS_BASE/you-got-skills"
 
-mkdir -p "$SKILLS_BASE"
+usage() {
+  echo "Usage: ./setup [install|update|uninstall]"
+  echo ""
+  echo "Commands:"
+  echo "  install    Clone repo and symlink skills (default if no args)"
+  echo "  update     Pull latest changes and refresh symlinks"
+  echo "  uninstall  Remove all symlinks and cloned repo"
+}
 
-# Symlink the entire repo so skills can reference templates/ and references/
-ln -snf "$SCRIPT_DIR" "$SKILLS_BASE/you-got-skills"
+install_skills() {
+  local source_dir="$1"
 
-# Symlink each skill directly under ~/.claude/skills/ for Claude Code discovery
-for skill_dir in "$SCRIPT_DIR"/skills/ygs-*; do
-  skill_name="$(basename "$skill_dir")"
-  ln -snf "$skill_dir" "$SKILLS_BASE/$skill_name"
-done
+  mkdir -p "$SKILLS_BASE"
 
-echo "✓ Installed you-got-skills → $SKILLS_BASE/you-got-skills"
-echo "✓ Symlinked $(ls -d "$SCRIPT_DIR"/skills/ygs-* | wc -l | tr -d ' ') skills into $SKILLS_BASE/"
-echo ""
-echo "Skills available (invoke with /<name>):"
-for skill_dir in "$SCRIPT_DIR"/skills/ygs-*; do
-  echo "  /$(basename "$skill_dir")"
-done
+  # Symlink the entire repo so skills can reference templates/ and references/
+  ln -snf "$source_dir" "$INSTALL_DIR"
+
+  # Remove stale ygs-* symlinks that point to non-existent targets
+  for link in "$SKILLS_BASE"/ygs-*; do
+    [ -L "$link" ] && [ ! -e "$link" ] && rm "$link"
+  done
+
+  # Symlink each skill directly under ~/.claude/skills/ for Claude Code discovery
+  for skill_dir in "$source_dir"/skills/ygs-*; do
+    skill_name="$(basename "$skill_dir")"
+    ln -snf "$skill_dir" "$SKILLS_BASE/$skill_name"
+  done
+
+  local count
+  count=$(ls -d "$source_dir"/skills/ygs-* 2>/dev/null | wc -l | tr -d ' ')
+  echo "✓ Installed you-got-skills → $INSTALL_DIR"
+  echo "✓ Symlinked $count skills into $SKILLS_BASE/"
+  echo ""
+  echo "Skills available (invoke with /<name>):"
+  for skill_dir in "$source_dir"/skills/ygs-*; do
+    echo "  /$(basename "$skill_dir")"
+  done
+}
+
+do_install() {
+  # If running from a clone (setup script is in the repo), use that directory
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [ -f "$SCRIPT_DIR/skills/ygs-implement/SKILL.md" ]; then
+    install_skills "$SCRIPT_DIR"
+  else
+    # Fresh install: clone into ~/.claude/skills/you-got-skills
+    if [ -d "$INSTALL_DIR" ] && [ -d "$INSTALL_DIR/.git" ]; then
+      echo "Already installed at $INSTALL_DIR. Run './setup update' to pull latest."
+      exit 0
+    fi
+    echo "Cloning you-got-skills..."
+    git clone "$REPO_URL" "$INSTALL_DIR"
+    install_skills "$INSTALL_DIR"
+  fi
+  echo ""
+  echo "To update later: ~/.claude/skills/you-got-skills/setup update"
+}
+
+do_update() {
+  # Find the repo (either local clone or symlinked source)
+  local repo_dir
+  if [ -L "$INSTALL_DIR" ]; then
+    repo_dir="$(readlink "$INSTALL_DIR")"
+  elif [ -d "$INSTALL_DIR/.git" ]; then
+    repo_dir="$INSTALL_DIR"
+  else
+    echo "Error: you-got-skills not installed. Run './setup install' first."
+    exit 1
+  fi
+
+  echo "Updating you-got-skills at $repo_dir..."
+  git -C "$repo_dir" pull --ff-only
+  echo ""
+  install_skills "$repo_dir"
+  echo ""
+  echo "✓ Updated to latest"
+}
+
+do_uninstall() {
+  echo "Removing you-got-skills symlinks..."
+  for link in "$SKILLS_BASE"/ygs-*; do
+    [ -L "$link" ] && rm "$link" && echo "  removed $(basename "$link")"
+  done
+  if [ -L "$INSTALL_DIR" ]; then
+    rm "$INSTALL_DIR"
+    echo "  removed you-got-skills symlink"
+  elif [ -d "$INSTALL_DIR" ]; then
+    rm -rf "$INSTALL_DIR"
+    echo "  removed $INSTALL_DIR"
+  fi
+  echo "✓ Uninstalled"
+}
+
+# Default to install if no argument
+command="${1:-install}"
+
+case "$command" in
+  install)  do_install ;;
+  update)   do_update ;;
+  uninstall) do_uninstall ;;
+  -h|--help) usage ;;
+  *) echo "Unknown command: $command"; usage; exit 1 ;;
+esac

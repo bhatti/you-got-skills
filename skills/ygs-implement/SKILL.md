@@ -32,11 +32,12 @@ Read the task file. Determine scope:
 
 **Quick mode:** If task is Light AND has clear acceptance criteria AND touches well-understood code, proceed without intermediate confirmations. Not everything needs full ceremony.
 
-## Step 4: Read context
+## Step 4: Read context and discover reuse candidates
 
 - Read task description, acceptance criteria, and source doc reference
 - If a source PRD/TRD is linked, read it for context
 - Explore relevant codebase areas to understand existing patterns
+- **Search for reuse candidates:** Before writing new code, explicitly look for existing utilities, helpers, patterns, or similar implementations that can be reused or extended. Grep for related function names, check shared/common directories, review recent similar changes.
 
 ## Step 5: Implement with discipline
 
@@ -101,7 +102,16 @@ Every 5 files changed, verify build/tests still pass:
 [ -f go.mod ] && go test ./...
 ```
 
-## Step 8: Move to done
+## Step 8: Self-review (before requesting external review)
+
+Before moving to done, self-check your own work:
+- Re-read the acceptance criteria — does the implementation satisfy each one?
+- Review the diff as if you were a reviewer: any debug code, TODOs, hardcoded values that shouldn't ship?
+- Check for unintended scope expansion: did you touch files beyond what was planned?
+- Verify naming consistency with surrounding code
+- If issues found: fix and re-run verification (bounded — max 2 self-review cycles, then flag concerns)
+
+## Step 9: Move to done
 
 Only after verification passes:
 
@@ -109,7 +119,7 @@ Only after verification passes:
 mv tasks/in-progress/task-NNN.md tasks/done/
 ```
 
-## Step 9: Completion
+## Step 10: Completion
 
 Report **DONE** with:
 - What was implemented
