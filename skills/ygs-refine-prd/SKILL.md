@@ -60,6 +60,11 @@ Walk through each dimension, challenging vagueness and resolving ambiguity:
 - For each requirement, define at least one Given/When/Then scenario
 - Push for edge case scenarios: what happens with empty input? At scale? On failure?
 - Use RFC 2119 keywords for requirement strength: MUST (P0), SHOULD (P1), MAY (P2)
+- For behavioral requirements, use EARS notation for precision:
+  - "WHEN [trigger], THE SYSTEM SHALL [response]" (event-driven)
+  - "WHILE [state], THE SYSTEM SHALL [behavior]" (state-driven)
+  - "WHERE [condition], THE SYSTEM SHALL [behavior]" (conditional)
+  - "THE SYSTEM SHALL [behavior]" (ubiquitous — always true)
 
 ### Constraints and impact
 - What's the worst that can happen if this goes wrong?

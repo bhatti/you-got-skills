@@ -1,6 +1,6 @@
 ---
 name: ygs-estimate
-description: Complexity-based estimation — t-shirt sizing at feature level, story points at task level, capacity planning with KTLO/oncall/vacation buffers. Use before grooming or when management needs timelines.
+description: Complexity-based estimation — t-shirt sizing at feature level, story points at task level, capacity planning with KTLO/oncall/vacation buffers. Use before WBS or when management needs timelines.
 ---
 
 # Estimate
@@ -149,4 +149,4 @@ For each risk, note impact on timeline if it materializes.
 - Parallel work streams possible (which features are independent?)
 
 Report **DONE** with the estimate.
-Suggest: `/ygs-grooming` to break into detailed tasks with individual estimates.
+Suggest: `/ygs-spike` if risky unknowns need validation, or `/ygs-wbs` to break into detailed tasks with individual estimates.

@@ -114,4 +114,4 @@ Write (or update) at `docs/trd/YYYY-MM-DD-<slug>.md`. Link back to source PRD.
 ## Step 5: Completion
 
 Report **DONE** with the file path.
-Suggest: `/ygs-review-trd` for critique, `/ygs-grooming` to break into tasks.
+Suggest: `/ygs-review-trd` for critique, `/ygs-wbs` to break into tasks.

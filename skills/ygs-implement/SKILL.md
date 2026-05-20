@@ -26,9 +26,11 @@ mv tasks/backlog/task-NNN.md tasks/in-progress/
 ## Step 3: Assess scope and ceremony level
 
 Read the task file. Determine scope:
-- **Light (1-3 files, <300 lines):** Standard workflow
+- **Light (1-3 files, <300 lines):** Standard workflow, skip checkpoints
 - **Standard (4-8 files, 300-800 lines):** + checkpoints every 5 files
 - **Heavy (8+ files or 800+ lines):** Flag as oversized. Ask user if task should be split.
+
+**Quick mode:** If task is Light AND has clear acceptance criteria AND touches well-understood code, proceed without intermediate confirmations. Not everything needs full ceremony.
 
 ## Step 4: Read context
 

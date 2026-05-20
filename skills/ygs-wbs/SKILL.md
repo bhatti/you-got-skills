@@ -1,9 +1,11 @@
 ---
-name: ygs-grooming
-description: Break PRD/TRD into vertical-slice tasks with dependency ordering, scope assessment, and acceptance criteria. Each task cuts through all layers end-to-end.
+name: ygs-wbs
+description: Work Breakdown Structure — hierarchically decompose PRD/TRD into vertical-slice tasks with dependency ordering, scope assessment, and acceptance criteria. Each task cuts through all layers end-to-end.
 ---
 
-# Grooming
+# Work Breakdown Structure (WBS)
+
+A WBS hierarchically divides a complex project into smaller, manageable components — making it easier to estimate costs, assign resources, and track progress.
 
 ## Step 1: Find source documents
 
@@ -12,7 +14,7 @@ ls -t docs/prd/*.md 2>/dev/null | head -5
 ls -t docs/trd/*.md 2>/dev/null | head -5
 ```
 
-Read the PRD and TRD. Ask user which docs to groom if multiple exist.
+Read the PRD and TRD. Ask user which docs to decompose if multiple exist.
 
 ## Step 2: Determine next task ID
 
@@ -32,7 +34,12 @@ mkdir -p tasks/{backlog,in-progress,done}
 
 Read `~/.claude/skills/you-got-skills/templates/task.md` for structure.
 
-## Step 5: Decompose into tasks
+## Step 5: Hierarchical decomposition
+
+### WBS levels
+1. **Deliverable** — Major feature or component (from PRD/TRD)
+2. **Work package** — Independently shippable unit of work
+3. **Task** — Atomic implementation step (what gets a task file)
 
 ### Vertical slice principles (INVEST-compliant)
 - **I**ndependent — Each task is a **thin vertical slice** through ALL layers end-to-end (not a horizontal layer)
@@ -68,6 +75,15 @@ Exception: Causally dependent steps ARE one task (e.g., create migration + updat
 - Migration tasks before feature tasks
 - Shared utilities before consumers
 
+### Dependency waves (parallel execution groups)
+Group tasks into waves — independent tasks within a wave can execute in parallel, waves execute sequentially:
+- **Wave 1:** Foundation (schema, shared types, config) — no dependencies
+- **Wave 2:** Core logic (services, domain) — depends on Wave 1
+- **Wave 3:** Integration (APIs, UI, events) — depends on Wave 2
+- **Wave 4:** Polish (docs, monitoring, cleanup) — depends on Wave 3
+
+Mark each task with its wave number. Tasks within the same wave have no ordering constraint between them.
+
 ## Step 6: Write task files
 
 Create files in `tasks/backlog/` following the template. Include:
@@ -81,8 +97,10 @@ Create files in `tasks/backlog/` following the template. Include:
 
 Report **DONE** with:
 - Number of tasks created
-- Summary table (ID, title, priority, estimate, dependencies)
+- WBS hierarchy (deliverables → work packages → tasks)
+- Summary table (ID, title, priority, estimate, wave, dependencies)
+- Dependency waves visualized (which tasks can run in parallel)
 - Any XL tasks that need further breakdown
-- Suggested execution order
+- Critical path highlighted
 
 Suggest: `/ygs-implement` to start working on tasks.

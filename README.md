@@ -46,7 +46,8 @@ This symlinks the repo to `~/.claude/skills/you-got-skills` where Claude Code di
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-estimate` | Complexity-based estimation: t-shirt sizing, story points, capacity planning with KTLO buffers |
-| `/ygs-grooming` | Break PRD/TRD into INVEST-compliant vertical-slice tasks with dependency ordering |
+| `/ygs-wbs` | Work Breakdown Structure: hierarchically decompose into INVEST-compliant vertical-slice tasks |
+| `/ygs-spike` | Time-boxed spike to validate a hypothesis — feasibility, performance, or integration proof |
 | `/ygs-implement` | Implement a task with scope guardrails, checkpoints, and deviation tracking |
 | `/ygs-sync` | Bidirectional sync: keep design docs accurate as implementation evolves |
 | `/ygs-ship` | Ship workflow: test, version bump, changelog, create PR |
@@ -84,7 +85,8 @@ This symlinks the repo to `~/.claude/skills/you-got-skills` where Claude Code di
 /ygs-refine-architecture     → For larger changes: define system architecture
 /ygs-review-trd              → Validate design
 /ygs-estimate                → T-shirt sizing + story points + capacity planning
-/ygs-grooming                → Break into vertical-slice tasks
+/ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks
+/ygs-spike                   → Time-boxed experiment to validate risky unknowns
 /ygs-implement               → Build with discipline
 /ygs-code-review             → Two-pass review
 /ygs-security-review         → Security + red-team
@@ -152,6 +154,8 @@ Inspired by and borrowing best practices from:
 - [mattpocock/skills](https://github.com/mattpocock/skills) — Engineering skills with deep-module principles and structured refinement
 - [OpenSpec](https://github.com/fission-ai/openspec) — Specification-driven development with RFC 2119 requirements and Given/When/Then scenarios
 - [OpenSPDD](https://github.com/gszhangwei/open-spdd) — REASONS Canvas structured prompts and bidirectional design-code synchronization
+- [BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD) — Scale-adaptive rigor, skill chaining, and ceremony-proportional-to-risk
+- [Kiro](https://kiro.dev/docs/specs/) — EARS notation for testable requirements, dependency waves for parallel task execution
 - [Shahzad Bhatti's engineering blog](https://shahbhat.medium.com) — API design patterns, microservice security, fault tolerance, transaction boundaries, production readiness, and post-mortem practices
 
 ## License

@@ -4,6 +4,8 @@
 **Source:** docs/prd/YYYY-MM-DD-<slug>.md
 **Priority:** P0 (MUST) | P1 (SHOULD) | P2 (MAY)
 **Estimate:** S | M | L | XL
+**Wave:** 1 | 2 | 3 | 4
+**Depends on:** task-NNN (or "none")
 
 ## Description
 <!-- What needs to be done — thin vertical slice through all layers -->
