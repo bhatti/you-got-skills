@@ -2,15 +2,23 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILL_DIR="$HOME/.claude/skills/you-got-skills"
+SKILLS_BASE="$HOME/.claude/skills"
 
-mkdir -p "$HOME/.claude/skills"
-ln -snf "$SCRIPT_DIR" "$SKILL_DIR"
+mkdir -p "$SKILLS_BASE"
 
-echo "✓ Installed you-got-skills → $SKILL_DIR"
+# Symlink the entire repo so skills can reference templates/ and references/
+ln -snf "$SCRIPT_DIR" "$SKILLS_BASE/you-got-skills"
+
+# Symlink each skill directly under ~/.claude/skills/ for Claude Code discovery
+for skill_dir in "$SCRIPT_DIR"/skills/ygs-*; do
+  skill_name="$(basename "$skill_dir")"
+  ln -snf "$skill_dir" "$SKILLS_BASE/$skill_name"
+done
+
+echo "✓ Installed you-got-skills → $SKILLS_BASE/you-got-skills"
+echo "✓ Symlinked $(ls -d "$SCRIPT_DIR"/skills/ygs-* | wc -l | tr -d ' ') skills into $SKILLS_BASE/"
 echo ""
-echo "Skills available:"
-echo "  /ygs-refine-prd, /ygs-review-prd, /ygs-refine-trd, /ygs-review-trd,"
-echo "  /ygs-refine-architecture, /ygs-review-architecture, /ygs-grooming, /ygs-implement,"
-echo "  /ygs-code-review, /ygs-security-review, /ygs-sre-review, /ygs-qa, /ygs-uat,"
-echo "  /ygs-ui-review, /ygs-api-review, /ygs-ship, /ygs-investigate, /ygs-retro"
+echo "Skills available (invoke with /<name>):"
+for skill_dir in "$SCRIPT_DIR"/skills/ygs-*; do
+  echo "  /$(basename "$skill_dir")"
+done
