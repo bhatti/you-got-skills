@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILL_DIR="$HOME/.claude/skills/you-got-skills"
+
+mkdir -p "$HOME/.claude/skills"
+ln -snf "$SCRIPT_DIR" "$SKILL_DIR"
+
+echo "✓ Installed you-got-skills → $SKILL_DIR"
+echo ""
+echo "Skills available:"
+echo "  /ygs-refine-prd, /ygs-review-prd, /ygs-refine-trd, /ygs-review-trd,"
+echo "  /ygs-refine-architecture, /ygs-review-architecture, /ygs-grooming, /ygs-implement,"
+echo "  /ygs-code-review, /ygs-security-review, /ygs-sre-review, /ygs-qa, /ygs-uat,"
+echo "  /ygs-ui-review, /ygs-api-review, /ygs-ship, /ygs-investigate, /ygs-retro"

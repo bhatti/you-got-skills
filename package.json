@@ -1,0 +1,20 @@
+{
+  "name": "you-got-skills",
+  "version": "0.1.0",
+  "description": "Minimal SDLC skills for Claude Code",
+  "license": "MIT",
+  "author": "Shahzad Bhatti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhatti/you-got-skills.git"
+  },
+  "scripts": {
+    "postinstall": "./setup"
+  },
+  "files": [
+    "skills/",
+    "templates/",
+    "conventions.md",
+    "setup"
+  ]
+}
