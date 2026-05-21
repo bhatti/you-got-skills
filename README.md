@@ -122,12 +122,16 @@ your-project/
 │   ├── prd/              # Product requirements (YYYY-MM-DD-slug.md)
 │   ├── trd/              # Technical designs (YYYY-MM-DD-slug.md)
 │   ├── adr/              # Architecture decision records (NNN-slug.md)
-│   └── architecture/     # System architecture docs
+│   ├── architecture/     # System architecture / design docs
+│   ├── spikes/           # Spike findings
+│   └── threat-models/    # Security threat models
 └── tasks/
     ├── backlog/          # Not started (task-NNN.md)
     ├── in-progress/      # Being worked on
     └── done/             # Completed
 ```
+
+**Multi-product hierarchy:** For organizations with multiple products/projects, docs support nesting: `docs/prd/{product}/{project}/YYYY-MM-DD-slug.md`. Skills auto-detect which convention is in use.
 
 Tasks use **directory-as-status**: moving a file changes its status. All git-tracked, no database.
 

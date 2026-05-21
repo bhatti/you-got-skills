@@ -10,8 +10,8 @@ A WBS hierarchically divides a complex project into smaller, manageable componen
 ## Step 1: Find source documents
 
 ```bash
-ls -t docs/prd/*.md 2>/dev/null | head -5
-ls -t docs/trd/*.md 2>/dev/null | head -5
+find docs/prd -name "*.md" -type f 2>/dev/null | sort -r | head -5
+find docs/trd -name "*.md" -type f 2>/dev/null | sort -r | head -5
 ```
 
 Read the PRD and TRD. Ask user which docs to decompose if multiple exist.

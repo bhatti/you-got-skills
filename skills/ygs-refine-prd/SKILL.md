@@ -85,13 +85,18 @@ Walk through each dimension, challenging vagueness and resolving ambiguity:
 
 ## Step 4: Write the refined PRD
 
-Ensure directory exists:
+Determine directory convention (auto-detect from existing structure or ask):
 
 ```bash
+# Check if product/project hierarchy exists
+ls docs/prd/*/*/ 2>/dev/null && echo "hierarchy" || echo "flat"
 mkdir -p docs/prd
 ```
 
-Write (or update) the PRD at `docs/prd/YYYY-MM-DD-<slug>.md`. Fill all sections. Mark unresolved items in Open Questions.
+- **Flat:** `docs/prd/YYYY-MM-DD-<slug>.md`
+- **Hierarchy:** `docs/prd/{product}/{project}/YYYY-MM-DD-<slug>.md`
+
+Write (or update) the PRD. Fill all sections. Mark unresolved items in Open Questions.
 
 ## Step 5: Completion
 

@@ -27,7 +27,7 @@ mv tasks/backlog/task-NNN.md tasks/in-progress/
 
 Read the task file. Determine scope:
 - **Light (1-3 files, <300 lines):** Standard workflow, skip checkpoints
-- **Standard (4-8 files, 300-800 lines):** + checkpoints every 5 files
+- **Standard (4-8 files, 300-800 lines):** + plan mode + checkpoints every 5 files
 - **Heavy (8+ files or 800+ lines):** Flag as oversized. Ask user if task should be split.
 
 **Quick mode:** If task is Light AND has clear acceptance criteria AND touches well-understood code, proceed without intermediate confirmations. Not everything needs full ceremony.
@@ -39,7 +39,28 @@ Read the task file. Determine scope:
 - Explore relevant codebase areas to understand existing patterns
 - **Search for reuse candidates:** Before writing new code, explicitly look for existing utilities, helpers, patterns, or similar implementations that can be reused or extended. Grep for related function names, check shared/common directories, review recent similar changes.
 
-## Step 5: Implement with discipline
+## Step 5: Plan (Standard+ scope)
+
+For Standard or Heavy tasks, use plan mode to build a concrete implementation plan before writing code:
+
+1. **Enter plan mode** — Break the task into ordered sub-steps (aim for 3-7 steps, each independently verifiable)
+2. **Each step should be small:** one concern, one file change or small group of related changes
+3. **Include verification for each step:** what command or test proves this step works?
+4. **Identify decision points:** where might the approach need to change based on what you find?
+5. **Get user approval** before proceeding to implementation
+
+Plan structure:
+```
+Step 1: [what] — verify with [how]
+Step 2: [what] — verify with [how]
+...
+```
+
+Keep individual steps small enough that if something goes wrong, you only redo one step — not the whole task. The plan IS the todo list.
+
+**Light tasks skip this step** — go straight to implementation.
+
+## Step 6: Implement with discipline
 
 Follow these rules:
 
@@ -86,14 +107,14 @@ Every 5 files changed, verify build/tests still pass:
 [ -f go.mod ] && go build ./... && go test ./...
 ```
 
-## Step 6: Write tests
+## Step 7: Write tests
 
 - Write tests that would have caught the problem this task solves
 - Test boundary conditions and error paths, not just happy path
 - Co-locate tests with implementation when possible
 - Prefer real implementations over mocks for owned code
 
-## Step 7: Final verification
+## Step 8: Final verification
 
 ```bash
 [ -f Makefile ] && make test
@@ -102,7 +123,7 @@ Every 5 files changed, verify build/tests still pass:
 [ -f go.mod ] && go test ./...
 ```
 
-## Step 8: Self-review (before requesting external review)
+## Step 9: Self-review (before requesting external review)
 
 Before moving to done, self-check your own work:
 - Re-read the acceptance criteria — does the implementation satisfy each one?
@@ -111,7 +132,7 @@ Before moving to done, self-check your own work:
 - Verify naming consistency with surrounding code
 - If issues found: fix and re-run verification (bounded — max 2 self-review cycles, then flag concerns)
 
-## Step 9: Move to done
+## Step 10: Move to done
 
 Only after verification passes:
 
@@ -119,7 +140,7 @@ Only after verification passes:
 mv tasks/in-progress/task-NNN.md tasks/done/
 ```
 
-## Step 10: Completion
+## Step 11: Completion
 
 Report **DONE** with:
 - What was implemented

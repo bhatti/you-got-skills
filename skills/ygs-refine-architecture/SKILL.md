@@ -97,8 +97,7 @@ mkdir -p docs/architecture
 
 Write to `docs/architecture/<slug>.md`.
 
-Read `~/.claude/skills/you-got-skills/templates/architecture.md` for focused architecture docs.
-Read `~/.claude/skills/you-got-skills/templates/design-doc.md` for comprehensive design documents (when scope spans architecture + requirements + rollout).
+Read `~/.claude/skills/you-got-skills/templates/design-doc.md` for structure.
 Read `~/.claude/skills/you-got-skills/templates/adr.md` for recording key decisions.
 
 ## Step 5: Completion

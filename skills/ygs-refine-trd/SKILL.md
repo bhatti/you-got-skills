@@ -103,13 +103,17 @@ Walk through each dimension:
 
 ## Step 4: Write the refined TRD
 
-Ensure directory exists:
+Determine directory convention (match PRD structure):
 
 ```bash
+ls docs/trd/*/*/ 2>/dev/null && echo "hierarchy" || echo "flat"
 mkdir -p docs/trd
 ```
 
-Write (or update) at `docs/trd/YYYY-MM-DD-<slug>.md`. Link back to source PRD.
+- **Flat:** `docs/trd/YYYY-MM-DD-<slug>.md`
+- **Hierarchy:** `docs/trd/{product}/{project}/YYYY-MM-DD-<slug>.md`
+
+Write (or update) the TRD. Link back to source PRD.
 
 ## Step 5: Completion
 

@@ -23,7 +23,7 @@ ls docs/design/*.md 2>/dev/null
 
 Read the document and any linked PRDs/TRDs.
 
-Read `~/.claude/skills/you-got-skills/templates/design-doc.md` and `~/.claude/skills/you-got-skills/templates/architecture.md` as structural references for completeness checking.
+Read `~/.claude/skills/you-got-skills/templates/design-doc.md` as structural reference for completeness checking.
 
 ## Step 2: Module depth analysis
 
