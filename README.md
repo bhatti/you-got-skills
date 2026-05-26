@@ -48,11 +48,11 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-refine-prd` | Refine product requirements through structured questioning |
+| `/ygs-refine-prd` | Refine product requirements: structured questioning, code cross-reference, inline glossary |
 | `/ygs-review-prd` | Critique a PRD for completeness, clarity, and feasibility |
-| `/ygs-refine-trd` | Refine technical design — challenges architecture against codebase |
+| `/ygs-refine-trd` | Refine technical design: challenges architecture against code, inline glossary/ADRs |
 | `/ygs-review-trd` | Critique a TRD for soundness, testability, and operational readiness |
-| `/ygs-refine-architecture` | Evolve system architecture using deep-module principles |
+| `/ygs-refine-architecture` | Evolve system architecture: deep-module principles, Design It Twice, inline glossary/ADRs |
 | `/ygs-review-architecture` | Critique architecture for depth, scalability, and proportionality |
 
 ### Planning & Execution
@@ -60,7 +60,7 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-estimate` | Complexity-based estimation: t-shirt sizing, story points, capacity planning with KTLO buffers |
-| `/ygs-wbs` | Work Breakdown Structure: hierarchically decompose into INVEST-compliant vertical-slice tasks |
+| `/ygs-wbs` | Work Breakdown Structure: vertical-slice tasks with HITL/AFK classification and dependency waves |
 | `/ygs-spike` | Time-boxed spike to validate a hypothesis — feasibility, performance, or integration proof |
 | `/ygs-implement` | Implement a task with scope guardrails, checkpoints, and deviation tracking |
 | `/ygs-sync` | Bidirectional sync: keep design docs accurate as implementation evolves |
@@ -87,7 +87,8 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement |
+| `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, architectural handoff |
+| `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations |
 
 ## Typical Workflow
@@ -102,6 +103,7 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 /ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
 /ygs-implement               → Build with discipline
+/ygs-triage                  → Classify issues, write agent briefs
 /ygs-code-review             → Two-pass review
 /ygs-security-review         → Security + red-team
 /ygs-sre-review              → Operational readiness
@@ -118,6 +120,8 @@ When you use these skills in a project, they create:
 
 ```
 your-project/
+├── CONTEXT.md            # Domain glossary (created lazily by refine skills)
+├── .out-of-scope/        # Rejected feature knowledge base (concept-slug.md)
 ├── docs/
 │   ├── prd/              # Product requirements (YYYY-MM-DD-slug.md)
 │   ├── trd/              # Technical designs (YYYY-MM-DD-slug.md)
@@ -148,6 +152,10 @@ These principles are embedded throughout the skills:
 - **Scope guardrails** — Pause and ask when scope exceeds plan. No silent creep.
 - **Deviation tracking** — "Design said X, did Y because Z" is captured explicitly.
 - **Feedback loops first** — Debugging starts with a fast, deterministic pass/fail signal.
+- **Design It Twice** — When an interface feels forced, explore 3+ radically different designs before committing.
+- **HITL/AFK classification** — Every task is classified by whether an agent can complete it autonomously.
+- **Inline glossary maintenance** — Domain terms resolved during refinement update CONTEXT.md immediately.
+- **Durable over precise** — Agent briefs use behavioral contracts, not file paths that go stale.
 
 ## Design
 

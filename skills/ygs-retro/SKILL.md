@@ -55,7 +55,24 @@ Each recommendation should be concrete (not "communicate better" — instead "ad
 
 If any incidents occurred during the period, use `references/postmortem-template.md` for structured post-mortem analysis with Five Whys and action items.
 
-## Step 5: Completion
+## Step 5: Extract learnings from code reviews
+
+If PR reviews or code review feedback exists for the period:
+
+```bash
+find tasks/done/ -name "*.md" -exec grep -l "review\|feedback\|deviation" {} \; 2>/dev/null
+```
+
+For each piece of review feedback that was addressed:
+1. Categorize: Edge Case | Bug in Fix | Code Pattern | Scope | Security | Performance | Test Quality | Style
+2. Assess if it's generalizable (would apply to future work, not just this instance)
+3. If generalizable: extract as a learning with the pattern and why it matters
+
+Present learnings one at a time. For each, ask: save to project memory? skip? rephrase?
+
+Learnings that appear across multiple reviews get higher signal — note the count. If a learning already exists in memory, reinforce it (note additional evidence) rather than duplicating.
+
+## Step 6: Completion
 
 Report **DONE** with the retrospective summary.
 Suggest saving as `docs/retro/YYYY-MM-DD.md` if the team wants to track retros.

@@ -97,9 +97,17 @@ Walk through each dimension:
 - Could a simpler approach work? What would you lose?
 - Are you building for hypothetical future requirements?
 
-**Cross-reference with code:** When the user states how something works, check whether the code agrees. Surface contradictions.
+**Cross-reference with code:** When the user states how something works, check whether the code agrees. Surface contradictions: "Your code does X, but you just said Y — which is right?"
 
 **Challenge over-engineering:** "You're adding three layers of abstraction for one consumer. Is that depth or ceremony?"
+
+**Challenge terminology:** When the user uses a term that conflicts with existing glossary (CONTEXT.md) or diverges from code naming, call it out immediately. Propose precise canonical terms for vague/overloaded language.
+
+### Inline documentation updates
+
+**CONTEXT.md:** When a domain term is resolved during questioning, update `CONTEXT.md` immediately — don't batch. Only domain-specific terms, one sentence definitions, aliases to avoid. Create lazily if it doesn't exist.
+
+**ADRs:** Only offer when all three are true: (1) hard to reverse, (2) surprising without context, (3) result of a real trade-off. If any criterion is missing, skip the ADR.
 
 ## Step 4: Write the refined TRD
 

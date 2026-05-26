@@ -11,14 +11,17 @@ description: Disciplined debugging — build feedback loop first, reproduce, hyp
 
 **This is the skill.** Everything else is mechanical. A fast, deterministic pass/fail signal is the leverage point. Spend disproportionate effort here.
 
-Ways to construct one (try in order):
+Ways to construct one (try in order, escalating effort):
 1. **Failing test** at whatever seam reaches the bug
 2. **CLI invocation** with fixture input, diffing output against known-good
 3. **HTTP script** (curl/httpie) against a running dev server
-4. **Replay captured trace** — save real request/event, replay through the code path
-5. **Throwaway harness** — minimal subset of system exercising the bug path
-6. **Property/fuzz loop** — 1000 random inputs looking for failure mode
-7. **Bisection harness** — automate "build at commit X, check" for `git bisect run`
+4. **Headless browser** — Playwright/Puppeteer script for UI-visible bugs
+5. **Replay captured trace** — save real request/event, replay through the code path
+6. **Throwaway harness** — minimal subset of system exercising the bug path
+7. **Property/fuzz loop** — 1000 random inputs looking for failure mode
+8. **Bisection harness** — automate "build at commit X, check" for `git bisect run`
+9. **Differential testing** — same input through old version vs new, diff outputs
+10. **HITL (Human-in-the-loop)** — when the signal requires human judgment (visual glitch, timing-sensitive), script the setup and have user confirm pass/fail
 
 ### Iterate on the loop
 - Can you make it faster? (Cache setup, narrow scope)
@@ -76,6 +79,17 @@ If no correct test seam exists, **that itself is a finding** — flag the archit
 - [ ] Throwaway harnesses deleted
 - [ ] Root cause stated in commit message
 
+## Phase 7: Architectural handoff
+
+If the bug revealed structural problems, flag them explicitly:
+
+- **Missing test seam** — the correct place to assert wasn't reachable through any public interface
+- **Tangled callers** — N callers cross-cutting through the bug's module suggest the module is too shallow
+- **Implicit coupling** — the bug existed because two modules shared assumptions not enforced by an interface
+- **Missing invariant** — a state that should be impossible was representable
+
+These are not things to fix now — they are findings for architecture review. Suggest `/ygs-refine-architecture` if any apply.
+
 ## Completion
 
 Report **DONE** with:
@@ -83,5 +97,27 @@ Report **DONE** with:
 - **Fix:** What was changed
 - **Regression test:** Where it lives
 - **Prevention:** What would have caught this earlier (architectural gap? missing test seam?)
+- **Architectural findings:** (if any) Structural issues revealed by this bug
 
 Or **BLOCKED** if root cause cannot be determined (explain what was tried and what would unblock).
+
+---
+
+## CI/Pipeline failure specifics
+
+When the bug is a CI/pipeline failure rather than a code bug, apply the same phases above with these additional heuristics:
+
+**Phase 1 adaptation — identify the root cause stage:**
+- Find the **earliest** failing stage — downstream failures are cascade effects, not root causes
+- Differentiate signal from noise: test names containing "failed", expected error output in logs, property dumps are NOT failures
+
+**Log noise filtering:**
+- Ignore lines that are test names referencing failure scenarios (e.g., `"should fail when..."`)
+- Ignore expected error output from negative test cases
+- Ignore framework stack traces from passing assertion libraries
+- Focus on: unexpected exit codes, assertion failures with actual vs expected, timeout messages, OOM kills
+
+**Flaky test detection:**
+- If the same test passes on retry without code changes, it's flaky
+- Common flaky causes: timing dependencies, shared mutable test state, network calls in unit tests, filesystem ordering assumptions
+- Flag as flaky, don't chase as a real bug unless user confirms it's consistent

@@ -77,11 +77,29 @@ Exception: Causally dependent steps ARE one task (e.g., create migration + updat
 - P1 PRD requirements → P1 tasks
 - Infrastructure/scaffolding needed by P0 tasks → P0 priority
 
+### Milestone discipline
+
+Each task is still a vertical slice (INVEST above). These rules govern how slices are **ordered** and **grouped into milestones**:
+
+- **Every milestone ships value.** No milestone exists purely to "make progress." Each delivers something a user (internal or external) can use, adopt, or verify. If a candidate milestone's only validation is "code compiles, tests pass" — fold it into the next milestone that actually delivers.
+- **Milestone validation statement:** "Who gets value, what they can now do" — not "tests pass."
+- **Minimum code per milestone.** One adapter, not all four. One field, not the full set. Hardcoded first, dynamic later.
+- **Order simpler slices first.** Within a milestone, prefer slices that establish foundational types/traits before slices that compose them — this reduces rework when interfaces evolve. But each slice still cuts end-to-end.
+- **Balance milestones.** Avoid 1 task in M1 and 8 in M2. 7+ tasks should have 3+ milestones.
+
 ### Dependency detection
 - Data model tasks before API tasks
 - API tasks before UI tasks
 - Migration tasks before feature tasks
 - Shared utilities before consumers
+
+### Execution mode classification (HITL vs AFK)
+
+Every task gets classified:
+- **AFK (Away From Keyboard)** — fully specified, can be completed by an agent without human judgment. Has concrete acceptance criteria, no design decisions required.
+- **HITL (Human-in-the-loop)** — requires human involvement: architectural decisions, design review, external system access, manual testing, judgment calls about UX.
+
+Preference: maximize AFK tasks. If a task is HITL only because it lacks specificity, sharpen the spec until it becomes AFK. If it's HITL because it genuinely requires human judgment, mark it explicitly and explain why.
 
 ### Dependency waves (parallel execution groups)
 Group tasks into waves — independent tasks within a wave can execute in parallel, waves execute sequentially:
@@ -90,7 +108,7 @@ Group tasks into waves — independent tasks within a wave can execute in parall
 - **Wave 3:** Integration (APIs, UI, events) — depends on Wave 2
 - **Wave 4:** Polish (docs, monitoring, cleanup) — depends on Wave 3
 
-Mark each task with its wave number. Tasks within the same wave have no ordering constraint between them.
+Mark each task with its wave number and execution mode (AFK/HITL). Tasks within the same wave have no ordering constraint between them.
 
 ## Step 6: Write task files
 
@@ -101,14 +119,24 @@ Create files in `tasks/backlog/` following the template. Include:
 - Specific acceptance criteria (not "it works")
 - Notes with implementation hints if relevant
 
-## Step 7: Completion
+## Step 7: Self-validation
+
+Before reporting, verify the breakdown:
+- **Coverage:** Every requirement in the source doc maps to a task. Every task traces back to a requirement.
+- **Sizing:** Flag tasks >8 files or with multiple unrelated "and"s — suggest specific split points.
+- **Dependencies:** No circular deps. No over-serialization (sequential tasks that could be parallel). Flag bottleneck tasks (3+ dependents).
+- **Acceptance criteria quality:** Each criterion is specific (names concrete things), testable (verifiable by command), and complete (covers the "Delivers" statement). Minimum 2 per task.
+- **Scope contracts:** File paths verified against codebase reality (use grep/find to confirm they exist or parent dirs exist for new files).
+
+## Step 8: Completion
 
 Report **DONE** with:
-- Number of tasks created
+- Number of tasks created (AFK count / HITL count)
 - WBS hierarchy (deliverables → work packages → tasks)
-- Summary table (ID, title, priority, estimate, wave, dependencies)
+- Summary table (ID, title, priority, estimate, wave, mode, dependencies)
 - Dependency waves visualized (which tasks can run in parallel)
 - Any XL tasks that need further breakdown
 - Critical path highlighted
+- HITL bottlenecks identified (HITL tasks blocking AFK waves)
 
 Suggest: `/ygs-implement` to start working on tasks.

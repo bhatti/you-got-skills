@@ -9,9 +9,19 @@ description: Bidirectional sync between design docs and code — keeps TRD/archi
 
 ## Step 1: Identify what changed
 
+Two input sources (use both when available):
+
+**From git:**
 ```bash
 git diff main...HEAD --stat 2>/dev/null || git diff master...HEAD --stat 2>/dev/null
 ```
+
+**From execution logs (if tasks exist):**
+```bash
+grep -r '\*\*Deviation:\*\*' tasks/done/ tasks/in-progress/ 2>/dev/null
+```
+
+Collect all `**Deviation:** Design said X, did Y because Z` entries — these are the highest-signal input for reconciliation.
 
 Or ask the user which components were refactored and why.
 
@@ -46,25 +56,27 @@ Categorize each discrepancy:
 
 ## Step 4: Present sync plan
 
-Before modifying any docs, present the proposed changes:
+Before modifying any docs, present proposed changes as **specific diffs** (not vague summaries):
 
 ```
 ## Sync Plan
 
-### TRD Updates
-- [ ] Section X: Update interface to reflect new method signatures
-- [ ] Section Y: Add new component Z (discovered during implementation)
-- [ ] Section W: Remove reference to deleted service
+### Proposed Edits
 
-### Architecture Doc Updates
-- [ ] Update data flow diagram — new caching layer added
-- [ ] Update dependency graph — service A no longer calls B directly
+| # | Doc | Section | Current text | Proposed text | Source |
+|---|-----|---------|-------------|---------------|--------|
+| 1 | TRD | §3.2 | "Service uses Strategy pattern" | "Service uses match on 2-variant enum (YAGNI)" | Task 4 deviation |
+| 2 | Arch | §2.1 | No mention of caching | Add: "Redis read-through cache at API boundary" | git diff |
+
+### Drift Warnings
+[If 3+ deviations cluster in the same design section, flag it:]
+⚠️ 4 deviations in "Authentication" section across tasks 2, 3, 5, 7 — design assumptions in this area may no longer hold. Consider re-review.
 
 ### ADR Needed?
-- [ ] Architectural decision changed: was X, now Y because Z
+- [ ] Architectural decision reversed: was X, now Y because Z
 ```
 
-**Ask user to confirm before proceeding.**
+**Ask user to confirm before proceeding.** Group related deviations to minimize edit count.
 
 ## Step 5: Apply updates
 

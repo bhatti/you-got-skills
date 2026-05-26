@@ -76,11 +76,22 @@ Follow these rules:
 - Do NOT change public interfaces unless the task requires it
 - Do NOT optimize prematurely — correctness first
 
-### Execution logging
-After each meaningful change, note what was done and why before proceeding to the next change.
+### Execution logging (log-then-proceed)
+After each meaningful change, append to the log BEFORE starting the next change:
+```
+### [What you did]
+**Files:** `path/to/file`
+[2-4 sentences: what changed, why, patterns followed]
+```
 
 ### Deviation tracking
-If implementation differs from the design: document "Design said X, did Y because Z."
+If implementation differs from the design, use an explicit marker:
+```
+### [What you did instead]
+**Files:** `path/to/file`
+**Deviation:** Design said X, did Y because Z
+```
+Deviations are the highest-value artifact — they feed `/ygs-sync` reconciliation and `/ygs-retro` analysis. Never skip logging them.
 
 ### Strongly-typed language principles
 - Use interfaces + dependency injection for stateful components
@@ -123,7 +134,16 @@ Every 5 files changed, verify build/tests still pass:
 [ -f go.mod ] && go test ./...
 ```
 
-## Step 9: Self-review (before requesting external review)
+## Step 9: QA verification (bounded)
+
+After tests pass, verify acceptance criteria systematically:
+- For each acceptance criterion: trace through the code path that satisfies it
+- For each new code path: confirm a test covers it
+- For each error path: confirm it's tested or provably unreachable
+
+If gaps found: write the missing test, re-run verification. **Max 3 QA rounds** — if still failing after 3, report status and let user decide.
+
+## Step 10: Self-review (before requesting external review)
 
 Before moving to done, self-check your own work:
 - Re-read the acceptance criteria — does the implementation satisfy each one?
@@ -132,7 +152,7 @@ Before moving to done, self-check your own work:
 - Verify naming consistency with surrounding code
 - If issues found: fix and re-run verification (bounded — max 2 self-review cycles, then flag concerns)
 
-## Step 10: Move to done
+## Step 11: Move to done
 
 Only after verification passes:
 
@@ -140,7 +160,7 @@ Only after verification passes:
 mv tasks/in-progress/task-NNN.md tasks/done/
 ```
 
-## Step 11: Completion
+## Step 12: Completion
 
 Report **DONE** with:
 - What was implemented

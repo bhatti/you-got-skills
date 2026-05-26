@@ -76,6 +76,16 @@ Walk through each dimension, challenging vagueness and resolving ambiguity:
 
 **Discuss concrete scenarios:** For each requirement, invent a specific scenario that probes edge cases and forces precision.
 
+**Cross-reference with code:** When the user states how something currently works, check whether the code agrees. Surface contradictions: "You said users can cancel partial orders, but the code cancels the entire Order — which is right?"
+
+**Challenge terminology:** When the user uses a term that conflicts with existing glossary (CONTEXT.md) or code naming, call it out. Propose canonical terms for vague/overloaded language.
+
+### Inline documentation updates
+
+**CONTEXT.md (domain glossary):** When a domain term is resolved during questioning, update or create `CONTEXT.md` immediately. Only domain-specific terms — not general programming concepts. One sentence definitions, list aliases to avoid.
+
+Create lazily: if no `CONTEXT.md` exists, create one when the first term resolves.
+
 ### Do NOT (negative constraints)
 - Do NOT add requirements the user didn't ask for
 - Do NOT assume features from similar products should be included

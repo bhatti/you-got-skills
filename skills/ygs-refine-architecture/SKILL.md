@@ -14,6 +14,7 @@ Interview the user relentlessly about their architectural vision until reaching 
 If a question can be answered by exploring the codebase, explore the codebase instead of asking.
 
 For distributed systems patterns, read `references/distributed-systems.md`.
+For deepening strategies and dependency classification, read `references/deepening.md`.
 
 ## Architecture vocabulary
 
@@ -87,7 +88,54 @@ Understand current system boundaries, dependencies, module depth. Note where you
 
 **Challenge shallow modules:** "This component has 12 methods but each just delegates. That's a pass-through, not depth. What would it look like to collapse those callers into the implementation?"
 
-## Step 4: Write
+### Proportionality
+- Is the complexity of the proposed architecture justified by the problem size?
+- Could a simpler design work? What do you lose?
+- Are you building for hypothetical future requirements? (YAGNI signal)
+
+## Step 4: Design It Twice
+
+When a module's interface is contentious or the first design feels forced, explore alternatives in parallel. Based on Ousterhout's principle: your first idea is unlikely to be the best.
+
+### When to invoke
+- The deepening candidate has multiple plausible interfaces
+- User is unsure which approach to take
+- The interface "feels wrong" but nobody can articulate why
+
+### Process
+1. Frame the problem space: constraints, dependency categories, rough sketch
+2. Propose 3+ **radically different** interfaces (not variations on the same theme):
+   - **Minimal** — 1-3 entry points max, maximize leverage per call
+   - **Flexible** — support many use cases and extension
+   - **Common-case optimized** — make the default trivial, push complexity to rare paths
+   - **Ports & adapters** — (if cross-seam dependencies exist) design around injection
+3. For each, state: interface shape, usage example, what's hidden, dependency strategy, trade-offs
+4. Compare by **depth** (leverage), **locality** (where change concentrates), and **seam placement**
+5. Recommend one with reasoning, or propose a hybrid
+
+## Step 5: Inline documentation updates
+
+### CONTEXT.md (domain glossary)
+When a term is resolved during questioning, update or create `CONTEXT.md` immediately — don't batch.
+
+Rules:
+- Only domain-specific terms (not general programming concepts)
+- One sentence definitions
+- List terms to avoid (aliases that cause confusion)
+- Show relationships between concepts
+- Keep implementation details out — this is a glossary, not a spec
+
+Create lazily: if no `CONTEXT.md` exists, create one when the first term resolves.
+
+### ADRs (Architecture Decision Records)
+Only offer an ADR when **all three** are true:
+1. **Hard to reverse** — meaningful cost to change later
+2. **Surprising without context** — future reader would wonder "why?"
+3. **Real trade-off** — genuine alternatives existed, you picked one for specific reasons
+
+If any criterion is missing, skip the ADR.
+
+## Step 7: Write
 
 Ensure directory exists:
 
@@ -100,7 +148,7 @@ Write to `docs/architecture/<slug>.md`.
 Read `~/.claude/skills/you-got-skills/templates/design-doc.md` for structure.
 Read `~/.claude/skills/you-got-skills/templates/adr.md` for recording key decisions.
 
-## Step 5: Completion
+## Step 8: Completion
 
 Report **DONE** with the file path.
 Suggest: `/ygs-review-architecture` for critique.
