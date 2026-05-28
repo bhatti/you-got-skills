@@ -5,20 +5,14 @@ description: Security audit and red-team review. Checks OWASP top 10, auth, secr
 
 # Security Review
 
+For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
+
 For detailed checklist, read `references/microservice-security.md`.
-
-## Step 0: Read references
-
-Read `~/.claude/skills/you-got-skills/references/microservice-security.md` for detailed checklist.
 Read `~/.claude/skills/you-got-skills/templates/threat-model.md` for output structure.
 
 ## Step 1: Get scope
 
-```bash
-git diff main...HEAD --name-only 2>/dev/null || git diff master...HEAD --name-only 2>/dev/null
-```
-
-Read full file contents (not just diffs) for security-relevant files.
+Follow the diff protocol from `shared/review-scaffold.md`. Read full file contents (not just diffs) for security-relevant files.
 
 ## Step 2: Systematic audit
 

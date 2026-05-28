@@ -5,13 +5,13 @@ description: Refine system architecture through structured questioning — chall
 
 # Refine Architecture
 
+For shared refinement protocol (questioning, challenges, CONTEXT.md, ADRs), read `~/.claude/skills/you-got-skills/skills/shared/refine-scaffold.md`.
+
 ## Approach
 
 Interview the user relentlessly about their architectural vision until reaching shared understanding. Challenge shallow designs, push for deep modules, and resolve ambiguity at system boundaries.
 
-**Ask questions one at a time. Provide your recommended answer for each. Wait for feedback before continuing.**
-
-If a question can be answered by exploring the codebase, explore the codebase instead of asking.
+Follow the questioning protocol from `shared/refine-scaffold.md`.
 
 For distributed systems patterns, read `references/distributed-systems.md`.
 For deepening strategies and dependency classification, read `references/deepening.md`.
@@ -86,12 +86,11 @@ Understand current system boundaries, dependencies, module depth. Note where you
 - What would break if you needed to swap a component?
 - Is there a migration path from current state to this architecture?
 
-**Challenge shallow modules:** "This component has 12 methods but each just delegates. That's a pass-through, not depth. What would it look like to collapse those callers into the implementation?"
+Follow the challenge patterns from `shared/refine-scaffold.md`.
 
-### Proportionality
-- Is the complexity of the proposed architecture justified by the problem size?
-- Could a simpler design work? What do you lose?
-- Are you building for hypothetical future requirements? (YAGNI signal)
+Additional architecture-specific challenges:
+- "This component has 12 methods but each just delegates. That's a pass-through, not depth. What would it look like to collapse those callers into the implementation?"
+- Is the complexity justified by the problem size? Could a simpler design work? (YAGNI signal)
 
 ## Step 4: Design It Twice
 
@@ -115,27 +114,13 @@ When a module's interface is contentious or the first design feels forced, explo
 
 ## Step 5: Inline documentation updates
 
-### CONTEXT.md (domain glossary)
-When a term is resolved during questioning, update or create `CONTEXT.md` immediately — don't batch.
+Follow CONTEXT.md and ADR rules from `shared/refine-scaffold.md`.
 
-Rules:
-- Only domain-specific terms (not general programming concepts)
-- One sentence definitions
-- List terms to avoid (aliases that cause confusion)
+Additional architecture-specific CONTEXT.md rules:
 - Show relationships between concepts
 - Keep implementation details out — this is a glossary, not a spec
 
-Create lazily: if no `CONTEXT.md` exists, create one when the first term resolves.
-
-### ADRs (Architecture Decision Records)
-Only offer an ADR when **all three** are true:
-1. **Hard to reverse** — meaningful cost to change later
-2. **Surprising without context** — future reader would wonder "why?"
-3. **Real trade-off** — genuine alternatives existed, you picked one for specific reasons
-
-If any criterion is missing, skip the ADR.
-
-## Step 7: Write
+## Step 6: Write
 
 Ensure directory exists:
 
@@ -148,7 +133,7 @@ Write to `docs/architecture/<slug>.md`.
 Read `~/.claude/skills/you-got-skills/templates/design-doc.md` for structure.
 Read `~/.claude/skills/you-got-skills/templates/adr.md` for recording key decisions.
 
-## Step 8: Completion
+## Step 7: Completion
 
 Report **DONE** with the file path.
 Suggest: `/ygs-review-architecture` for critique.

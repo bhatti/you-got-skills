@@ -42,13 +42,7 @@ From the changes and acceptance criteria:
 
 ## Step 3: Run existing tests
 
-```bash
-[ -f Makefile ] && make test
-[ -f package.json ] && npm test
-[ -f Cargo.toml ] && cargo test
-[ -f pytest.ini ] && pytest
-[ -f go.mod ] && go test ./...
-```
+Use the polyglot test runner from `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
 ## Step 4: Verify scenarios
 

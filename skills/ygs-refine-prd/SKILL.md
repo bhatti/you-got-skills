@@ -5,13 +5,13 @@ description: Refine a Product Requirements Document through structured questioni
 
 # Refine PRD
 
+For shared refinement protocol (questioning, challenges, CONTEXT.md, ADRs), read `~/.claude/skills/you-got-skills/skills/shared/refine-scaffold.md`.
+
 ## Approach
 
 Interview the user relentlessly about every aspect of their product requirements until reaching shared understanding. Walk down each branch of the decision tree, resolving dependencies one-by-one.
 
-**Ask questions one at a time. Provide your recommended answer for each. Wait for feedback before continuing.**
-
-If a question can be answered by exploring the codebase, explore the codebase instead of asking.
+Follow the questioning protocol from `shared/refine-scaffold.md`.
 
 ## Step 1: Find or receive the PRD
 
@@ -72,39 +72,13 @@ Walk through each dimension, challenging vagueness and resolving ambiguity:
 - Are there compliance, performance, or compatibility constraints?
 - What systems, APIs, or teams are affected?
 
-**Challenge vague language:** When the user says something ambiguous ("fast", "easy", "scalable"), push for specifics. "Fast means what? 100ms? 1 second? Faster than today?"
+Follow the challenge patterns from `shared/refine-scaffold.md` (vague language, terminology conflicts, code contradictions, concrete scenarios).
 
-**Discuss concrete scenarios:** For each requirement, invent a specific scenario that probes edge cases and forces precision.
-
-**Cross-reference with code:** When the user states how something currently works, check whether the code agrees. Surface contradictions: "You said users can cancel partial orders, but the code cancels the entire Order — which is right?"
-
-**Challenge terminology:** When the user uses a term that conflicts with existing glossary (CONTEXT.md) or code naming, call it out. Propose canonical terms for vague/overloaded language.
-
-### Inline documentation updates
-
-**CONTEXT.md (domain glossary):** When a domain term is resolved during questioning, update or create `CONTEXT.md` immediately. Only domain-specific terms — not general programming concepts. One sentence definitions, list aliases to avoid.
-
-Create lazily: if no `CONTEXT.md` exists, create one when the first term resolves.
-
-### Do NOT (negative constraints)
-- Do NOT add requirements the user didn't ask for
-- Do NOT assume features from similar products should be included
-- Do NOT expand scope beyond what the user describes
-- Do NOT conflate SHOULD (P1) with MUST (P0) — ask which it is
-- Do NOT write the PRD until questioning reaches shared understanding
+Additional PRD-specific constraint: Do NOT conflate SHOULD (P1) with MUST (P0) — ask which it is.
 
 ## Step 4: Write the refined PRD
 
-Determine directory convention (auto-detect from existing structure or ask):
-
-```bash
-# Check if product/project hierarchy exists
-ls docs/prd/*/*/ 2>/dev/null && echo "hierarchy" || echo "flat"
-mkdir -p docs/prd
-```
-
-- **Flat:** `docs/prd/YYYY-MM-DD-<slug>.md`
-- **Hierarchy:** `docs/prd/{product}/{project}/YYYY-MM-DD-<slug>.md`
+Use directory convention detection from `shared/refine-scaffold.md` (type = `prd`).
 
 Write (or update) the PRD. Fill all sections. Mark unresolved items in Open Questions.
 

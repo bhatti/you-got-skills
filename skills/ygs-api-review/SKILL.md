@@ -5,11 +5,15 @@ description: Review API changes for conventions, backwards compatibility, breaki
 
 # API Review
 
+For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
+
 For detailed checklists, read:
 - `references/anti-patterns.md` — 50 common API mistakes
 - `references/design-patterns.md` — Positive patterns to recommend
 
 ## Step 1: Get scope
+
+Follow the diff protocol from `shared/review-scaffold.md`. Additionally filter for API files:
 
 ```bash
 git diff main...HEAD --name-only 2>/dev/null | grep -E '(route|controller|handler|api|endpoint|schema|proto|graphql|openapi|swagger)'
@@ -52,14 +56,6 @@ If breaking changes found: Is there a version bump? Deprecation period? Migratio
 
 ## Step 5: Report
 
-For each issue:
-- **Severity:** Breaking (blocks deploy) | Major | Minor | Nit
-- **Endpoint/file** reference
-- **Issue** and suggested fix
-
-Summary verdict:
-- **Approve** — API changes are safe and well-designed
-- **Request changes** — Breaking changes or convention violations need fixing
-- **Comment** — Suggestions only
+Use the finding format from `shared/review-scaffold.md`. For API reviews, "MUST" maps to breaking changes that block deploy.
 
 Report **DONE** or **DONE_WITH_CONCERNS**.

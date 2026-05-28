@@ -5,17 +5,15 @@ description: SRE/operational review — failure modes, observability, stateful c
 
 # SRE Review
 
+For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
+
 For detailed checklists, read:
 - `references/production-readiness.md` — Deployment, resilience, observability, DR
 - `references/testing-reliability.md` — Test pyramid, chaos, property-based, caching scenarios
 
 ## Step 1: Get scope
 
-```bash
-git diff main...HEAD --name-only 2>/dev/null || git diff master...HEAD --name-only 2>/dev/null
-```
-
-Identify changes to: infrastructure, configuration, stateful services, deployment configs, database schemas, background jobs, queues, caches.
+Follow the diff protocol from `shared/review-scaffold.md`. Identify changes to: infrastructure, configuration, stateful services, deployment configs, database schemas, background jobs, queues, caches.
 
 ## Step 2: Failure mode analysis
 
@@ -67,3 +65,23 @@ For each finding:
 - **Recommended mitigation**
 
 Report **DONE** or **DONE_WITH_CONCERNS**.
+
+## Deploy gate (optional — invoke with `--gate`)
+
+When invoked with `--gate`, act as a deploy safety gate:
+
+### Pre-deploy checklist
+1. All tests pass (use `shared/test-runner.md`)
+2. No MUST-level findings from Steps 2-6 above
+3. Rollback path verified (Step 5.1)
+4. Monitoring/alerting covers new code paths (Step 3)
+
+### Freeze/unfreeze
+- If `--freeze` flag: create `.deploy-freeze` marker with reason and expiry date. All `/ygs-ship` invocations will check this file and block.
+- If `--unfreeze` flag: remove `.deploy-freeze` after confirming with user.
+- If `.deploy-freeze` exists: report **BLOCKED** with freeze reason.
+
+### Gate verdict
+- **CLEAR** — Safe to deploy
+- **HOLD** — Fix issues first (list blockers)
+- **FROZEN** — Deploy freeze active (show reason + expiry)

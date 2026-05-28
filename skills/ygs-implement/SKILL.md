@@ -110,13 +110,7 @@ Deviations are the highest-value artifact — they feed `/ygs-sync` reconciliati
 - Functional core, imperative shell — pure logic separated from I/O
 
 ### Checkpoints (Standard+ scope)
-Every 5 files changed, verify build/tests still pass:
-
-```bash
-[ -f Makefile ] && make build && make test
-[ -f Cargo.toml ] && cargo build && cargo test
-[ -f go.mod ] && go build ./... && go test ./...
-```
+Every 5 files changed, verify build/tests still pass using `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
 ## Step 7: Write tests
 
@@ -127,12 +121,7 @@ Every 5 files changed, verify build/tests still pass:
 
 ## Step 8: Final verification
 
-```bash
-[ -f Makefile ] && make test
-[ -f package.json ] && npm test
-[ -f Cargo.toml ] && cargo test
-[ -f go.mod ] && go test ./...
-```
+Run the full test suite using `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
 ## Step 9: QA verification (bounded)
 

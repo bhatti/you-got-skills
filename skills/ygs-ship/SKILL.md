@@ -14,25 +14,27 @@ git log --oneline -5
 
 If working tree is dirty, ask user to commit or stash first.
 
-## Step 2: Detect base branch
+## Step 2: Check deploy freeze
+
+```bash
+[ -f .deploy-freeze ] && cat .deploy-freeze
+```
+
+If `.deploy-freeze` exists: report **BLOCKED** with freeze reason. Suggest `/ygs-sre-review --unfreeze` to lift.
+
+## Step 3: Detect base branch
 
 ```bash
 git remote show origin | grep "HEAD branch" | sed 's/.*: //'
 ```
 
-## Step 3: Run tests
+## Step 4: Run tests
 
-```bash
-[ -f Makefile ] && make test
-[ -f package.json ] && npm test
-[ -f Cargo.toml ] && cargo test
-[ -f pytest.ini ] && pytest
-[ -f go.mod ] && go test ./...
-```
+Use the polyglot test runner from `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
 If tests fail: **BLOCKED** — fix tests before shipping.
 
-## Step 4: Review diff against base
+## Step 5: Review diff against base
 
 ```bash
 git diff origin/<base>...HEAD --stat
@@ -43,7 +45,7 @@ Quick sanity check:
 - Any debug code left in? (console.log, debugger, TODO hacks)
 - Does the diff match what you intended to ship?
 
-## Step 5: Version bump (if applicable)
+## Step 6: Version bump (if applicable)
 
 If the project has a VERSION file, package.json version, or Cargo.toml version:
 - Patch: bug fixes
@@ -52,11 +54,11 @@ If the project has a VERSION file, package.json version, or Cargo.toml version:
 
 Ask user which bump is appropriate if unclear.
 
-## Step 6: Update changelog (if applicable)
+## Step 7: Update changelog (if applicable)
 
 If a CHANGELOG.md exists, add an entry under the new version with a summary of changes.
 
-## Step 7: Create PR
+## Step 8: Create PR
 
 If `gh` is available and changes are on a feature branch:
 
@@ -66,7 +68,7 @@ gh pr create --title "<concise title>" --body "<summary of changes>"
 
 If not on a feature branch or `gh` unavailable, report what would be done.
 
-## Step 8: Completion
+## Step 9: Completion
 
 Report **DONE** with:
 - Tests status

@@ -5,7 +5,11 @@ description: Review UI/UX changes for accessibility, consistency, and responsive
 
 # UI Review
 
+For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
+
 ## Step 1: Get scope
+
+Follow the diff protocol from `shared/review-scaffold.md`. Additionally filter for UI files:
 
 ```bash
 git diff main...HEAD --name-only 2>/dev/null | grep -E '\.(tsx?|jsx?|css|scss|html|vue|svelte)$'

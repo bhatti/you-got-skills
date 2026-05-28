@@ -72,7 +72,7 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 |-------|---------|
 | `/ygs-code-review` | Two-pass code review (critical/informational) with testing discipline |
 | `/ygs-security-review` | Security audit + red-team adversarial analysis |
-| `/ygs-sre-review` | Operational review: failure modes, observability, capacity, rollback |
+| `/ygs-sre-review` | Operational review: failure modes, observability, capacity, rollback, deploy gate |
 | `/ygs-ui-review` | UI/UX review: accessibility, consistency, responsiveness |
 | `/ygs-api-review` | API review: breaking changes, conventions, backwards compatibility |
 
@@ -89,6 +89,7 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 |-------|---------|
 | `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, architectural handoff |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
+| `/ygs-learn` | Capture and surface operational learnings across sessions |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations |
 
 ## Typical Workflow
@@ -110,7 +111,8 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 /ygs-qa                      → Test with health scoring
 /ygs-uat                     → Customer perspective validation
 /ygs-sync                    → Sync design docs with implementation reality
-/ygs-ship                    → Test, version, PR
+/ygs-ship                    → Test, version, PR (checks deploy freeze)
+/ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve
 ```
 
@@ -128,6 +130,7 @@ your-project/
 │   ├── adr/              # Architecture decision records (NNN-slug.md)
 │   ├── architecture/     # System architecture / design docs
 │   ├── spikes/           # Spike findings
+│   ├── learnings/        # Operational learnings (YYYY-MM-DD-slug.md)
 │   └── threat-models/    # Security threat models
 └── tasks/
     ├── backlog/          # Not started (task-NNN.md)
@@ -161,6 +164,7 @@ These principles are embedded throughout the skills:
 
 - **Convention over configuration** — No config files, just directory conventions
 - **Each skill is independent** — Use any subset, no required ordering
+- **DRY shared scaffolding** — Common protocols (review, refine, test-run) in `skills/shared/`, referenced by individual skills
 - **Compact** — Skills are 40-100 lines of markdown, scannable in 30 seconds
 - **No external deps** — Just Claude Code + optionally `git` and `gh`
 - **Strongly-typed language focus** — Interfaces + DI, clean seams, type safety

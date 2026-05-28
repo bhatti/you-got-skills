@@ -5,22 +5,15 @@ description: Diff-based code review — two-pass (critical/informational), testi
 
 # Code Review
 
+For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
+
 For detailed principles, read:
 - `references/code-quality.md` — Cognitive load, tidying, testing
 - `references/functional-design.md` — Immutability, FSM, making invalid states impossible
 
 ## Step 1: Get the diff
 
-```bash
-git diff --stat
-git diff main...HEAD --stat 2>/dev/null || git diff master...HEAD --stat 2>/dev/null
-```
-
-If a PR number is given and `gh` is available:
-
-```bash
-gh pr diff <number>
-```
+Follow the diff protocol from `shared/review-scaffold.md`.
 
 ## Step 2: Read changed files in full context
 
@@ -77,15 +70,6 @@ For judgment calls (architecture, naming, approach):
 
 ## Step 8: Report
 
-For each finding:
-- **Severity:** MUST (blocks merge) | SHOULD (strong recommendation) | MAY (suggestion)
-- **Confidence:** HIGH (certain) | MEDIUM (likely) | LOW (preference)
-- **File:line** reference
-- **Issue** and suggested fix
-
-Summary verdict:
-- **Approve** — Ship it
-- **Request changes** — Fix MUST items before merge
-- **Comment** — Suggestions only, no blockers
+Use the finding format and verdict from `shared/review-scaffold.md`.
 
 Report **DONE** or **DONE_WITH_CONCERNS**.

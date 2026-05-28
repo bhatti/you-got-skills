@@ -5,13 +5,13 @@ description: Refine a Technical Design Document through structured questioning �
 
 # Refine TRD
 
+For shared refinement protocol (questioning, challenges, CONTEXT.md, ADRs), read `~/.claude/skills/you-got-skills/skills/shared/refine-scaffold.md`.
+
 ## Approach
 
 Interview the user relentlessly about every aspect of their technical design until reaching shared understanding. Walk down each branch of the design tree, resolving dependencies one-by-one.
 
-**Ask questions one at a time. Provide your recommended answer for each. Wait for feedback before continuing.**
-
-If a question can be answered by exploring the codebase, explore the codebase instead of asking.
+Follow the questioning protocol from `shared/refine-scaffold.md`.
 
 ## Step 1: Find the TRD and source PRD
 
@@ -97,29 +97,13 @@ Walk through each dimension:
 - Could a simpler approach work? What would you lose?
 - Are you building for hypothetical future requirements?
 
-**Cross-reference with code:** When the user states how something works, check whether the code agrees. Surface contradictions: "Your code does X, but you just said Y — which is right?"
+Follow the challenge patterns from `shared/refine-scaffold.md`.
 
-**Challenge over-engineering:** "You're adding three layers of abstraction for one consumer. Is that depth or ceremony?"
-
-**Challenge terminology:** When the user uses a term that conflicts with existing glossary (CONTEXT.md) or diverges from code naming, call it out immediately. Propose precise canonical terms for vague/overloaded language.
-
-### Inline documentation updates
-
-**CONTEXT.md:** When a domain term is resolved during questioning, update `CONTEXT.md` immediately — don't batch. Only domain-specific terms, one sentence definitions, aliases to avoid. Create lazily if it doesn't exist.
-
-**ADRs:** Only offer when all three are true: (1) hard to reverse, (2) surprising without context, (3) result of a real trade-off. If any criterion is missing, skip the ADR.
+Additional TRD-specific challenge: "You're adding three layers of abstraction for one consumer. Is that depth or ceremony?"
 
 ## Step 4: Write the refined TRD
 
-Determine directory convention (match PRD structure):
-
-```bash
-ls docs/trd/*/*/ 2>/dev/null && echo "hierarchy" || echo "flat"
-mkdir -p docs/trd
-```
-
-- **Flat:** `docs/trd/YYYY-MM-DD-<slug>.md`
-- **Hierarchy:** `docs/trd/{product}/{project}/YYYY-MM-DD-<slug>.md`
+Use directory convention detection from `shared/refine-scaffold.md` (type = `trd`).
 
 Write (or update) the TRD. Link back to source PRD.
 
