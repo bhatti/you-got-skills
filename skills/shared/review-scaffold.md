@@ -2,6 +2,22 @@
 
 Common protocol for all review skills. Individual skills define WHAT to check — this defines HOW to run a review.
 
+## Gather context
+
+Before reviewing code, understand intent:
+
+1. Read commit messages on the branch (`git log --oneline main..HEAD`)
+2. Check for a linked task or PR description — what problem is being solved?
+3. If `tasks/in-progress/*.md` exists, read the active task for acceptance criteria
+
+Use this context to distinguish "intentional trade-off" from "mistake" during review. A change that looks wrong in isolation may be correct given the goal.
+
+## Project review rules
+
+If the project has `.ygs/review-rules.md`, read it and apply as additional review criteria. This file contains project-specific conventions (e.g., "all API handlers must validate tenant context", "no direct DB calls outside repository layer").
+
+Findings from project rules use the same severity/confidence format as all other findings.
+
 ## Getting the diff
 
 ```bash

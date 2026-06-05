@@ -2,6 +2,16 @@
 
 Auto-detect and run the project's test suite. Used by multiple skills that need to verify code health.
 
+## Environment check
+
+Before running, verify the tool is available:
+
+```bash
+command -v <tool> >/dev/null 2>&1 || echo "MISSING: <tool>"
+```
+
+If a required tool is missing: report **BLOCKED** with install instructions. If optional (linters, formatters): skip gracefully and note the gap.
+
 ## Detection and execution
 
 ```bash
