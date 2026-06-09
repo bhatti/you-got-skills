@@ -65,6 +65,12 @@ Walk through each dimension:
 - Does every PRD requirement (MUST/SHOULD) map to a design component?
 - Can you trace each Given/When/Then scenario to a testable code path?
 - Are there design elements that don't trace back to any requirement? (scope creep)
+- For each EARS pattern in the PRD, verify the design covers it:
+  - `WHEN` (event-driven) → handler, listener, or callback in the design
+  - `WHILE` (state-driven) → state machine, guard condition, or lifecycle hook
+  - `WHERE` (optional feature) → feature flag, config toggle, or conditional module
+  - `IF/THEN` (unwanted behaviour) → error path, fallback, or circuit breaker
+  - `WHILE`+`WHEN` (complex) → state guard wrapping an event handler
 
 ### Design decisions
 - For each key choice: what alternatives were considered? Why this one?

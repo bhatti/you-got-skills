@@ -49,6 +49,17 @@ Note reuse candidates in task descriptions — "extend existing X" is better tha
 2. **Work package** — Independently shippable unit of work
 3. **Task** — Atomic implementation step (what gets a task file)
 
+### EARS traceability in acceptance criteria
+
+Each task's acceptance criteria must reference the EARS pattern it satisfies:
+- `WHEN [trigger] → system shall [response]` — event-driven requirement
+- `WHILE [state] → system shall [behavior]` — state-driven requirement
+- `IF [fault] → then system shall [response]` — unwanted behaviour (error path)
+- `WHERE [feature] → system shall [behavior]` — optional feature gate
+- `THE SYSTEM SHALL [behavior]` — ubiquitous invariant
+
+This creates a direct chain: **PRD requirement → EARS pattern → acceptance criterion → test**. If an AC can't be tied to an EARS pattern, it's either missing (go back to PRD) or gold-plating (remove it).
+
 ### Vertical slice principles (INVEST-compliant)
 - **I**ndependent — Each task is a **thin vertical slice** through ALL layers end-to-end (not a horizontal layer)
 - **N**egotiable — Tasks can be descoped or adjusted without breaking others

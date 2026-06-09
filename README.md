@@ -152,6 +152,7 @@ These principles are embedded throughout the skills:
 - **Vertical slices** — Tasks cut through all layers end-to-end, not horizontal layer-by-layer.
 - **Proportionality** — Complexity must be justified with data, not hypothetical future needs.
 - **MUST/SHOULD/MAY severity** — Reviews classify findings by impact and reversibility.
+- **EARS notation** — Behavioral requirements use one of six temporal patterns (Ubiquitous, Event-driven `When`, State-driven `While`, Optional feature `Where`, Unwanted behaviour `If/Then`, Complex `While`+`When`). Every MUST requirement needs an `If/Then` failure mode. See [EARS reference](skills/shared/ears-patterns.md).
 - **Scope guardrails** — Pause and ask when scope exceeds plan. No silent creep.
 - **Deviation tracking** — "Design said X, did Y because Z" is captured explicitly.
 - **Feedback loops first** — Debugging starts with a fast, deterministic pass/fail signal.
@@ -185,7 +186,8 @@ Inspired by and borrowing best practices from:
 - [OpenSpec](https://github.com/fission-ai/openspec) — Specification-driven development with RFC 2119 requirements and Given/When/Then scenarios
 - [OpenSPDD](https://github.com/gszhangwei/open-spdd) — REASONS Canvas structured prompts and bidirectional design-code synchronization
 - [BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD) — Scale-adaptive rigor, skill chaining, and ceremony-proportional-to-risk
-- [Kiro](https://kiro.dev/docs/specs/) — EARS notation for testable requirements, dependency waves for parallel task execution
+- [Kiro](https://kiro.dev/docs/specs/) — dependency waves for parallel task execution
+- [EARS (Easy Approach to Requirements Syntax)](https://alistairmavin.com/ears/) — six temporal patterns (Ubiquitous, Event-driven, State-driven, Optional feature, Unwanted behaviour, Complex) for unambiguous, testable requirements
 - [Shahzad Bhatti's engineering blog](https://shahbhat.medium.com) — API design patterns, microservice security, fault tolerance, transaction boundaries, production readiness, and post-mortem practices
 
 ## License

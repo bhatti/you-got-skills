@@ -34,11 +34,15 @@ Use RFC 2119 keywords: MUST (P0), SHOULD (P1), MAY (P2)
 ### Requirement: [Name]
 The system MUST/SHOULD/MAY [observable behavior]
 
-<!-- For behavioral precision, use EARS notation:
-  WHEN [trigger], THE SYSTEM SHALL [response]         (event-driven)
-  WHILE [state], THE SYSTEM SHALL [behavior]          (state-driven)
-  WHERE [condition], THE SYSTEM SHALL [behavior]      (conditional)
-  THE SYSTEM SHALL [behavior]                         (ubiquitous)
+<!-- EARS notation for behavioral precision (see skills/shared/ears-patterns.md):
+  THE SYSTEM SHALL [behavior]                                    (ubiquitous — always active)
+  WHEN [trigger], THE SYSTEM SHALL [response]                    (event-driven)
+  WHILE [state], THE SYSTEM SHALL [behavior]                     (state-driven)
+  WHERE [feature is included], THE SYSTEM SHALL [behavior]       (optional feature)
+  IF [fault/unwanted trigger], THEN THE SYSTEM SHALL [response]  (unwanted behaviour)
+  WHILE [state], WHEN [trigger], THE SYSTEM SHALL [response]     (complex — state + event)
+
+  Rule: every MUST requirement needs at least one IF/THEN covering its failure mode.
 -->
 
 #### Scenario: [Happy path]

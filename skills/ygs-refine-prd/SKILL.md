@@ -60,11 +60,15 @@ Walk through each dimension, challenging vagueness and resolving ambiguity:
 - For each requirement, define at least one Given/When/Then scenario
 - Push for edge case scenarios: what happens with empty input? At scale? On failure?
 - Use RFC 2119 keywords for requirement strength: MUST (P0), SHOULD (P1), MAY (P2)
-- For behavioral requirements, use EARS notation for precision:
-  - "WHEN [trigger], THE SYSTEM SHALL [response]" (event-driven)
-  - "WHILE [state], THE SYSTEM SHALL [behavior]" (state-driven)
-  - "WHERE [condition], THE SYSTEM SHALL [behavior]" (conditional)
-  - "THE SYSTEM SHALL [behavior]" (ubiquitous — always true)
+- For behavioral requirements, use EARS notation (see `shared/ears-patterns.md`):
+  - `THE SYSTEM SHALL [behavior]`                                    (ubiquitous — always active)
+  - `WHEN [trigger], THE SYSTEM SHALL [response]`                    (event-driven)
+  - `WHILE [state], THE SYSTEM SHALL [behavior]`                     (state-driven)
+  - `WHERE [feature is included], THE SYSTEM SHALL [behavior]`       (optional feature)
+  - `IF [fault/unwanted trigger], THEN THE SYSTEM SHALL [response]`  (unwanted behaviour)
+  - `WHILE [state], WHEN [trigger], THE SYSTEM SHALL [response]`     (complex — state + event)
+- Validate coverage: every MUST requirement has at least one IF/THEN covering its failure mode
+- Check for missing patterns: optional features (`WHERE`) and unwanted behaviours (`IF/THEN`) are the most commonly skipped
 
 ### Constraints and impact
 - What's the worst that can happen if this goes wrong?

@@ -23,10 +23,15 @@ Evaluate the PRD on:
 2. **User definition** — Is the target user well-defined (not "everyone")?
 3. **Success criteria** — Are they measurable and time-bound?
 4. **Requirements** — Are P0/P1/P2 clearly prioritized? Any P0 that should be P1?
-5. **Scope** — Are non-goals explicit? Is scope creep visible?
-6. **Feasibility** — Are there technical or resource blockers?
-7. **Dependencies** — Are external dependencies identified?
-8. **Gaps** — Missing user stories? Unasked questions?
+5. **EARS compliance** — Do behavioral requirements use a named EARS pattern? (see `shared/ears-patterns.md`)
+   - Are `WHEN` (event-driven) and `WHILE` (state-driven) requirements present where expected?
+   - Are `IF/THEN` (unwanted behaviour) requirements present for every MUST? Missing failure modes = incomplete.
+   - Are optional features marked `WHERE`, not buried as inline conditionals?
+   - Does any requirement match two patterns? If so, flag it to split.
+6. **Scope** — Are non-goals explicit? Is scope creep visible?
+7. **Feasibility** — Are there technical or resource blockers?
+8. **Dependencies** — Are external dependencies identified?
+9. **Gaps** — Missing user stories? Unasked questions?
 
 ## Step 3: Report
 
