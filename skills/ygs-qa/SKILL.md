@@ -44,7 +44,15 @@ From the changes and acceptance criteria:
 
 Use the polyglot test runner from `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
-## Step 4: Verify scenarios
+## Step 4: Identify coverage gaps
+
+For each acceptance criterion: is there a test that verifies it?
+For each new code path: is there a unit test covering it?
+For each new public API/export: is there a test exercising it?
+
+Report specifics — file paths, line numbers, criterion text. Not generalities.
+
+## Step 5: Verify scenarios
 
 For each test scenario:
 - Trace the code path
@@ -52,11 +60,21 @@ For each test scenario:
 - Verify error handling is correct and user-friendly
 - Check for silent failures (swallowed exceptions, partial completions)
 
-## Step 5: Write missing tests
+## Step 6: Write missing tests
 
-If gaps are found, write tests for uncovered critical/high scenarios.
+If gaps are found, write tests for uncovered critical/high scenarios. Max 3 QA rounds — if still failing after 3, report status and let user decide.
 
-## Step 6: Health score report
+## Step 7: Health score report
+
+### Test results
+
+| Suite | Tests | Pass | Fail | Skip |
+|-------|-------|------|------|------|
+
+### Coverage (modified files)
+
+| File | Lines | Branches | Uncovered |
+|------|-------|----------|-----------|
 
 Rate each category 0-10:
 
@@ -73,7 +91,7 @@ Rate each category 0-10:
 ### Issues found
 For each issue:
 - Severity + category
-- Steps to reproduce
+- File:line reference
 - Expected vs actual behavior
 - Suggested fix
 

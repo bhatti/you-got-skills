@@ -22,35 +22,42 @@ Read the full diff AND surrounding code (not just changed lines).
 ## Step 3: Pass 1 — Critical issues (block merge)
 
 1. **Correctness** — Logic errors, off-by-one, null handling, race conditions
-2. **Security** — Injection, XSS, SSRF, path traversal, hardcoded secrets
+2. **Security** — Injection, XSS, SSRF, path traversal, hardcoded secrets, ungated debug logs
 3. **Data loss** — Destructive operations without confirmation, missing transactions
-4. **Race conditions** — TOCTOU, check-then-act, find-or-create without locks
+4. **Race conditions** — TOCTOU, check-then-act, find-or-create without locks; concurrent access at scale
 5. **Error swallowing** — Empty catch blocks, ignored return values, silent failures
 6. **Enum completeness** — New enum values traced through ALL consumers
 7. **Partial failure** — What if operation half-succeeds? Inconsistent state possible?
+8. **Scalability** — Unbounded allocations, N+1 patterns, behavior under millions of requests or large data
 
 ## Step 4: Pass 2 — Design & maintainability
 
-1. **Testability** — Can this be tested without mocking internal code? If not, design is wrong.
-2. **Testing quality** — Tests verify public contract? Meaningful assertions (not just coverage)?
-3. **Immutability & state** — Is mutable state minimized? Are invalid states representable? Should this use a state machine?
-4. **Type safety** — Are sum types / enums used for variants? Newtypes for distinct IDs? Parse-don't-validate at boundaries?
-5. **Naming** — Clear, consistent, intention-revealing
-6. **Complexity** — Could be simpler? Unnecessary abstractions? Justified with data?
-7. **Duplication** — Existing code already does this?
-8. **Interface design** — Proper DI? Deep modules (small interface, rich implementation)? CQS respected?
-9. **Performance** — N+1 queries, missing indexes, O(n²) in loops, unbounded allocations
-10. **Error handling** — Errors as values (not exceptions for control flow)? Propagated with context?
-11. **Boundary handling** — Empty inputs, max limits, type coercion at system boundaries
-12. **Dead code** — Unreachable paths, unused imports, stale comments
+1. **Correctness of feedback** — Double-check every finding against the actual diff; no false positives
+2. **Alignment with existing norms** — Does the change match existing patterns, conventions, and architecture? Would it surprise a reader?
+3. **Testability** — Can this be tested without mocking internal code? If not, design is wrong.
+4. **Testing quality** — Tests verify public contract via real method calls? Assertions are data-driven (no hunches)?
+5. **Immutability & state** — Mutable state minimized? Invalid states representable? State machine appropriate?
+6. **Type safety** — Sum types / enums for variants? Parse-don't-validate at boundaries?
+7. **Naming** — Clear, consistent, intention-revealing; no underscores for private methods
+8. **Complexity** — Could it be simpler? Unnecessary abstractions? Proportional to the problem?
+9. **Duplication** — Does existing code already do this?
+10. **Interface design** — Deep modules (small interface, rich implementation)? CQS respected? Encapsulation intact?
+11. **Performance** — N+1 queries, missing indexes, O(n²) in loops, unbounded allocations
+12. **Error handling** — Errors as values? Propagated with context? No interpolation in log messages?
+13. **Boundary handling** — Empty inputs, max limits, coercion at system boundaries
+14. **Dead code** — Unused imports, variables, stale comments, empty test bodies
+15. **Circular dependencies** — Are any new import cycles introduced?
+16. **Scope hygiene** — Changes unrelated to the task? Issue numbers in comments/code?
 
 ## Step 5: Testing discipline check
 
 - Are changes covered by tests?
-- Do tests use real implementations for owned code (not mocks)?
+- Do tests call real methods and assert observable side effects, not implementation details?
 - Stubs only at 3rd-party/OS boundaries (HTTP clients, clocks, filesystem)?
-- Do tests verify behavior through public API, not internal state?
-- Filesystem access isolated? (no shared test directories that could conflict)
+- Use deterministic time controls (fake clocks) — not real sleeps or timers
+- Tests must not be flaky: no timing-sensitivity, no shared mutable state, no concurrency races
+- No empty test bodies, no unused variables, no dead code in tests
+- Existing tests still pass — do not break what wasn't broken
 
 ## Step 6: Proportionality check
 
@@ -65,8 +72,11 @@ For obvious mechanical issues (typos, unused imports, formatting):
 - Otherwise note as "auto-fixable"
 
 For judgment calls (architecture, naming, approach):
-- Present concern + suggested alternative
+- Present concern + suggested alternative with code references (file:line)
 - Mark as ASK — don't auto-fix
+- Be specific — vague feedback wastes reviewer time
+
+**Feedback quality gate:** Before reporting, verify each finding is correct against the actual code. No hallucinations. No "I think this might be a problem." If uncertain, say so explicitly.
 
 ## Step 8: Report
 
