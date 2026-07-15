@@ -19,7 +19,17 @@ Follow the diff protocol from `shared/review-scaffold.md`.
 
 Read the full diff AND surrounding code (not just changed lines).
 
-## Step 3: Pass 1 — Critical issues (block merge)
+## Step 3: Pass 0 — Is the approach right?
+
+Before checking code quality, assess whether the change is solving the right problem the right way:
+- Does this address the root cause, or paper over a symptom?
+- Is there a materially simpler way to achieve the same goal?
+- Does the approach conflict with how the system actually works? (Check surrounding code, not just the diff)
+- Is the scope proportional to the problem? (Over-engineered? Under-engineered?)
+
+If the approach is fundamentally wrong, that's the finding — individual code issues are irrelevant if the direction is bad.
+
+## Step 4: Pass 1 — Critical issues (block merge)
 
 1. **Correctness** — Logic errors, off-by-one, null handling, race conditions
 2. **Security** — Injection, XSS, SSRF, path traversal, hardcoded secrets, ungated debug logs
@@ -30,7 +40,7 @@ Read the full diff AND surrounding code (not just changed lines).
 7. **Partial failure** — What if operation half-succeeds? Inconsistent state possible?
 8. **Scalability** — Unbounded allocations, N+1 patterns, behavior under millions of requests or large data
 
-## Step 4: Pass 2 — Design & maintainability
+## Step 5: Pass 2 — Design & maintainability
 
 1. **Correctness of feedback** — Double-check every finding against the actual diff; no false positives
 2. **Alignment with existing norms** — Does the change match existing patterns, conventions, and architecture? Would it surprise a reader?
@@ -49,7 +59,7 @@ Read the full diff AND surrounding code (not just changed lines).
 15. **Circular dependencies** — Are any new import cycles introduced?
 16. **Scope hygiene** — Changes unrelated to the task? Issue numbers in comments/code?
 
-## Step 5: Testing discipline check
+## Step 6: Testing discipline check
 
 - Are changes covered by tests?
 - Do tests call real methods and assert observable side effects, not implementation details?
@@ -59,13 +69,13 @@ Read the full diff AND surrounding code (not just changed lines).
 - No empty test bodies, no unused variables, no dead code in tests
 - Existing tests still pass — do not break what wasn't broken
 
-## Step 6: Proportionality check
+## Step 7: Proportionality check
 
 - Is the change proportional to the problem?
 - Over-engineered for the use case? (abstraction without multiple consumers)
 - Under-engineered? (skipped error handling on critical path)
 
-## Step 7: Fix-first pattern
+## Step 8: Fix-first pattern
 
 For obvious mechanical issues (typos, unused imports, formatting):
 - Fix them directly if user asked for fixes
@@ -78,7 +88,7 @@ For judgment calls (architecture, naming, approach):
 
 **Feedback quality gate:** Before reporting, verify each finding is correct against the actual code. No hallucinations. No "I think this might be a problem." If uncertain, say so explicitly.
 
-## Step 8: Report
+## Step 9: Report
 
 Use the finding format and verdict from `shared/review-scaffold.md`.
 

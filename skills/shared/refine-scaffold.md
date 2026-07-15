@@ -2,6 +2,8 @@
 
 Common protocol for all refine skills. Individual skills define WHAT dimensions to question — this defines HOW to run a refinement session.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the quality of the output document.
+
 ## Questioning protocol
 
 - Ask questions **one at a time**
@@ -15,6 +17,8 @@ Common protocol for all refine skills. Individual skills define WHAT dimensions 
 - **Terminology conflicts:** Check against CONTEXT.md and code naming. Call out overloaded terms.
 - **Code contradictions:** When user states how something works, verify against code. Surface discrepancies.
 - **Concrete scenarios:** For each requirement/decision, invent a specific scenario that probes edge cases.
+- **Wrong premises:** If the user's description of how the system works doesn't match what you see in code, say so with evidence. Don't refine a document built on false assumptions.
+- **Simpler alternatives:** If you can see a materially simpler approach that achieves the same goal, raise it. Don't just polish what's proposed.
 
 ## Do NOT (negative constraints)
 

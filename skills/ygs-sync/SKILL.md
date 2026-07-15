@@ -5,6 +5,8 @@ description: Bidirectional sync between design docs and code — keeps TRD/archi
 
 # Design-Code Sync
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — the codebase is truth, docs are claims.
+
 **Principle:** Design documents must reflect actual implementation, not just planned implementation. Stale docs are worse than no docs — they actively mislead.
 
 ## Step 1: Identify what changed

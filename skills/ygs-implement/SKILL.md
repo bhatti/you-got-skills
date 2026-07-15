@@ -1,10 +1,11 @@
 ---
 name: ygs-implement
-description: Implement a task from the backlog with execution discipline — scope guardrails, checkpoints, deviation logging.
+description: Implement a task from the backlog with execution discipline — scope guardrails, checkpoints, deviation logging. Challenges premises, verifies against code reality, proves correctness by running it.
 ---
 
 # Implement
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the result.
 For detailed principles, read `references/implementation-principles.md` (functional design, cognitive load, fault tolerance, testing).
 
 ## Step 1: Select task
@@ -34,7 +35,7 @@ Read the task file. Determine scope:
 
 State the ceremony level before proceeding.
 
-## Step 4: Read context and discover reuse candidates
+## Step 4: Read context, challenge premises, discover reuse
 
 Read selectively — don't load everything:
 - Task description and acceptance criteria (full)
@@ -47,6 +48,16 @@ Then explore the codebase in parallel:
 - **Search for reuse candidates:** Before writing new code, look for existing utilities, helpers, or similar implementations to reuse or extend. Check shared/common directories.
 - **Align with existing norms:** Match the style, naming, and design of surrounding code. New code should feel native, not foreign.
 - Flag anything that has changed since the design was written — the codebase is the truth.
+
+### Challenge the premise
+
+Before implementing, verify the task actually makes sense given code reality:
+- Does the code the task assumes exists actually exist? Is it shaped as described?
+- Is the proposed approach the simplest way to achieve the goal, given what you now see?
+- Would a different approach be materially better? (If yes: state the alternative and why, ask user before diverging on approach — but proceed without asking for small tactical adjustments.)
+- Is the acceptance criteria achievable as written, or does it conflict with how the system works?
+
+If the premise is wrong, say so with evidence before implementing. A well-executed bad idea is still bad.
 
 ## Step 5: Plan (Standard+ scope)
 
@@ -142,9 +153,14 @@ Every 5 files changed, verify build/tests still pass using `~/.claude/skills/you
 
 Once the initial implementation is verified, run `/simplify` to catch reuse opportunities, dead code, and complexity before moving on. Only apply when the change is non-trivial (>10 lines or control-flow changes). Re-run tests after each simplification pass to confirm no regressions. Max 2 passes.
 
-## Step 9: Final verification and QA
+## Step 9: Final verification — prove it works
 
 Run the full test suite using `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
+
+Then **exercise the actual behavior** (not just tests):
+- Run the feature/fix end-to-end if possible (dev server, CLI invocation, REPL)
+- If you can't run it, explicitly state what you couldn't verify and why
+- Passing tests are necessary but not sufficient — tests can be wrong
 
 Then verify acceptance criteria systematically:
 - For each acceptance criterion: trace through the code path that satisfies it

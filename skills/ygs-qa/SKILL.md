@@ -5,6 +5,7 @@ description: QA testing — functional testing, edge cases, regression checks, a
 
 # QA Testing
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — QA means proving it works, not checking boxes.
 For reliability testing patterns, read `~/.claude/skills/you-got-skills/skills/ygs-sre-review/references/testing-reliability.md`.
 
 ## Step 1: Understand scope
@@ -52,13 +53,15 @@ For each new public API/export: is there a test exercising it?
 
 Report specifics — file paths, line numbers, criterion text. Not generalities.
 
-## Step 5: Verify scenarios
+## Step 5: Verify scenarios (exercise, don't just read)
 
-For each test scenario:
-- Trace the code path
+For each test scenario, exercise it if possible — don't just trace code paths mentally:
+- Run the feature with representative inputs and confirm outputs
+- Run with adversarial inputs (empty, null, too-large, malformed, concurrent)
 - Check state consistency after failures
 - Verify error handling is correct and user-friendly
 - Check for silent failures (swallowed exceptions, partial completions)
+- If you can't exercise it: explicitly state what's unverified and why
 
 ## Step 6: Write missing tests
 

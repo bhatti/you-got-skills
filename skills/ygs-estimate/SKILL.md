@@ -16,7 +16,17 @@ ls -t docs/trd/*.md 2>/dev/null | head -5
 
 If no docs exist, work from whatever the user provides.
 
-## Step 2: Feature-level t-shirt sizing
+## Step 2: Verify assumptions against code
+
+Before estimating, check the codebase to calibrate:
+- Do the modules/components the PRD/TRD references actually exist and work as described?
+- What is the actual complexity of the code being modified? (Read it, don't guess from descriptions)
+- Are there hidden dependencies, technical debt, or coupling that the design doesn't mention?
+- Is there existing code that makes parts of this work trivial — or existing complexity that makes it harder than it sounds?
+
+Estimates based solely on document descriptions are fiction. Ground them in code reality.
+
+## Step 3: Feature-level t-shirt sizing
 
 For each major capability in the PRD, assign a t-shirt size based on complexity, uncertainty, and integration surface:
 
@@ -33,7 +43,7 @@ For each major capability in the PRD, assign a t-shirt size based on complexity,
 - External dependency with unclear API/timeline → 1.5x
 - Both → 2x
 
-## Step 3: Decompose into estimable units
+## Step 4: Decompose into estimable units
 
 Break each feature into components small enough to estimate (few days max). Use story points with Fibonacci sequence: 1, 2, 3, 5, 8, 13, 21.
 
@@ -49,7 +59,7 @@ Break each feature into components small enough to estimate (few days max). Use 
 
 **Planning poker approach:** If multiple team members estimate, note outliers and discuss. Divergence reveals hidden assumptions or misunderstood scope.
 
-## Step 4: Apply three-point estimation (for timeline commitments)
+## Step 5: Apply three-point estimation (for timeline commitments)
 
 When management needs dates, don't give single-point estimates. Use:
 
@@ -65,7 +75,7 @@ Expected = (Best + 3×MostLikely + 2×Worst) / 6
 
 Present as ranges: "We'll likely finish in 3-4 weeks, with a tail risk of 6 weeks if [specific risk] materializes."
 
-## Step 5: Capacity planning
+## Step 6: Capacity planning
 
 **Team capacity is NOT 100% of available days.** Account for:
 
@@ -86,7 +96,7 @@ Example: 4 devs × 10 days × 55% = 22 dev-days for feature work per sprint.
 
 **Ask the user** what their team's KTLO/oncall budget is — it varies widely (some teams budget 40%+ for operational load).
 
-## Step 6: Account for often-forgotten work
+## Step 7: Account for often-forgotten work
 
 Engineers consistently underestimate because they scope only the "coding" portion. Ensure estimates include:
 
@@ -103,7 +113,7 @@ Engineers consistently underestimate because they scope only the "coding" portio
 
 **Rule of thumb:** If the estimate only covers "writing the code," double it to account for everything else needed to ship to production safely.
 
-## Step 7: Map points to calendar
+## Step 8: Map points to calendar
 
 ```
 Velocity = story points completed per sprint (historical, or estimate conservatively)
@@ -113,7 +123,7 @@ Calendar time = Sprints × Sprint length
 
 If no historical velocity exists, assume 60-70% of theoretical capacity for a new team.
 
-## Step 8: Identify estimation risks
+## Step 9: Identify estimation risks
 
 Flag anything that increases the cone of uncertainty:
 - No prior art in the codebase for this type of work
@@ -124,7 +134,7 @@ Flag anything that increases the cone of uncertainty:
 
 Each risk should have a mitigation or a spike (timeboxed investigation) to reduce uncertainty before committing to dates.
 
-## Step 9: Report
+## Step 10: Report
 
 Present:
 

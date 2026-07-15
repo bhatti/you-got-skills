@@ -63,7 +63,17 @@ Focus ruthlessly on the hypothesis:
 - Method: [how we're measuring — criterion, hyperfine, manual timing, load test tool]
 ```
 
-## Step 5: Record findings
+## Step 5: Verify the result
+
+Before recording findings, confirm the spike actually proved what you think it proved:
+- Does the test exercise the real constraint, or a simplified version that might not transfer?
+- Could the result be an artifact of small scale, test data, or missing error paths?
+- Would the approach survive real-world conditions (concurrent access, large data, network partitions)?
+- Is "it compiled and ran" the same as "it works for our use case"?
+
+CONFIRMED means you have evidence. INCONCLUSIVE means you ran out of time. Never mark CONFIRMED if the experiment was too narrow to be conclusive.
+
+## Step 6: Record findings
 
 Create `docs/spikes/YYYY-MM-DD-<slug>.md` with:
 
@@ -88,12 +98,13 @@ Create `docs/spikes/YYYY-MM-DD-<slug>.md` with:
 <!-- What changes from spike to production: error handling, tests, architecture adjustments -->
 ```
 
-## Step 6: Completion
+## Step 7: Completion
 
 Report **DONE** with:
 - Hypothesis: confirmed / refuted / inconclusive
 - Key evidence (numbers, outputs)
 - Recommendation: proceed / pivot / abandon
 - If proceeding: what the production implementation needs beyond the spike
+- What the spike did NOT test that production will need to handle
 
 Suggest: `/ygs-refine-trd` if proceeding to design, or `/ygs-retro` if abandoning.

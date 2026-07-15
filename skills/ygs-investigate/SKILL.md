@@ -5,7 +5,11 @@ description: Disciplined debugging — build feedback loop first, reproduce, hyp
 
 # Investigate
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the diagnosis.
+
 **Iron law: No fixes without root cause. No hypotheses without a feedback loop.**
+
+**Corollary: The user's description of the bug may be wrong.** They may be reporting a symptom, misidentifying the component, or describing expected behavior as broken. Verify the premise before investigating.
 
 ## Phase 1: Build a feedback loop
 

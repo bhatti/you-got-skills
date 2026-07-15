@@ -2,6 +2,8 @@
 
 Common protocol for all review skills. Individual skills define WHAT to check — this defines HOW to run a review.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the review quality.
+
 ## Gather context
 
 Before reviewing code, understand intent:
@@ -58,6 +60,24 @@ For each finding:
 - **File:line** reference
 - **Issue** — what's wrong
 - **Fix** — suggested resolution
+
+## Approach-level review
+
+Before reporting individual findings, assess whether the overall approach is sound:
+- Is this the right solution to the problem, or a well-executed wrong approach?
+- Does the change address the root cause, or paper over a symptom?
+- Would a simpler design achieve the same goal?
+
+If the approach is fundamentally wrong, say so as the first finding — individual code issues are irrelevant if the direction is bad.
+
+## Verification of findings
+
+Before reporting any finding, verify it against the actual code:
+- Confirm the code actually does what you think it does (read surrounding context)
+- Test your mental model against edge cases — would the code really fail this way?
+- If uncertain, mark confidence as LOW and explain what you couldn't verify
+
+Never report a finding you haven't verified against the actual source.
 
 ## Verdict
 

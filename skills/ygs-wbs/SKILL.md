@@ -30,15 +30,23 @@ Next ID = max + 1 (or 001 if none exist).
 mkdir -p tasks/{backlog,in-progress,done}
 ```
 
-## Step 4: Read task template and discover reuse candidates
+## Step 4: Read task template, verify codebase reality, discover reuse
 
 Read `~/.claude/skills/you-got-skills/templates/task.md` for structure.
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — challenge the design if it doesn't match code reality.
 
-Before decomposing, scan for existing implementations that overlap with the planned work:
+Before decomposing, verify the PRD/TRD assumptions against the actual codebase:
 ```bash
 # Find existing patterns, utilities, similar features
 grep -rl "relevant_keyword" src/ lib/ 2>/dev/null | head -10
 ```
+
+- Does the code structure match what the design assumes? (Module boundaries, existing interfaces, actual dependencies)
+- Are there existing implementations that make whole tasks unnecessary?
+- Does the proposed architecture conflict with how the system actually works?
+- If the design says "modify X" — does X exist? Is it shaped as described?
+
+If the PRD/TRD is based on stale or incorrect understanding of the codebase, flag it before decomposing. A precise breakdown of a wrong design just makes the wrong thing happen faster.
 
 Note reuse candidates in task descriptions — "extend existing X" is better than "build new Y" when X already does 80% of what's needed.
 
