@@ -55,6 +55,30 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 | `/ygs-refine-architecture` | Evolve system architecture: deep-module principles, Design It Twice, inline glossary/ADRs |
 | `/ygs-review-architecture` | Critique architecture for depth, scalability, and proportionality |
 
+### Team Intelligence
+
+Ambient awareness skills — gather signals across tracker and Slack, synthesize for the team.
+Requires `.ygs/tracker.yml` (copy from `skills/shared/tracker-config-example.yml`).
+Supports GitHub (`gh`) and JIRA/Bitbucket (`acli`) interchangeably. Slack optional.
+
+| Skill | Purpose |
+|-------|---------|
+| `/ygs-standup` | Daily standup brief: per-person status, silence signals, dependency risks, discussion questions |
+| `/ygs-risk-scan` | Ranked sprint risk report: stale work, review bottlenecks, dependency chains, capacity gaps |
+| `/ygs-sprint-plan` | Sprint planning: propose scope from backlog, flag blockers and dependency conflicts before they enter sprint |
+
+**Setup:**
+```bash
+cp ~/.claude/skills/you-got-skills/skills/shared/tracker-config-example.yml .ygs/tracker.yml
+# edit .ygs/tracker.yml with your project details
+
+# Required env vars (add to shell profile or secrets manager):
+export JIRA_BASE_URL=https://yourorg.atlassian.net
+export JIRA_EMAIL=you@company.com
+export JIRA_API_TOKEN=ATATT3x...          # from id.atlassian.com/manage/api-tokens
+export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
+```
+
 ### Planning & Execution
 
 | Skill | Purpose |

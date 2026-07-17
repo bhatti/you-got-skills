@@ -1,0 +1,36 @@
+# .ygs/tracker.yml — copy to your project root and fill in values
+# Schema reference: skills/shared/tracker.md (canonical — this file is an example only)
+# Read by: ygs-standup, ygs-risk-scan, ygs-sprint-plan
+#
+# Security: this file contains org names, board IDs, and team roster.
+# Commit it for shared team config; add to .gitignore if your repo is public.
+
+tracker: jira              # github | jira
+
+github:
+  org: myorg
+  repo: myrepo
+  sprint_milestone: Sprint 5
+
+jira:
+  base_url: https://myorg.atlassian.net   # also set JIRA_BASE_URL env var
+  project: PROJ
+  board_id: 42             # numeric — from board URL: .../boards/42
+
+bitbucket:
+  workspace: myworkspace
+  repo: myrepo
+
+slack:
+  standup_channel: "#standup"
+  team_channel: "#engineering"
+
+team:
+  - alice
+  - bob
+  - charlie
+
+capacity:
+  hours_per_person_per_day: 6
+  sprint_days: 10
+  meeting_overhead_pct: 20
