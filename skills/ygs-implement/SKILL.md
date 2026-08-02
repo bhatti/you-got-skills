@@ -192,11 +192,16 @@ mv tasks/in-progress/task-NNN.md tasks/done/
 
 ## Step 12: Completion
 
-Report **DONE** with:
-- What was implemented
-- Files changed (count + list)
-- Tests added/passing
-- Any deviations from design
+Report **DONE** with a summary table:
+
+| File | Action | Description |
+|------|--------|-------------|
+| path/to/file | added/modified/deleted | what changed and why |
+
+Append:
+- **Tests:** N added, all passing
+- **Deviations:** list any, or "none"
+- **Open items:** anything punted or out of scope
 
 If scope exceeded or issues arose: **DONE_WITH_CONCERNS** or **BLOCKED**.
 Suggest: `/ygs-code-review` before committing.

@@ -94,6 +94,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 
 | Skill | Purpose |
 |-------|---------|
+| `/ygs-review-pr` | Full PR review: fetch diff, four-domain analysis (correctness/security/API/SRE), ranked findings by severity, verdict (APPROVE/REQUEST_CHANGES/COMMENT) |
 | `/ygs-code-review` | Two-pass code review (critical/informational) with testing discipline |
 | `/ygs-security-review` | Security audit + red-team adversarial analysis |
 | `/ygs-sre-review` | Operational review: failure modes, observability, capacity, rollback, deploy gate |
@@ -129,6 +130,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
 /ygs-implement               → Build with discipline
 /ygs-triage                  → Classify issues, write agent briefs
+/ygs-review-pr               → Full PR review (all four domains, ranked findings, verdict)
 /ygs-code-review             → Two-pass review
 /ygs-security-review         → Security + red-team
 /ygs-sre-review              → Operational readiness

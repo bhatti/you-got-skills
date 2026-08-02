@@ -66,7 +66,7 @@ github:
 
 jira:
   base_url: https://myorg.atlassian.net  # also set JIRA_BASE_URL env var
-  project: PROJ              # project key (e.g. CRIBL, ENG)
+  project: PROJ              # project key (e.g. PROJ, ENG)
   board_id: 42               # numeric sprint board ID (from board URL)
   # epic: PROJ-100           # optional: scope to one epic
 

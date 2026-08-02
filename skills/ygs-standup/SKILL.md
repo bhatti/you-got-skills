@@ -73,6 +73,12 @@ Exit JSON for Formicary:
 
 ## Invocation modes
 
-- `/ygs-standup` — full brief now
-- `/ygs-standup @alice` — single person
+- `/ygs-standup` — full brief for everyone in `team:` list in `.ygs/tracker.yml`
+- `/ygs-standup @alice` — single person by tracker username
+- `/ygs-standup @alice @bob` — subset of team
+- `/ygs-standup me` — current git user (`git config user.email` matched against team list)
 - Formicary cron: reads `.ygs/tracker.yml`, posts brief, exits with JSON
+
+When a target is given, Steps 2-5 scope to that person only: their issues, their PRs,
+their Slack messages. Risks and discussion questions that involve them (as assignee,
+reviewer, or blocker) are still included even if another person owns the blocking item.

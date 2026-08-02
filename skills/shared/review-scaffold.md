@@ -16,7 +16,11 @@ Use this context to distinguish "intentional trade-off" from "mistake" during re
 
 ## Project review rules
 
-If the project has `.ygs/review-rules.md`, read it and apply as additional review criteria. This file contains project-specific conventions (e.g., "all API handlers must validate tenant context", "no direct DB calls outside repository layer").
+**Module-local discovery (per changed file):** For each changed file, walk up the directory tree toward the repository root. At each ancestor directory, look for agent-oriented documentation — common forms include an `agents/` subtree, `AGENTS.md`, `CLAUDE.md`, or other markdown clearly aimed at reviewers and tooling. If any of these contain code review, PR review, or design consistency guidance scoped to that module, merge those requirements into your review plan and execute them alongside the standard checks.
+
+**Closest wins:** Instructions in a directory closer to the changed file override conflicting instructions from directories higher in the tree. Apply root- or repo-wide guidance only where it does not conflict with a module-specific doc for the same scope.
+
+**Project-level rules:** If the project root has `.ygs/review-rules.md`, apply it as baseline review criteria (e.g., "all API handlers must validate tenant context", "no direct DB calls outside repository layer"). Module-local docs override it per the rule above.
 
 Findings from project rules use the same severity/confidence format as all other findings.
 
