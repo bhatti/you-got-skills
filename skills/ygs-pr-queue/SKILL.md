@@ -1,71 +1,40 @@
 ---
 name: ygs-pr-queue
-description: Format sprint board PR queue from pre-gathered pr_queue.json data. Plain-text output, no markdown.
+description: Format sprint board PR queue from pre-gathered pr_queue.json. Plain-text output matching standup format.
 ---
 
 # PR Queue — Sprint Board View
 
-Sprint team PRs have already been gathered and written to `/workspace/pr_queue.json`.
-Do NOT make any API calls. Read and format ONLY the data in that file.
+The data is already provided below in the prompt under "Pre-Fetched PR Data".
+DO NOT make any API calls. DO NOT use any tools. Format ONLY the provided data.
 
-## Step 1: Read the data
+## Output Format — STRICTLY ENFORCED
 
-```bash
-cat /workspace/pr_queue.json
-```
+RULES (violation = wrong answer):
+1. NO markdown: no **, no __, no `, no #, no >, no ->, no →
+2. Bullets: • only (never -)
+3. Section headers ALL CAPS on their own line
+4. One PR per bullet, include: PR number, author first name, age, Jira key, reviewer status
 
-The file contains:
-- `sprint`: sprint name
-- `team`: list of team member display names
-- `prs`: list of PRs, each with: id, title, author, url, age_days, jira_key, reviewers (pending), approved_by, changes_requested_by
-
-## Step 2: Categorize each PR
-
-- APPROVED: approved_by is non-empty AND reviewers (pending) is empty
-- CHANGES REQUESTED: changes_requested_by is non-empty
-- NEEDS REVIEW: reviewers (pending) is non-empty, no approvals yet, age_days > 1
-- STALE: age_days > 5 AND approved_by is empty
-
-A PR can appear in multiple categories (e.g. STALE + NEEDS REVIEW). Show in the most urgent category only.
-
-## Step 3: Output — STRICT FORMAT RULES
-
-FORBIDDEN (violation = wrong answer):
-- No markdown tables (no | pipe characters)
-- No ** bold, no __ underline, no backticks, no # headings
-- No -> arrows, no > blockquotes
-- No - dash bullets — use • only
-
-REQUIRED:
-- Section headers: ALL CAPS
-- One PR per line: • PR NNN (@FirstName, Nd): short title [JIRA-KEY] — reviewer status
-- URL on same line if it fits, else skip
-- Show first name only from display_name (e.g. "Shahzad Bhatti" → "Shahzad")
-
-Exact template:
+EXACT TEMPLATE:
 
 PR QUEUE — <sprint_name> — <date>
-TEAM: <FirstName FirstName FirstName ...>
 
-NEEDS REVIEW (>1d, no approval)
-• PR NNN (@FirstName, Nd): short title [KEY] — no reviewers assigned
-• PR NNN (@FirstName, Nd): short title [KEY] — @ReviewerA @ReviewerB pending
+OPEN PRS
+• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — <reviewer status>
+  (reviewer status = "no reviewers" / "<N> approved" / "<N> pending: @Name @Name" / "changes requested by @Name")
 
-CHANGES REQUESTED
-• PR NNN (@FirstName, Nd): short title [KEY] — @Reviewer asked for changes
+NEEDS REVIEW (open >1d, no approvals yet)
+• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — @Reviewer @Reviewer pending
 
-APPROVED — WAITING TO MERGE
-• PR NNN (@FirstName, Nd): short title [KEY] — approved by @ReviewerA
+APPROVED — READY TO MERGE
+• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — approved by @Name
 
-STALE (>5d, no approval)
-• PR NNN (@FirstName, Nd): short title [KEY] — @Reviewers pending
+STALE (open >5d, no approvals)
+• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — no reviewers assigned
 
-BOTTLENECKS
-• @FirstName: N PRs waiting on review (NNN NNN)
-
-Skip any empty category.
-
-Post result to Slack thread (use SLACK_THREAD_TS if set, else post to channel).
+Skip any section that has no PRs.
+Use first name only from display_name (e.g. "Shahzad Bhatti" → "Shahzad").
 
 Exit JSON (last line, required):
-{"status":"DONE","summary":"<N> PRs for <sprint>: <X> need review, <Y> stale, <Z> approved"}
+{"status":"DONE","summary":"<N> sprint PRs: <X> need review, <Y> approved, <Z> stale"}
