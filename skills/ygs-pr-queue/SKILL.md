@@ -1,83 +1,71 @@
 ---
 name: ygs-pr-queue
-description: Show open PRs authored by your primary sprint board team members — same
-  board as standup. Plain-text output. Scoped to sprint team authors only.
+description: Format sprint board PR queue from pre-gathered pr_queue.json data. Plain-text output, no markdown.
 ---
 
 # PR Queue — Sprint Board View
 
-**Principle:** Only show PRs authored by sprint team members on your primary board. Do NOT show PRs where you are listed as a reviewer by an auto-assignment bot.
+Sprint team PRs have already been gathered and written to `/workspace/pr_queue.json`.
+Do NOT make any API calls. Read and format ONLY the data in that file.
 
-## Step 1: Init
+## Step 1: Read the data
 
-Follow `~/.claude/skills/you-got-skills/skills/shared/init.md`.
+```bash
+cat /workspace/pr_queue.json
+```
 
-## Step 2: Identify primary sprint board and team
+The file contains:
+- `sprint`: sprint name
+- `team`: list of team member display names
+- `prs`: list of PRs, each with: id, title, author, url, age_days, jira_key, reviewers (pending), approved_by, changes_requested_by
 
-Same logic as ygs-standup:
-- Load active sprint(s) from the tracker (Jira/GitHub)
-- Primary board = the board whose sprint includes issues assigned to you (the current user)
-- Team members = unique assignees with issues in THAT board's sprint
-- If STANDUP_TEAM_MEMBERS is set, use that list directly
+## Step 2: Categorize each PR
 
-## Step 3: Fetch open PRs — authored by sprint team ONLY
+- APPROVED: approved_by is non-empty AND reviewers (pending) is empty
+- CHANGES REQUESTED: changes_requested_by is non-empty
+- NEEDS REVIEW: reviewers (pending) is non-empty, no approvals yet, age_days > 1
+- STALE: age_days > 5 AND approved_by is empty
 
-Query open PRs where **author** is one of the sprint team members identified in Step 2.
+A PR can appear in multiple categories (e.g. STALE + NEEDS REVIEW). Show in the most urgent category only.
 
-**STRICT RULE: Do NOT include PRs where a team member is merely listed as a reviewer.**
-Auto-assignment tools (goatbot, code-owners) add people as reviewers to hundreds of PRs — those are irrelevant noise. Only PRs where a sprint team member is the **author** are included.
+## Step 3: Output — STRICT FORMAT RULES
 
-For each PR collect:
-- PR number, title, author (first name only), age in days
-- Reviewers who have approved
-- Reviewers who have requested changes
-- Reviewers assigned but no response yet
-- Linked Jira issue key from branch name or PR title
+FORBIDDEN (violation = wrong answer):
+- No markdown tables (no | pipe characters)
+- No ** bold, no __ underline, no backticks, no # headings
+- No -> arrows, no > blockquotes
+- No - dash bullets — use • only
 
-## Step 4: Categorize by review status
-
-Group into:
-- NEEDS REVIEW: open >1d, no reviewer has responded yet
-- CHANGES REQUESTED: reviewer left feedback, author needs to act
-- APPROVED: all reviewers approved, ready to merge
-- STALE: open >5d with no reviewer activity at all
-
-Skip any empty category.
-
-## Step 5: Output — STRICT FORMAT RULES
-
-**FORBIDDEN (violation = wrong answer):**
-- No markdown tables (no | pipe characters, no --- dividers)
-- No ** bold, no __ underline, no ` backticks, no # headings
-- No → arrows, no > blockquotes, no - list bullets
-- No :emoji: in the PR lines (use 🔴 🟡 Unicode emoji only for RISKS section)
-
-**REQUIRED:**
-- Bullets: • character only
+REQUIRED:
 - Section headers: ALL CAPS
-- One PR per line, max 120 chars
-- Format each line: • PR NNN (@FirstName, Nd): short title [KEY if known]
+- One PR per line: • PR NNN (@FirstName, Nd): short title [JIRA-KEY] — reviewer status
+- URL on same line if it fits, else skip
+- Show first name only from display_name (e.g. "Shahzad Bhatti" → "Shahzad")
 
-**Exact template — copy structure, fill data:**
+Exact template:
 
-PR QUEUE — <date>
-BOARD: <BoardName> Sprint <N>
+PR QUEUE — <sprint_name> — <date>
 TEAM: <FirstName FirstName FirstName ...>
 
-NEEDS REVIEW
-• PR NNN (@FirstName, Nd): short title [KEY]
-• PR NNN (@FirstName, Nd): short title [KEY] — no reviewer assigned
+NEEDS REVIEW (>1d, no approval)
+• PR NNN (@FirstName, Nd): short title [KEY] — no reviewers assigned
+• PR NNN (@FirstName, Nd): short title [KEY] — @ReviewerA @ReviewerB pending
 
 CHANGES REQUESTED
-• PR NNN (@FirstName, Nd): short title [KEY] — @reviewer asked for changes
+• PR NNN (@FirstName, Nd): short title [KEY] — @Reviewer asked for changes
 
-STALE (>5d no activity)
-• PR NNN (@FirstName, Nd): short title [KEY]
+APPROVED — WAITING TO MERGE
+• PR NNN (@FirstName, Nd): short title [KEY] — approved by @ReviewerA
+
+STALE (>5d, no approval)
+• PR NNN (@FirstName, Nd): short title [KEY] — @Reviewers pending
 
 BOTTLENECKS
-• @FirstName: N PRs waiting on review (NNN NNN NNN)
+• @FirstName: N PRs waiting on review (NNN NNN)
+
+Skip any empty category.
 
 Post result to Slack thread (use SLACK_THREAD_TS if set, else post to channel).
 
 Exit JSON (last line, required):
-{"status":"DONE","summary":"<N> open PRs by <M> sprint team members: <X> need review, <Y> stale"}
+{"status":"DONE","summary":"<N> PRs for <sprint>: <X> need review, <Y> stale, <Z> approved"}
