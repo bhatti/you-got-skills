@@ -18,10 +18,12 @@ Follow `~/.claude/skills/you-got-skills/skills/shared/init.md` (config load + cr
 ## Step 2: Gather signals (run in parallel — failures degrade gracefully)
 
 Using queries from `shared/tracker.md`:
-- Issues updated last 24h per team member
+- Issues updated last 24h **per team member in `team:` list from `.ygs/tracker.yml`**
 - Issues with no activity > 2 days (silence signal)
 - Open PRs: age, review status, no reviewer activity > 1 day
 - Blocked issues (label or status)
+- ONLY include issues/PRs assigned to team members in `team:` list AND in the configured sprint (board_id)
+- NEVER show issues from other teams, boards, or unrelated assignees
 
 Using queries from `shared/slack.md`:
 - Blocker/help/stuck keywords in standup channel, last 24h
@@ -46,11 +48,12 @@ For each team member (2-3 sentences, evidence-backed):
 
 ## Step 4: Identify risks
 
-Apply `~/.claude/skills/you-got-skills/skills/shared/risk-criteria.md`. Produce ranked list:
+Apply `~/.claude/skills/you-got-skills/skills/shared/risk-criteria.md`. Produce ranked list.
+Use `<url|PROJ-NNN>` link format for ALL Jira and PR references (see `shared/output-format.md`):
 
 ```
-🔴 PROJ-51 PR no reviewer — bob is only approver, unresponsive (Slack)
-🟡 PROJ-38 stale 4 days — blocks PROJ-44 (alice) and PROJ-47 (charlie)
+🔴 <url|PROJ-51> PR no reviewer — bob is only approver, unresponsive (Slack)
+🟡 <url|PROJ-38> stale 4 days — blocks <url|PROJ-44> (alice) and <url|PROJ-47> (charlie)
 ```
 
 ## Step 5: Generate discussion questions
@@ -64,7 +67,9 @@ Apply `~/.claude/skills/you-got-skills/skills/shared/risk-criteria.md`. Produce 
 
 ## Step 6: Deliver
 
-Format using `references/brief-format.md`. Post to Slack if `SLACK_BOT_TOKEN` set. Always print to stdout.
+Format using `references/brief-format.md` (which enforces `<url|KEY>` links and team filtering).
+Read `shared/output-format.md` for the exact row templates.
+Post to Slack if `SLACK_BOT_TOKEN` set. Always print to stdout.
 
 Exit JSON for Formicary:
 ```json

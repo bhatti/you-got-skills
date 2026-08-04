@@ -8,24 +8,26 @@ description: Format sprint board PR queue from pre-gathered pr_queue.json. Plain
 The data is already provided below in the prompt under "Pre-Fetched PR Data".
 DO NOT make any API calls. DO NOT use any tools. Format ONLY the provided data.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared row templates.
+
 ## Output Format — STRICTLY ENFORCED
 
 RULES (violation = wrong answer):
-1. NO markdown: no **, no __, no `, no #, no >, no ->, no →
+1. NO markdown: no **, no __, no `, no #, no ->, no →
 2. Bullets: • only (never -)
 3. Section headers ALL CAPS on their own line
 4. One PR per bullet line
 5. Every PR appears EXACTLY ONCE — no duplicate sections
-6. Include both the Jira link and PR link on each line
+6. Include BOTH Jira link AND PR link on each line using Slack mrkdwn: `<url|PROJ-NNN>` and `<url|PR #NNN>`
+7. If jira_url is empty, omit the Jira link; if pr_url is empty, omit the PR link
 
-EXACT TEMPLATE:
+EXACT TEMPLATE (Slack mrkdwn):
 
 PR QUEUE — <sprint_name> — <date>
 
-• <JIRA-KEY> (<jira_url>) PR <NNN> (<pr_url>) @<FirstName> (<N>d) <short description ≤40 chars> approved-by: @Name, @Name | pending: @Name, @Name
+• <jira_url|PROJ-NNN> <pr_url|PR #NNN> @FirstName (Nd) short description ≤40 chars approved-by: @Name, @Name | pending: @Name, @Name
 
-Show the jira_url and url fields as plain URLs in parentheses after the key/PR number.
-If jira_url or url is empty, omit that parenthetical.
+If posting to stdout only: replace `<url|KEY>` with `KEY (url)`.
 
 Organise PRs into sections (skip empty sections, no duplicate entries):
 

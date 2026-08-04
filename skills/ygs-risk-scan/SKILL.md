@@ -19,6 +19,8 @@ Follow `~/.claude/skills/you-got-skills/skills/shared/init.md` (config load + cr
 
 Using queries from `shared/tracker.md`:
 - All open issues in current sprint: status, assignee, last-updated
+- **Filter to team members listed in `team:` in `.ygs/tracker.yml` and the configured sprint board (board_id)**
+- **NEVER include issues or PRs from people not in the `team:` list**
 - Blocked issues (label or status)
 - Open PRs: age and review activity
 - Sprint end date and remaining days (tracker.md "Sprint end date and capacity" section)
@@ -48,20 +50,25 @@ If sprint end date unavailable: note the gap and skip this step.
 ## Step 5: Rank and report
 
 Apply `~/.claude/skills/you-got-skills/skills/shared/risk-criteria.md`.
+Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for row templates and link enforcement.
+
+Use `<url|PROJ-NNN>` Slack hyperlink format for ALL Jira issue references.
+Use `<url|PR #NNN>` Slack hyperlink format for ALL PR references.
+If posting to stdout only: `PROJ-NNN (url)` and `PR #NNN (url)`.
 
 ```
 RISK SCAN — Sprint N — {date}
 
 🔴 HIGH (address today)
-  1. PROJ-38 stale 4d — blocks PROJ-44 (alice) and PROJ-47 (charlie)
+  1. <url|PROJ-38> [Bug] stale 4d — blocks <url|PROJ-44> (alice) and <url|PROJ-47> (charlie)
      Action: reassign or descope PROJ-38
 
 🟡 MEDIUM (watch)
-  2. PR #89 open 3d — bob sole reviewer, 2 others waiting
+  2. <url|PR #89> open 3d — bob sole reviewer, 2 others waiting
      Action: pair-review or reassign one PR
 
 ℹ️ LOW
-  3. PROJ-52 not started, 3d remaining — confirm fits sprint
+  3. <url|PROJ-52> not started, 3d remaining — confirm fits sprint
 
 Sprint: 8/14 done (57%), 4 days left
 Velocity needed: 1.5/day (historical avg: 1.2/day)
