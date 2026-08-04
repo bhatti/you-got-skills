@@ -15,33 +15,39 @@ RULES (violation = wrong answer):
 2. Bullets: • only (never -)
 3. Section headers ALL CAPS on their own line
 4. One PR per bullet line
+5. Every PR appears EXACTLY ONCE — no duplicate sections
+6. Include both the Jira link and PR link on each line
 
 EXACT TEMPLATE:
 
 PR QUEUE — <sprint_name> — <date>
 
-• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <short description ≤40 chars>  <reviewer status>
-  (reviewer status = "no reviewers" | "approved by @Name" | "@Name @Name pending" | "changes requested by @Name")
+• <JIRA-KEY> (<jira_url>) PR <NNN> (<pr_url>) @<FirstName> (<N>d) <short description ≤40 chars> approved-by: @Name, @Name | pending: @Name, @Name
 
-Organise PRs into sections (skip empty sections):
+Show the jira_url and url fields as plain URLs in parentheses after the key/PR number.
+If jira_url or url is empty, omit that parenthetical.
 
-NEEDS REVIEW (open >1d, no approvals)
-• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  @Reviewer @Reviewer pending
+Organise PRs into sections (skip empty sections, no duplicate entries):
 
 APPROVED — READY TO MERGE
-• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  approved by @Name
+(PRs that have at least one approval)
 
-STALE (open >5d, no approvals)
-• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  no reviewers
+NEEDS REVIEW (open >1d, no approvals yet)
+(PRs open more than 1 day with zero approvals)
 
-ALL OPEN PRS
-• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  <reviewer status>
+STALE / AT RISK (open >5d, no approvals)
+(PRs open more than 5 days with zero approvals — flag as risk)
+
+IN REVIEW (everything else with pending reviewers)
+(PRs with pending reviewers but not yet approved or stale)
 
 Guidelines:
 - Use first name only (e.g. "Shahzad Bhatti" → "Shahzad")
 - If jira_summary is more descriptive than the PR title, use it for description
-- Every open PR must appear in ALL OPEN PRS even if already in another section
-- PR link: show PR number plainly (no URL, no markdown)
+- Show approved_by as "approved-by: @Name, @Name" (comma-separated, first names only)
+- Show pending reviewers as "pending: @Name, @Name" (first names only, max 5 then "...")
+- If no reviewers at all: show "no reviewers"
+- STALE PRs should also appear under STALE even if they have some approvals (age > 5d is a risk)
 
 Exit JSON (last line, required):
-{"status":"DONE","summary":"<N> sprint PRs: <X> need review, <Y> approved, <Z> stale"}
+{"status":"DONE","summary":"<N> sprint PRs: <X> approved, <Y> needs review, <Z> stale"}

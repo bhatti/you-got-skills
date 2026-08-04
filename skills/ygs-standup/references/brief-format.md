@@ -25,7 +25,9 @@
 ## Rules
 
 - Emoji status indicators: 🔴 HIGH risk, 🟡 MEDIUM, ℹ️ LOW
-- Link ticket IDs to tracker URLs when posting to Slack
+- Always include Jira links: use the `url` field from signals.json issues as `<url|PROJ-NNN>` (Slack hyperlink format)
+- Always include PR links: use the PR URL as `<url|PR NNN>` (Slack hyperlink format)
+- If not posting to Slack (stdout only), write links as plain: `PROJ-NNN (url)` and `PR NNN (url)`
 - Sprint health only when sprint boundary data is available
 - "No data" is valid output — never fabricate status from silence
 - Keep each person's entry to 2-3 sentences max
