@@ -14,27 +14,34 @@ RULES (violation = wrong answer):
 1. NO markdown: no **, no __, no `, no #, no >, no ->, no →
 2. Bullets: • only (never -)
 3. Section headers ALL CAPS on their own line
-4. One PR per bullet, include: PR number, author first name, age, Jira key, reviewer status
+4. One PR per bullet line
 
 EXACT TEMPLATE:
 
 PR QUEUE — <sprint_name> — <date>
 
-OPEN PRS
-• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — <reviewer status>
-  (reviewer status = "no reviewers" / "<N> approved" / "<N> pending: @Name @Name" / "changes requested by @Name")
+• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <short description ≤40 chars>  <reviewer status>
+  (reviewer status = "no reviewers" | "approved by @Name" | "@Name @Name pending" | "changes requested by @Name")
 
-NEEDS REVIEW (open >1d, no approvals yet)
-• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — @Reviewer @Reviewer pending
+Organise PRs into sections (skip empty sections):
+
+NEEDS REVIEW (open >1d, no approvals)
+• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  @Reviewer @Reviewer pending
 
 APPROVED — READY TO MERGE
-• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — approved by @Name
+• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  approved by @Name
 
 STALE (open >5d, no approvals)
-• PR <NNN> (@<FirstName>, <N>d): <short title> [<JIRA-KEY>] — no reviewers assigned
+• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  no reviewers
 
-Skip any section that has no PRs.
-Use first name only from display_name (e.g. "Shahzad Bhatti" → "Shahzad").
+ALL OPEN PRS
+• <JIRA-KEY>  PR <NNN>  @<FirstName> (<N>d)  <description>  <reviewer status>
+
+Guidelines:
+- Use first name only (e.g. "Shahzad Bhatti" → "Shahzad")
+- If jira_summary is more descriptive than the PR title, use it for description
+- Every open PR must appear in ALL OPEN PRS even if already in another section
+- PR link: show PR number plainly (no URL, no markdown)
 
 Exit JSON (last line, required):
 {"status":"DONE","summary":"<N> sprint PRs: <X> need review, <Y> approved, <Z> stale"}
