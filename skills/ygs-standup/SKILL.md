@@ -46,7 +46,15 @@ For each team member (2-3 sentences, evidence-backed):
 - No data → "No tracker activity in last 24h" (never fabricate)
 - Silence → "No updates since Monday (3 days)"
 
-## Step 4: Identify risks
+## Step 4: Call to Action (write AFTER steps 5-6, place BEFORE per-person status)
+
+2-3 sentences of plain English that a busy manager reads first. Pattern:
+- "We have N PRs that need help getting across the finish line — [specifics]. If you can review or resolve tasks on any of these today, it'll clear the backlog."
+- "KEY is unassigned P2 — who's closest to this area and has capacity?"
+- "We're running high on WIP. Before picking up new work, check if there's something in-flight you can finish or unblock first."
+- "PR #NNN has been open Nd with no reviewers. Should we close it, or does someone have 15 min to review? (N lines, N files)"
+
+## Step 5: Identify risks
 
 Apply `~/.claude/skills/you-got-skills/skills/shared/risk-criteria.md`. Produce ranked list.
 Use `<url|PROJ-NNN>` link format for ALL Jira and PR references (see `shared/output-format.md`):
@@ -54,18 +62,20 @@ Use `<url|PROJ-NNN>` link format for ALL Jira and PR references (see `shared/out
 ```
 🔴 <url|PROJ-51> PR no reviewer — bob is only approver, unresponsive (Slack)
 🟡 <url|PROJ-38> stale 4 days — blocks <url|PROJ-44> (alice) and <url|PROJ-47> (charlie)
+🟡 <url|PROJ-41036> shows "In Review" but PR is still draft — update status to reflect reality
 ```
 
-## Step 5: Generate discussion questions
+## Step 6: Generate discussion questions
 
-2-3 items requiring human judgment — NOT status recitation:
+2-3 items requiring human judgment — frame as questions with evidence:
 
 ```
 1. PROJ-38 stale 4d blocks two people — descope or reassign?
 2. Bob has 3 PRs queued — redistribute review load?
+3. PR #41781 open 59 days, no reviewers — close it or 15 min to review? (56 lines, 1 file)
 ```
 
-## Step 6: Deliver
+## Step 7: Deliver
 
 Format using `references/brief-format.md` (which enforces `<url|KEY>` links and team filtering).
 Read `shared/output-format.md` for the exact row templates.

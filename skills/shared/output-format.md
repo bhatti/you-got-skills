@@ -1,6 +1,22 @@
 # Shared Output Format
 
-Consistent table-row format used by ygs-standup, ygs-risk-scan, ygs-pr-queue, and jira-query.
+Consistent bullet-row format used by ygs-standup, ygs-risk-scan, ygs-pr-queue, and jira-query.
+
+## OUTPUT FORMAT: BULLET ROWS, NOT MARKDOWN TABLES
+
+**CRITICAL:** Output MUST use `•`-prefixed bullet rows. Do NOT output markdown tables (`| col | col |`).
+Markdown tables are stripped or mangled by Slack; bullet rows render correctly.
+
+Correct format:
+```
+• <url|KEY> [Type] Summary — _Assignee_ · Status · 3d old
+```
+
+Wrong format (do NOT use):
+```
+| KEY | Summary | Assignee | Status |
+|-----|---------|----------|--------|
+```
 
 ## STRICT ENFORCEMENT RULES (violation = wrong answer)
 

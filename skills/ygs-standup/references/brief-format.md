@@ -16,20 +16,31 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 ```
 📋 *Standup Brief — {date} {time}*
 
+*Board status*
+• <SprintName>: N total, N done, N in-progress/review, N not started — ends <date>. WIP: OK | HIGH.
+
+*Call to Action*
+<2-3 sentences: plain English summary of what needs attention RIGHT NOW. Be specific about PR numbers, issue keys, and who can help. Patterns:>
+<"We have N PRs that need help — [list with context]. If you can review or resolve tasks on any of these today, it'll clear the backlog.">
+<"KEY (summary, priority) is unassigned — who's closest to this area and has capacity?">
+<"We're running high on WIP. Before picking up new work, check if there's something in-flight you can finish or unblock first.">
+
 *Per-person status*
-• *Alice:* Closed <url|PROJ-NNN> (auth fix). Working on <url|PROJ-NNN> (rate limiter) — <url|PR #NNN> open 28h, no review yet.
+• *Alice:* Working on <url|KEY> (summary) — <url|PR #NNN> open 28h, no review yet.
 • *Bob:* No tracker activity since Monday (3 days). No standup channel message.
-• *Charlie:* Merged <url|PROJ-NNN>. Two PRs in review.
+• *Charlie:* Merged <url|KEY>. Two PRs in review.
 
 *Risks*
-🔴 <url|PROJ-NNN> stale 4d — blocks <url|PROJ-NNN> (alice) and <url|PROJ-NNN> (charlie)
-🟡 <url|PR #NNN> open 3d — bob sole reviewer, 2 others waiting
+🔴 <url|KEY> stale Nd — blocks <url|KEY> (person) and <url|KEY> (person)
+🟡 <url|KEY> shows "In Review" but PR is still draft — update board to reflect reality
+🟡 <url|PR #NNN> open Nd, no reviewers — close or assign? (N lines, N files)
 
 *Discussion (bring to the meeting)*
-1. <url|PROJ-NNN> stale 4d blocks two people — descope or reassign?
-2. Review load: Bob has 3 pending items — redistribute?
+1. <url|KEY> stale Nd blocks two people — descope or reassign?
+2. Review load: Bob has N pending items — redistribute?
+3. <url|PR #NNN> open Nd with no reviewers — close it, or does someone have 15 min?
 
-*Sprint health:* 8/14 issues done (57%), 3 in progress, 3 not started — 4 days remaining
+*Sprint health:* N/N issues done (N%), N in progress, N not started — N days remaining
 ```
 
 ## Rules
