@@ -14,9 +14,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` —
 Two input sources (use both when available):
 
 **From git:**
-```bash
-git diff main...HEAD --stat 2>/dev/null || git diff master...HEAD --stat 2>/dev/null
-```
+Follow the diff protocol from `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md` to gather the changeset.
 
 **From execution logs (if tasks exist):**
 ```bash

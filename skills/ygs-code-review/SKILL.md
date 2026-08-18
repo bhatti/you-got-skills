@@ -10,6 +10,8 @@ For shared review protocol (diff, severity, output format), read `~/.claude/skil
 For detailed principles, read:
 - `references/code-quality.md` — Cognitive load, tidying, testing
 - `references/functional-design.md` — Immutability, FSM, making invalid states impossible
+- `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` — testing rules (referenced in Step 6)
+- `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` — functional design checklist (referenced in Step 5)
 
 ## Step 1: Get the diff
 
@@ -47,6 +49,7 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 3. **Testability** — Can this be tested without mocking internal code? If not, design is wrong.
 4. **Testing quality** — Tests verify public contract via real method calls? Assertions are data-driven (no hunches)?
 5. **Immutability & state** — Mutable state minimized? Invalid states representable? State machine appropriate?
+   Reference: `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` for the full checklist.
 6. **Type safety** — Sum types / enums for variants? Parse-don't-validate at boundaries?
 7. **Naming** — Clear, consistent, intention-revealing; no underscores for private methods
 8. **Complexity** — Could it be simpler? Unnecessary abstractions? Proportional to the problem?
@@ -61,13 +64,7 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 
 ## Step 6: Testing discipline check
 
-- Are changes covered by tests?
-- Do tests call real methods and assert observable side effects, not implementation details?
-- Stubs only at 3rd-party/OS boundaries (HTTP clients, clocks, filesystem)?
-- Use deterministic time controls (fake clocks) — not real sleeps or timers
-- Tests must not be flaky: no timing-sensitivity, no shared mutable state, no concurrency races
-- No empty test bodies, no unused variables, no dead code in tests
-- Existing tests still pass — do not break what wasn't broken
+Follow `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` for the full testing discipline checklist.
 
 ## Step 7: Proportionality check
 

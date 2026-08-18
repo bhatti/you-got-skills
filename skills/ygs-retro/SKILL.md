@@ -44,6 +44,10 @@ Assess across these dimensions, informed by both artifacts and human answers:
 - Estimated vs actual file/line counts — which tasks were under/oversized and why?
 - Were entire categories of work (migrations, test infra, integration glue) missed?
 
+To calibrate estimation accuracy with data, pull velocity from tracker:
+
+Follow `~/.claude/skills/you-got-skills/skills/shared/tracker.md` — query "Recent velocity" to get story points completed in the last 1-2 sprints. Compare against estimates made at sprint start.
+
 ### Design quality
 - Which decisions held up? Which required deviations? What does the deviation pattern suggest?
 
@@ -73,6 +77,8 @@ Be specific: not "communicate better" — instead "add acceptance criteria befor
 If any incidents occurred during the period, use `references/postmortem-template.md` for structured post-mortem analysis with Five Whys and action items.
 
 ## Step 6: Extract learnings from code reviews
+
+For baseline test health, follow `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
 
 If PR reviews or code review feedback exists for the period:
 

@@ -1,6 +1,7 @@
 ---
 name: ygs-pr-queue
 description: Format sprint board PR queue from pre-gathered pr_queue.json. Plain-text output matching standup format.
+disable-model-invocation: true
 ---
 
 # PR Queue — Sprint Board View

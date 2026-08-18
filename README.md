@@ -116,6 +116,23 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-learn` | Capture and surface operational learnings across sessions |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations |
+| `/ygs-handoff` | Compress session into a handoff doc for the next session |
+| `/ygs-changelog` | Generate changelog from git history and task files |
+
+## Shared Modules
+
+Reusable protocols in `skills/shared/` referenced by individual skills. Not invoked directly — skills pull them in as needed.
+
+| Module | Purpose |
+|--------|---------|
+| `shared/ears-patterns.md` | EARS requirement patterns reference (six temporal forms) |
+| `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
+| `shared/slack.md` | Slack bot token setup for standup and risk-scan signals |
+| `shared/docs-discovery.md` | Canonical PRD/TRD/ADR discovery commands |
+| `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, condition variables |
+| `shared/functional-design.md` | Functional design principles checklist |
+| `shared/dep-audit.md` | Polyglot dependency audit commands |
+| `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
 
 ## Typical Workflow
 

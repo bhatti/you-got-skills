@@ -5,13 +5,13 @@ description: Review and critique a PRD for completeness, clarity, and feasibilit
 
 # Review PRD
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the review quality.
+
 ## Step 1: Find the PRD
 
 If the user specified a file, read it. Otherwise:
 
-```bash
-ls -t docs/prd/*.md 2>/dev/null | head -5
-```
+Follow `~/.claude/skills/you-got-skills/skills/shared/docs-discovery.md` to locate the PRD.
 
 Ask the user which PRD to review if multiple exist.
 
@@ -42,3 +42,7 @@ Produce a structured review with:
 - **Recommendation** — Approve / Revise / Rethink
 
 Report **DONE** or **DONE_WITH_CONCERNS** based on findings.
+
+**Suggest next steps:**
+- If MUST items found → suggest `/ygs-refine-prd` to resolve them before approval
+- If approved → suggest `/ygs-wbs` to decompose into tasks, or `/ygs-estimate` for timeline

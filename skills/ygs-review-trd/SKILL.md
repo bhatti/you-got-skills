@@ -5,15 +5,13 @@ description: Review a TRD for architectural soundness, testability, operational 
 
 # Review TRD
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the review quality.
+
 ## Step 1: Find the TRD
 
 If the user specified a file, read it. Otherwise:
 
-```bash
-ls -t docs/trd/*.md 2>/dev/null | head -5
-```
-
-Also read the linked PRD for alignment checking.
+Follow `~/.claude/skills/you-got-skills/skills/shared/docs-discovery.md` to locate the TRD and linked PRD.
 
 Read `~/.claude/skills/you-got-skills/templates/trd.md` and `~/.claude/skills/you-got-skills/templates/design-doc.md` as structural references for completeness checking.
 
@@ -55,7 +53,18 @@ For each architectural choice, classify as:
 - Dependencies on external services without fallback?
 - Deployment ordering constraints?
 
-## Step 5: Report
+## Step 5: EARS traceability
+
+The TRD should close the loop opened by the PRD's EARS requirements. For each P0/P1 requirement in the PRD:
+- Is there a named component or module in the TRD that satisfies it?
+- If the requirement is event-driven (When), does the design show what handles that event?
+- If the requirement has an unwanted-behaviour counterpart (If/Then), does the design address the failure mode?
+
+Missing traceability means the TRD may be architecturally complete but functionally incomplete — it doesn't prove the system will satisfy the requirements it was written to implement.
+
+Reference: `~/.claude/skills/you-got-skills/skills/shared/ears-patterns.md`
+
+## Step 6: Report
 
 - **Strengths** — Solid design choices
 - **MUST fix** — Blockers (severity: blocks approval)

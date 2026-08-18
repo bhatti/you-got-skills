@@ -12,9 +12,7 @@ For reliability testing patterns, read `~/.claude/skills/you-got-skills/skills/y
 
 Determine what changed:
 
-```bash
-git diff main...HEAD --stat 2>/dev/null || git diff master...HEAD --stat 2>/dev/null
-```
+Follow the diff protocol from `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md` to gather the changeset.
 
 Read relevant task files or PRD for acceptance criteria:
 
@@ -64,6 +62,8 @@ For each test scenario, exercise it if possible — don't just trace code paths 
 - If you can't exercise it: explicitly state what's unverified and why
 
 ## Step 6: Write missing tests
+
+For test quality standards, follow `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md`.
 
 If gaps are found, write tests for uncovered critical/high scenarios. Max 3 QA rounds — if still failing after 3, report status and let user decide.
 

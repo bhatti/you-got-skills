@@ -1,6 +1,7 @@
 ---
 name: ygs-triage
 description: Triage issues through a state machine — classify, reproduce, write agent briefs, track out-of-scope rejections. Use when creating issues, triaging bugs/features, or preparing work for agents.
+argument-hint: "[#issue] [--query <text>]"
 ---
 
 # Triage
@@ -68,6 +69,13 @@ Show counts and one-line summary per issue. Let maintainer pick.
 Read the full issue (body, comments, labels, reporter, dates). Parse prior triage notes — don't re-ask resolved questions. Explore the codebase using the project's domain language, respecting existing ADRs.
 
 Read `.out-of-scope/*.md` and surface any prior rejection that resembles this issue.
+
+**Before writing an enhancement brief, search the codebase for existing implementations:**
+```bash
+# Search by the domain language in the issue title/body
+grep -r "keyword" --include="*.ts" --include="*.rs" --include="*.go" --include="*.py" -l 2>/dev/null | head -10
+```
+If the requested behavior already exists (perhaps under a different name, behind a flag, or in an adjacent module), surface it. Triaging something as a new enhancement when it's already built wastes developer time.
 
 ### 2. Recommend
 

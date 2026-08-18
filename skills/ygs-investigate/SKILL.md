@@ -42,6 +42,25 @@ Run the loop. Confirm:
 - Reproducible across multiple runs
 - Exact symptom captured (error message, wrong output, timing)
 
+---
+
+## Phase 2.5: Minimise the reproduction
+
+Before hypothesising, reduce the reproducing case to its smallest form. A minimal repro:
+- Eliminates noise that might be masking the true cause
+- Makes hypotheses sharper (fewer variables to explain)
+- Becomes the regression test in Phase 5
+
+**Minimisation techniques:**
+1. **Remove inputs** — strip the reproducing input to the fewest fields/bytes that still fail
+2. **Remove setup** — cut initialisation steps; the bug often reproduces from a cold start
+3. **Remove components** — isolate to a single module; does it still fail without the surrounding system?
+4. **Binary search through time** — if it worked at some prior state, find the minimal code diff that introduced it
+
+**Done when:** The failure is reproducible with the smallest input and the fewest moving parts you could achieve in the time available. Perfect minimisation is not required — diminishing returns apply.
+
+---
+
 ## Phase 3: Hypothesize
 
 Generate **3-5 ranked hypotheses** before testing any of them. Single-hypothesis thinking anchors on the first plausible idea.

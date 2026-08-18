@@ -1,6 +1,7 @@
 ---
 name: ygs-spike
 description: Time-boxed spike to validate a hypothesis — quick-and-dirty implementation to prove feasibility, benchmark performance, or test integration. Not production code. Use for risky unknowns before committing to a full design.
+argument-hint: "<question> [--timebox <Xh>]"
 ---
 
 # Spike

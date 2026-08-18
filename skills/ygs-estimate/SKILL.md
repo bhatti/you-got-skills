@@ -5,14 +5,13 @@ description: Complexity-based estimation — t-shirt sizing at feature level, st
 
 # Estimate
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — ground estimates in code reality, not descriptions.
+
 ## Step 1: Gather inputs
 
 Read the PRD and TRD (if available):
 
-```bash
-ls -t docs/prd/*.md 2>/dev/null | head -5
-ls -t docs/trd/*.md 2>/dev/null | head -5
-```
+Follow `~/.claude/skills/you-got-skills/skills/shared/docs-discovery.md` to locate the PRD and TRD.
 
 If no docs exist, work from whatever the user provides.
 
@@ -129,6 +128,7 @@ Flag anything that increases the cone of uncertainty:
 - No prior art in the codebase for this type of work
 - Dependencies on other teams or external services
 - Unclear requirements (unresolved open questions in PRD)
+- **Unresolved PRD open questions** — if requirements have ambiguities or missing acceptance criteria, estimate uncertainty is high; suggest `/ygs-refine-prd` before committing to dates
 - New technology the team hasn't shipped with before
 - Data migration or backward compatibility requirements
 

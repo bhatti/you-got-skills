@@ -5,6 +5,8 @@ description: Security audit and red-team review. Checks OWASP top 10, auth, secr
 
 # Security Review
 
+Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the security review quality.
+
 For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
 
 For detailed checklist, read `references/microservice-security.md`.
@@ -44,7 +46,7 @@ Follow the diff protocol from `shared/review-scaffold.md`. Read full file conten
 - Missing encryption for sensitive data at rest/transit
 
 ### Supply chain
-- Known vulnerable dependencies (check lock files)
+- Follow `~/.claude/skills/you-got-skills/skills/shared/dep-audit.md` for polyglot dependency vulnerability scanning.
 - Unpinned dependencies that could be hijacked
 - Deserialization of untrusted data (pickle, YAML.load, eval)
 

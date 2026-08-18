@@ -1,6 +1,7 @@
 ---
 name: ygs-review-pr
 description: Full PR review for GitHub and Bitbucket — auto-detects platform, fetches diff + description, runs correctness/security/API/SRE review, ranks findings by severity, posts structured report. Outputs JSON status line.
+argument-hint: "<pr-url-or-number>"
 ---
 
 # PR Review

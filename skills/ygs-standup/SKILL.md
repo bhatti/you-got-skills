@@ -3,6 +3,7 @@ name: ygs-standup
 description: Daily standup brief — gather signals from tracker (GitHub/JIRA) and Slack,
   synthesize per-person status, flag silence and dependency risks, surface discussion
   questions. Replaces person-by-person status recitation with evidence-backed narrative.
+argument-hint: "[@person] [--date <YYYY-MM-DD>]"
 ---
 
 # Standup Brief
