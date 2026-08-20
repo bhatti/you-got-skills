@@ -24,7 +24,7 @@ Pick the highest-priority task with lowest ID (respecting dependency order) unle
 mv tasks/backlog/task-NNN.md tasks/in-progress/
 ```
 
-## Step 3: Assess scope and ceremony level
+## Step 3: Assess scope, ceremony level, and complexity
 
 Read the task file. Determine scope:
 - **Light (1-3 files, <300 lines):** Standard workflow, skip checkpoints
@@ -33,7 +33,16 @@ Read the task file. Determine scope:
 
 **Quick mode:** If task is Light AND has clear acceptance criteria AND touches well-understood code, proceed without intermediate confirmations. Not everything needs full ceremony.
 
-State the ceremony level before proceeding.
+Assign a complexity tier and write it to `$WORKSPACE_DIR/plan_complexity.txt` (create the file):
+- `low` — Light scope, no new abstractions, no schema/API changes, isolated to a single module
+- `medium` — Standard scope, or any new public API, cross-module changes, config changes
+- `high` — Heavy scope, new architectural component, schema migration, security-sensitive change, 3+ services affected
+
+```bash
+echo "medium" > "${WORKSPACE_DIR:-/workspace}/plan_complexity.txt"
+```
+
+State the ceremony level and complexity before proceeding.
 
 ## Step 4: Read context, challenge premises, discover reuse
 
