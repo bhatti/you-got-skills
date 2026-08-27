@@ -76,7 +76,9 @@ do_update() {
   fi
 
   echo "Updating you-got-skills at $repo_dir..."
-  git -C "$repo_dir" pull --ff-only
+  git -C "$repo_dir" fetch origin
+  git -C "$repo_dir" reset --hard origin/main
+  git -C "$repo_dir" clean -fd
   echo ""
   install_skills "$repo_dir"
   echo ""
