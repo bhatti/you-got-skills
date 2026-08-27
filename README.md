@@ -79,6 +79,12 @@ export JIRA_API_TOKEN=ATATT3x...          # from id.atlassian.com/manage/api-tok
 export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 ```
 
+### Discovery
+
+| Skill | Purpose |
+|-------|---------|
+| `/ygs-interview` | One-question-at-a-time intent extraction for underspecified asks — closes the want-vs-stated-want gap before any spec or code |
+
 ### Planning & Execution
 
 | Skill | Purpose |
@@ -87,6 +93,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-wbs` | Work Breakdown Structure: vertical-slice tasks with HITL/AFK classification and dependency waves |
 | `/ygs-spike` | Time-boxed spike to validate a hypothesis — feasibility, performance, or integration proof |
 | `/ygs-implement` | Implement a task with scope guardrails, checkpoints, and deviation tracking |
+| `/ygs-git` | Atomic commits, save-point pattern, semantic versioning, changelog hygiene |
 | `/ygs-sync` | Bidirectional sync: keep design docs accurate as implementation evolves |
 | `/ygs-ship` | Ship workflow: test, version bump, changelog, create PR |
 
@@ -113,8 +120,10 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 
 | Skill | Purpose |
 |-------|---------|
+| `/ygs-observe` | Production instrumentation: structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting |
 | `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, architectural handoff |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
+| `/ygs-deprecate` | Deprecation and migration: Expand/Contract schema migrations, Strangler pattern, zombie code removal |
 | `/ygs-learn` | Capture and surface operational learnings across sessions |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations |
 | `/ygs-handoff` | Compress session into a handoff doc for the next session |
@@ -134,10 +143,12 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/functional-design.md` | Functional design principles checklist |
 | `shared/dep-audit.md` | Polyglot dependency audit commands |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
+| `shared/definition-of-done.md` | Project-wide quality bar: Correctness / Quality / Integration / Ship-readiness |
 
 ## Typical Workflow
 
 ```
+/ygs-interview               → (optional) Extract confirmed intent before speccing
 /ygs-refine-prd              → Question until requirements are precise
 /ygs-review-prd              → Independent critique
 /ygs-refine-trd              → Question until design is sound
@@ -147,6 +158,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
 /ygs-implement               → Build with discipline
+/ygs-git                     → Commit with discipline (save-point pattern, atomic commits)
 /ygs-triage                  → Classify issues, write agent briefs
 /ygs-review-pr               → Full PR review (all four domains, ranked findings, verdict)
 /ygs-code-review             → Two-pass review
@@ -156,6 +168,8 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-uat                     → Customer perspective validation
 /ygs-sync                    → Sync design docs with implementation reality
 /ygs-ship                    → Test, version, PR (checks deploy freeze)
+/ygs-observe                 → Instrument: logging, metrics, tracing, alerting
+/ygs-deprecate               → Retire features and APIs safely
 /ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve
 ```
@@ -169,6 +183,7 @@ your-project/
 ├── CONTEXT.md            # Domain glossary (created lazily by refine skills)
 ├── .out-of-scope/        # Rejected feature knowledge base (concept-slug.md)
 ├── docs/
+│   ├── intent/           # Confirmed intent docs (ygs-interview output)
 │   ├── prd/              # Product requirements (YYYY-MM-DD-slug.md)
 │   ├── trd/              # Technical designs (YYYY-MM-DD-slug.md)
 │   ├── adr/              # Architecture decision records (NNN-slug.md)

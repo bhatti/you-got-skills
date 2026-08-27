@@ -36,6 +36,8 @@ Use the polyglot test runner from `~/.claude/skills/you-got-skills/skills/shared
 
 If tests fail: **BLOCKED** — fix tests before shipping.
 
+Before proceeding, verify against `~/.claude/skills/you-got-skills/skills/shared/definition-of-done.md`. Tests passing satisfies the Correctness section. Also check the Ship-readiness section: security implications reviewed, observability in place for any new critical paths, rollback path exists.
+
 ## Step 5: Exercise the feature
 
 Tests passing is necessary but not sufficient. Before shipping, verify the actual behavior:
@@ -88,3 +90,15 @@ Report **DONE** with:
 - PR URL (if created)
 
 Or **BLOCKED** if tests fail or issues found.
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|----------------|---------|
+| "Tests pass, so it works" | Tests verify what was tested. Exercise the actual feature (Step 5) to find what tests missed. |
+| "It's a small change, no need for the full workflow" | Small changes break prod. The workflow exists precisely for "it's just a small change" situations. |
+| "I'll add the changelog entry later" | "Later" is never. Write it now while the impact is fresh and you still remember what changed. |
+| "I'll skip the diff review, I know what's in there" | Debug code, env files, and build artifacts have shipped this way. Always review the diff. |
+| "The freeze check isn't relevant for my change" | Deploy freezes exist because the system is fragile right now. Every change is relevant. |

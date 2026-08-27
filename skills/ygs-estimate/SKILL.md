@@ -7,6 +7,12 @@ description: Complexity-based estimation — t-shirt sizing at feature level, st
 
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — ground estimates in code reality, not descriptions.
 
+## When NOT to use
+
+- No spec or description exists yet — you cannot estimate nothing; run `/ygs-refine-prd` first
+- The task is already in progress — estimate what remains, not the whole original scope; use `/ygs-retro` to calibrate accuracy after completion
+- Requirements have unresolved ambiguities flagged in the PRD — unresolved questions inflate variance to the point where estimates are guesswork; resolve first
+
 ## Step 1: Gather inputs
 
 Read the PRD and TRD (if available):

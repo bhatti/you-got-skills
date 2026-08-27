@@ -33,6 +33,8 @@ For each changed component:
 4. **Tracing** — Can a request be traced end-to-end through this change?
 5. **Health checks** — Updated to reflect new dependencies?
 
+If instrumentation is absent or thin on a new critical path, flag it as a **MUST** finding and recommend `/ygs-observe` for the feature author to add structured logging, RED metrics, and tracing before deploy. Use `~/.claude/skills/you-got-skills/skills/ygs-observe/references/observability-checklist.md` as the acceptance gate.
+
 ## Step 4: Operational risk
 
 1. **Stateful changes** — New persistent state? Migration path? Backwards-compatible schema?
@@ -65,6 +67,18 @@ For each finding:
 - **Recommended mitigation**
 
 Report **DONE** or **DONE_WITH_CONCERNS**.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|----------------|---------|
+| "We can add observability after launch" | The first incident is the most expensive time to discover you're blind. Instrument before deploy. |
+| "Manual testing in staging is enough" | Staging traffic patterns differ from production. Instrumentation and alerting must be verified before prod. |
+| "Rollback is always possible" | Rollback that requires manual migration or coordination is not a rollback — it's a recovery. Verify the actual steps. |
+| "It's stateless, so failure modes are simple" | Stateless services still fail: memory leaks, thread exhaustion, downstream timeouts, cache stampede. |
+| "On-call already knows how this works" | On-call at 2am has limited memory. New runbook entries for new failure modes are not optional. |
+
+---
 
 ## Deploy gate (optional — invoke with `--gate`)
 

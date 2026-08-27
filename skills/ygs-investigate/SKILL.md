@@ -7,6 +7,12 @@ description: Disciplined debugging — build feedback loop first, reproduce, hyp
 
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the diagnosis.
 
+## When NOT to use
+
+- The cause is obvious from the error message alone (missing import, config typo, wrong env var) — fix it directly without building a hypothesis pipeline
+- The "bug" is actually a feature request or expected behavior mismatch — confirm with user before treating it as a bug; investigation effort is wasted if the premise is wrong
+- No feedback loop can be built and user cannot provide one — surface as BLOCKED immediately rather than guessing at fixes
+
 **Iron law: No fixes without root cause. No hypotheses without a feedback loop.**
 
 **Corollary: The user's description of the bug may be wrong.** They may be reporting a symptom, misidentifying the component, or describing expected behavior as broken. Verify the premise before investigating.
@@ -123,6 +129,19 @@ Report **DONE** with:
 - **Architectural findings:** (if any) Structural issues revealed by this bug
 
 Or **BLOCKED** if root cause cannot be determined (explain what was tried and what would unblock).
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|----------------|---------|
+| "The root cause is obvious, let me just fix it" | Single-hypothesis thinking anchors on the first plausible idea. Rank 3-5 before testing any. |
+| "I can't build a feedback loop for this one" | Building the loop IS the skill. List what you tried and what would unblock before giving up. |
+| "The user's description is accurate" | They may be reporting a symptom, misidentifying the component, or describing expected behavior as broken. Verify the premise. |
+| "A quick patch now, proper fix later" | Patches without root cause analysis introduce second-order bugs. "Later" rarely comes. |
+| "It passed in CI once, so it's a flaky test" | Retry once. If it still fails, it's not flaky. |
+| "I need to understand all the code before building a loop" | Build the smallest possible loop first; understanding follows from running it. |
 
 ---
 

@@ -86,3 +86,15 @@ Overall risk assessment and priority order for fixes.
 If the user asks for a formal threat model, write one at `docs/threat-models/YYYY-MM-DD-<slug>.md` using the template structure from `~/.claude/skills/you-got-skills/templates/threat-model.md`.
 
 Report **DONE** or **DONE_WITH_CONCERNS**.
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|----------------|---------|
+| "This is internal only, attack surface is low" | Internal services get compromised by insider threat, credential theft, and lateral movement. Run the full audit. |
+| "The framework handles this for us" | Verify that it actually does. Framework defaults can be disabled, overridden, or misused accidentally. |
+| "No user input reaches this code path" | Trace the full call chain. "No user input" is often wrong or one refactor away from being wrong. |
+| "It's behind auth so injection doesn't matter" | Authenticated users are still potential threat actors. Auth gates access, not trust. |
+| "We can harden this after launch" | Security findings discovered post-launch require hotfixes under pressure. Review now costs 20 minutes. |

@@ -7,6 +7,12 @@ description: Work Breakdown Structure — hierarchically decompose PRD/TRD into 
 
 A WBS hierarchically divides a complex project into smaller, manageable components — making it easier to estimate costs, assign resources, and track progress.
 
+## When NOT to use
+
+- No PRD or TRD exists — decomposing a verbal description produces tasks based on assumptions, not requirements; run `/ygs-refine-prd` first
+- The feature is smaller than 3 tasks — just create the tasks directly without the WBS process overhead
+- PRD has significant open questions unresolved — breaking down an ambiguous spec produces tasks that will be rewritten; resolve ambiguity first
+
 ## Step 1: Find source documents
 
 ```bash

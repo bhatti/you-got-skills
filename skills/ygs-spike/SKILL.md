@@ -8,6 +8,12 @@ argument-hint: "<question> [--timebox <Xh>]"
 
 A spike is a time-boxed experiment to reduce risk. It answers a specific question — "Can we do X?" / "How fast is Y?" / "Does Z integrate cleanly?" — with minimal throwaway code. Not production quality. Not full coverage. Just enough to decide.
 
+## When NOT to use
+
+- The hypothesis is already answered by existing code, docs, or a prior spike — read before spiking
+- The question is unbounded and won't produce a decision ("explore how this library works") — that's research, not a spike; a spike must have a falsifiable success criterion and a stop condition
+- The risk is purely in requirements, not in technical feasibility — use `/ygs-refine-prd` or `/ygs-interview` instead
+
 ## Step 1: Define the hypothesis
 
 Ask the user (or infer from context):

@@ -8,6 +8,13 @@ description: Implement a task from the backlog with execution discipline — sco
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — you own the result.
 For detailed principles, read `references/implementation-principles.md` (functional design, cognitive load, fault tolerance, testing).
 
+## When NOT to use
+
+- One-line mechanical change (rename, typo fix, config tweak) — just do it directly without ceremony
+- No task file exists and scope is unclear — run `/ygs-wbs` first to create one
+- Acceptance criteria are missing or vague — run `/ygs-ask` or `/ygs-refine-prd` first; implementing against vague requirements produces correct-but-wrong code
+- Task is blocked on an external dependency — surface the blocker rather than guessing around it
+
 ## Step 1: Select task
 
 If the user specified a task, use that. Otherwise show the backlog:
@@ -107,6 +114,10 @@ Follow these rules:
 - Do NOT touch comments or code unrelated to your change
 - Do NOT reference issue/bug numbers in code or comments — explain the *why*, not the ticket
 
+### Save-point discipline
+
+After each verification step, commit. A commit is a save point — if the next step breaks something, `git reset --hard HEAD` returns to the last known-good state instantly. See `/ygs-git` for atomic commit conventions and commit message format.
+
 ### Execution logging (log-then-proceed)
 After each meaningful change, append to the log BEFORE starting the next change:
 ```
@@ -201,6 +212,8 @@ mv tasks/in-progress/task-NNN.md tasks/done/
 
 ## Step 12: Completion
 
+Before reporting DONE, check every line in `~/.claude/skills/you-got-skills/skills/shared/definition-of-done.md`. At minimum, the Correctness and Quality sections must be fully satisfied. If any item is unmet and can't be deferred, report DONE_WITH_CONCERNS (document the gap) rather than DONE.
+
 Report **DONE** with a summary table:
 
 | File | Action | Description |
@@ -214,3 +227,16 @@ Append:
 
 If scope exceeded or issues arose: **DONE_WITH_CONCERNS** or **BLOCKED**.
 Suggest: `/ygs-code-review` before committing.
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|----------------|---------|
+| "I'll refactor while I'm here" | Scope expansion is how S tasks become XL. Log the observation, create a separate task. |
+| "This abstraction will be useful later" | One consumer is not an abstraction, it's a wrapper. Wait for the second consumer. |
+| "The tests are probably right, I don't need to run them" | Tests verify what was tested. Running them takes 30 seconds. |
+| "Close enough — the approach is slightly off but acceptable" | A well-executed wrong approach is still wrong. Challenge the premise in Step 4. |
+| "I'll add the acceptance criteria check at the end" | Check as you go. Finding a gap at the end means backtracking through implemented code. |
+| "The existing pattern is the right pattern" | Existing code can be wrong. Normalization of deviance is how bad patterns spread. |
