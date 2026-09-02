@@ -64,6 +64,11 @@ Then explore the codebase in parallel:
 - **Search for reuse candidates:** Before writing new code, look for existing utilities, helpers, or similar implementations to reuse or extend. Check shared/common directories.
 - **Align with existing norms:** Match the style, naming, and design of surrounding code. New code should feel native, not foreign.
 - Flag anything that has changed since the design was written — the codebase is the truth.
+- **Surface prior learnings:** Check for prior learnings in this area before writing code:
+  ```bash
+  grep -rl "<task-related keyword>" docs/learnings/ 2>/dev/null | head -5
+  ```
+  Review matches — they document past surprises, edge cases, and gotchas. Incorporate into your approach. Capture new surprises with `/ygs-learn`.
 
 ### Challenge the premise
 

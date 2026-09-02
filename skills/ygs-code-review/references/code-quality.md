@@ -22,6 +22,7 @@
 - Small interface + rich implementation = high leverage (good)
 - Large interface + thin implementation = pass-through (bad)
 - Deletion test: if removing a module disperses complexity to N callers, it was earning its keep
+- DRY: before creating a new abstraction, verify no existing one already solves the problem — check shared/common directories and sibling modules
 
 ## Tidying Principles (from "Tidy First")
 - Tidy incrementally to enable the next behavior change, not for perfection

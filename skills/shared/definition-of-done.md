@@ -22,11 +22,17 @@ Use this alongside `completion-signals.md` — the DoD determines whether DONE o
 
 ## 2. Quality
 
-- [ ] No debug artifacts: no `console.log` left in, no `TODO: remove`, no hardcoded test values
-- [ ] No dead code introduced: no unused imports, variables, empty test bodies
+- [ ] No debug artifacts: no `console.log` left in, no `TODO: remove`, no hardcoded test values — all debug/trace logs gated by log level
+- [ ] No dead code introduced: no unused imports, variables, empty test bodies, assertion-free tests, dead test helpers
+- [ ] No legacy or backward-compatibility code — delete cleanly; no removed/moved comments
 - [ ] No issue/ticket numbers in code or comments — explain the *why*, not the ticket
-- [ ] No circular dependencies introduced
-- [ ] Naming is consistent with surrounding code; no surprises for a reader
+- [ ] No circular dependencies introduced; cyclic module refs resolved properly, not via trait hacks
+- [ ] Naming is consistent with surrounding code; no surprises for a reader; no leading-underscore private methods
+- [ ] Tests use the same code paths as production — no test-only flags, parameters, or dependency injections
+- [ ] 90%+ coverage gate — every new code path has test coverage
+- [ ] `docs/*.md` and README/examples updated when interfaces or behavior change
+- [ ] SDK/wrappers are decorators only — core logic stays in the underlying framework, not the wrapper
+- [ ] Deep modules: hide complexity behind a small, stable interface; no shallow pass-through layers
 
 ## 3. Integration
 

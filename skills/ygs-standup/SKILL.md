@@ -26,9 +26,10 @@ Using queries from `shared/tracker.md`:
 - ONLY include issues/PRs assigned to team members in `team:` list AND in the configured sprint (board_id)
 - NEVER show issues from other teams, boards, or unrelated assignees
 
-Using queries from `shared/slack.md`:
+Using queries from `shared/slack.md` (only if `slack_messages` in signals.json is non-empty):
 - Blocker/help/stuck keywords in standup channel, last 24h
 - Team members with no standup channel message in 2+ days
+- **If `slack_messages` is empty or absent: skip all Slack analysis entirely — do NOT mention Slack, lack of Slack activity, or ask people to post to the channel.**
 
 Cross-signals (derive after both):
 - Issue B blocked on stale Issue A owned by someone else → dependency risk
@@ -39,13 +40,15 @@ Cross-signals (derive after both):
 For each team member (2-3 sentences, evidence-backed):
 
 ```
-**Alice:** Closed PROJ-42 (auth fix). Working on PROJ-51 (rate limiter) — PR open
+**Alice:** Closed PROJ-42 (auth fix). Working on PROJ-51 (rate limiter, High priority) — PR open
 28h, no review yet. [Slack: "waiting on infra cert renewal"]
 ```
 
 - Every claim traces to a ticket, PR, or Slack message
 - No data → "No tracker activity in last 24h" (never fabricate)
 - Silence → "No updates since Monday (3 days)"
+- **NO hedging**: never write "likely", "probably", "might be" — if you can't confirm it from data, omit it
+- Show priority (Blocker/Critical/High) and release labels when present — skip Medium/Low/empty
 
 ## Step 4: Call to Action (write AFTER steps 5-6, place BEFORE per-person status)
 

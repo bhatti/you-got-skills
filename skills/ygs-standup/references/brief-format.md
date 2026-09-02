@@ -54,3 +54,6 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 - Keep each person's entry to 2-3 sentences max
 - Only include team members from the `team:` list in `.ygs/tracker.yml`
 - Only include issues/PRs from the configured sprint board (board_id in tracker.yml)
+- **NO hedging language** — never use "likely", "probably", "might be", "seems to be", "appears to". State observations as facts or omit them entirely. If data is ambiguous, say "no data" or describe what the data shows, not what it implies.
+- **Slack signals are optional** — if `slack_messages` in signals.json is empty, omit all Slack references. Never write "No Slack activity detected" or ask people to post to the channel.
+- **Surface priority and labels** — for Blocker/Critical/High priority issues, include the priority in the issue description (e.g., "working on PROJ-123 (High priority)"). For release-tracking labels (e.g., "2609-release"), include them when present. Skip Medium/Low/empty to reduce noise.

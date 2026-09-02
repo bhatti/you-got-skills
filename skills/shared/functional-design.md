@@ -28,6 +28,26 @@ Functions either change state (commands) or return values (queries) — not both
 ### Composition over inheritance
 Prefer small, composable functions/modules over deep inheritance hierarchies. Flat and explicit beats deep and implicit.
 
+### Newtype and typestate patterns
+- **Newtype pattern** — Distinct types for semantically different values (`UserId` vs `OrderId`). Compiler prevents mixing at zero runtime cost.
+- **Typestate pattern** — Encode valid state transitions into the type system. Invalid sequences are compile errors, not runtime checks.
+- **Pattern matching** — Exhaustive handling of all variants. Adding a new variant makes every unhandled match a compile error.
+
+### Bounded channels for backpressure
+Fixed-size channels between components. Producers wait when the buffer is full — no unbounded memory growth under load.
+
+### Hexagonal architecture (ports & adapters)
+Dependencies point inward only. Domain logic knows nothing of infrastructure. Adapters translate at boundaries.
+
+## Anti-patterns
+
+- Mutable shared state without ownership discipline
+- Stringly-typed APIs — use enums and newtypes instead
+- God objects that accumulate unrelated state
+- Exceptions for control flow — use Result/Option types
+- Implicit state transitions — use explicit FSMs
+- Mixing I/O into domain logic — keep the functional core pure
+
 ## Review checklist
 
 When reviewing code for functional design:

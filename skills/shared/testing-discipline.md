@@ -5,6 +5,12 @@ Reference this file — do not inline these rules.
 
 ## Rules
 
+**TDD is mandatory.** Write a failing test before implementing. Red → green → refactor — in that order, every time. Never write implementation code before there is a test that requires it.
+
+**Tests use production code paths.** Tests must call the same methods, constructors, and code paths that production calls. Never add test-only parameters, flags, or dependency injection points specifically to enable testing — that's a design smell, not a testing strategy.
+
+**Coverage gate: 90%+.** Every new code path must be covered. Fail CI if coverage drops below threshold. But coverage is a floor, not a goal — 90% with weak assertions is worse than 80% with strong ones.
+
 **No flaky tests.** A test that passes sometimes and fails other times is worse than no test — it erodes trust in the suite. Root causes: timing, shared mutable state, network calls, filesystem ordering, random data without seeds.
 
 **No sleeps.** Never use `sleep()`, `Thread.sleep()`, `time.sleep()` or equivalent in tests. Use condition variables, polling with timeout, or mock time instead.
@@ -30,3 +36,5 @@ Reference this file — do not inline these rules.
 - Tests named after implementation details, not behaviors
 - Test file with zero coverage of the changed path
 - Setup/teardown that creates side effects visible to other tests
+- Unused test variables, dead test helper functions
+- Test-only flags or constructors added to production code to enable testing

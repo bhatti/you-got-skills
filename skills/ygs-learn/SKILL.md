@@ -60,6 +60,29 @@ grep -rl "<keyword>" docs/learnings/ 2>/dev/null
 
 Present matching learnings sorted by relevance. Note any that may be stale (older than 6 months — verify still applies).
 
+## Step 4a: Extract mode (after PR merge — invoked with `--extract <pr-url>`)
+
+When a PR has been merged and review feedback is available, extract learnings from that feedback automatically:
+
+1. Fetch PR comments via `gh pr view <pr-url> --comments` (or Bitbucket REST equivalent)
+2. For each comment thread: assess whether it reveals a recurring pattern, a gotcha, or a surprise that would apply to future work
+3. Skip comments that are purely stylistic, already captured, or specific to the PR with no generalizability
+4. For each actionable learning: run Steps 2-3 above (deduplicate, then write)
+5. Report: N learnings extracted, M skipped (already existed or not generalizable)
+
+## Step 4b: Audit mode (invoked with `--audit`)
+
+Scan learnings for staleness and quality:
+
+```bash
+find docs/learnings/ -name "*.md" -mtime +90 2>/dev/null
+```
+
+For each learning older than 90 days:
+- Check whether the evidence still applies (the code/pattern it references may have changed)
+- If stale: update with new evidence, or mark as superseded and delete
+- Report: N reviewed, M updated, K deleted
+
 ## Step 5: Completion
 
 Report **DONE** with:

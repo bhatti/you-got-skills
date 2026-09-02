@@ -8,10 +8,9 @@ description: Diff-based code review — two-pass (critical/informational), testi
 For shared review protocol (diff, severity, output format), read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
 
 For detailed principles, read:
-- `references/code-quality.md` — Cognitive load, tidying, testing
-- `references/functional-design.md` — Immutability, FSM, making invalid states impossible
+- `references/code-quality.md` — Cognitive load, deep modules, tidying, testing
+- `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` — immutability, FSM, invalid-state prevention, anti-patterns (referenced in Step 5)
 - `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` — testing rules (referenced in Step 6)
-- `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` — functional design checklist (referenced in Step 5)
 
 ## Step 1: Get the diff
 

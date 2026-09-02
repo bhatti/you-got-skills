@@ -65,6 +65,31 @@ For each finding:
 - **Issue** — what's wrong
 - **Fix** — suggested resolution
 
+## Principal quality bar
+
+Apply these checks on every review before reporting findings. They are non-negotiable regardless of PR size:
+
+**Performance at scale** — Would this code behave correctly at millions of requests/sec or millions of records?
+- N+1 queries: fetching in a loop what could be a single batched call
+- Serial awaits in loops that could be parallelized
+- Hot-path allocations: object creation per request that should be pooled or cached
+- Unbounded cardinality: map/set keys that grow with unique users or events
+
+**Concurrency & failure** — What fails non-deterministically?
+- Race conditions: check-then-act, find-or-create without locks, TOCTOU
+- Partial failure: if step 2 of 3 fails, what state is the system in?
+- Blast radius: if this component fails, what else goes down?
+
+**Architecture cohesion** — Does this fit the existing design?
+- Does the new code feel native, or does it introduce a disconnected abstraction?
+- Is there an existing abstraction that already does this? (Check before creating new)
+- No circular dependencies; cyclic module refs resolved with proper design, not trait hacks
+- No shallow pass-through layers — deep modules hide complexity behind small interfaces
+
+**Data contract** — Is the data model defined correctly?
+- New data structures defined at the appropriate layer (e.g., in `.proto` for cross-boundary types)
+- No stringly-typed APIs where enums/newtypes exist
+
 ## Approach-level review
 
 Before reporting individual findings, assess whether the overall approach is sound:
