@@ -31,8 +31,8 @@ Extract repo from Jira/BB/GH URL if provided; fall back to env vars.
 
 ```bash
 # Bitbucket — ATATT token uses x-token-auth; app password uses username:token
-BB_WORKSPACE="${BITBUCKET_WORKSPACE:-cribl}"
-BB_REPO="${BITBUCKET_REPO:-cribl}"
+BB_WORKSPACE="${BITBUCKET_WORKSPACE:-def-repo}"
+BB_REPO="${BITBUCKET_REPO:-def-repo}"
 
 if [[ "${BITBUCKET_TOKEN}" == ATATT* ]]; then
   CLONE_URL="https://x-token-auth:${BITBUCKET_TOKEN}@bitbucket.org/${BB_WORKSPACE}/${BB_REPO}.git"
