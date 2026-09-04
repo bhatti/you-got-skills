@@ -42,6 +42,28 @@ Pull latest changes and refresh symlinks:
 
 The setup script symlinks each skill into `~/.claude/skills/` where Claude Code discovers them automatically.
 
+## Skill Pipeline
+
+Recommended flow for a feature from idea to ship:
+
+```
+intent unclear?  →  /ygs-interview
+                          ↓
+      design unclear?  →  /ygs-brainstorm
+                          ↓ (architectural path)
+           /ygs-refine-prd  →  /ygs-refine-trd
+                          ↓ (all paths)
+     /ygs-estimate   /ygs-wbs   /ygs-spike
+                          ↓
+   /ygs-worktree  →  /ygs-implement  →  /ygs-qa
+                          ↓
+  /ygs-code-review / /ygs-review-pr / /ygs-receive-review
+                          ↓
+                     /ygs-ship
+```
+
+Cross-cutting (use any time): `/ygs-investigate`, `/ygs-triage`, `/ygs-observe`, `/ygs-parallel`
+
 ## Skills
 
 ### Requirements & Design
@@ -84,6 +106,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-interview` | One-question-at-a-time intent extraction for underspecified asks — closes the want-vs-stated-want gap before any spec or code |
+| `/ygs-brainstorm` | Design gate before writing code — classifies work (spike/bounded/architectural), explores approach, requires approval before any implementation |
 
 ### Planning & Execution
 
@@ -94,8 +117,10 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-spike` | Time-boxed spike to validate a hypothesis — feasibility, performance, or integration proof |
 | `/ygs-implement` | Implement a task with scope guardrails, checkpoints, and deviation tracking |
 | `/ygs-git` | Atomic commits, save-point pattern, semantic versioning, changelog hygiene |
+| `/ygs-worktree` | Git worktree management — isolate feature work in a linked worktree before implementing |
 | `/ygs-sync` | Bidirectional sync: keep design docs accurate as implementation evolves |
 | `/ygs-ship` | Ship workflow: test, version bump, changelog, create PR |
+| `/ygs-parallel` | Dispatch independent parallel subagents for 2+ tasks with no shared state or sequential dependencies |
 
 ### Reviews
 
@@ -108,6 +133,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-sre-review` | Operational review: failure modes, observability, capacity, rollback, deploy gate |
 | `/ygs-ui-review` | UI/UX review: accessibility, consistency, responsiveness |
 | `/ygs-api-review` | API review: breaking changes, conventions, backwards compatibility |
+| `/ygs-receive-review` | Receive and evaluate code review feedback — evaluate technically before implementing, push back with reasoning when warranted |
 
 ### Testing & Quality
 
@@ -121,7 +147,8 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-observe` | Production instrumentation: structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting |
-| `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, architectural handoff |
+| `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, backward tracing, architectural handoff |
+| `/ygs-write-skill` | Create or improve YGS skills — SDO-optimized descriptions, DRY shared modules, skill verification |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-deprecate` | Deprecation and migration: Expand/Contract schema migrations, Strangler pattern, zombie code removal |
 | `/ygs-learn` | Capture and surface operational learnings across sessions |
@@ -135,20 +162,32 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 
 | Module | Purpose |
 |--------|---------|
-| `shared/ears-patterns.md` | EARS requirement patterns reference (six temporal forms) |
-| `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
-| `shared/slack.md` | Slack bot token setup for standup and risk-scan signals |
-| `shared/docs-discovery.md` | Canonical PRD/TRD/ADR discovery commands |
-| `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, condition variables |
-| `shared/functional-design.md` | Functional design principles checklist |
-| `shared/dep-audit.md` | Polyglot dependency audit commands |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
+| `shared/condition-based-waiting.md` | Replace sleep/timeouts with condition polling — polyglot patterns |
 | `shared/definition-of-done.md` | Project-wide quality bar: Correctness / Quality / Integration / Ship-readiness |
+| `shared/dep-audit.md` | Polyglot dependency audit commands |
+| `shared/docs-discovery.md` | Canonical PRD/TRD/ADR discovery commands |
+| `shared/ears-patterns.md` | EARS requirement patterns reference (six temporal forms) |
+| `shared/functional-design.md` | Functional design principles and anti-patterns checklist |
+| `shared/init.md` | Step 1 bootstrap for team-intelligence skills: config load + credential verify |
+| `shared/output-format.md` | Slack-compatible bullet-row format enforced by standup/risk-scan |
+| `shared/ownership-principles.md` | Senior engineer mindset: trust nothing, verify everything, judgment over obedience |
+| `shared/refine-scaffold.md` | Common one-question-at-a-time protocol for all refine skills |
+| `shared/review-scaffold.md` | Common protocol for all review skills: diff gather, severity tiers, verdict |
+| `shared/risk-criteria.md` | HIGH/MEDIUM/LOW risk severity rules used by standup and risk-scan |
+| `shared/slack.md` | Slack bot token setup and query patterns for team-intelligence signals |
+| `shared/subagent-dispatch.md` | Patterns for crafting isolated, self-contained subagent prompts |
+| `shared/test-runner.md` | Polyglot test runner: auto-detect and run Makefile/npm/cargo/pytest/go suites |
+| `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, iron law, rationalization table |
+| `shared/tracker.md` | DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (`acli`) |
+| `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
+| `shared/verification-gate.md` | Iron law: no completion claims without fresh verification evidence |
 
 ## Typical Workflow
 
 ```
 /ygs-interview               → (optional) Extract confirmed intent before speccing
+/ygs-brainstorm              → Design gate: classify work, explore approach, get approval
 /ygs-refine-prd              → Question until requirements are precise
 /ygs-review-prd              → Independent critique
 /ygs-refine-trd              → Question until design is sound
@@ -157,10 +196,13 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-estimate                → T-shirt sizing + story points + capacity planning
 /ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
+/ygs-worktree                → Isolate feature work in a linked worktree
 /ygs-implement               → Build with discipline
 /ygs-git                     → Commit with discipline (save-point pattern, atomic commits)
+/ygs-parallel                → Dispatch independent tasks to parallel subagents
 /ygs-triage                  → Classify issues, write agent briefs
 /ygs-review-pr               → Full PR review (all four domains, ranked findings, verdict)
+/ygs-receive-review          → Evaluate and respond to review feedback with technical reasoning
 /ygs-code-review             → Two-pass review
 /ygs-security-review         → Security + red-team
 /ygs-sre-review              → Operational readiness
@@ -236,6 +278,10 @@ These principles are embedded throughout the skills:
 Skills use these when available (graceful fallback if missing):
 - `git` — diff-based reviews, branch detection
 - `gh` — GitHub CLI for PR workflows
+
+## Related Projects
+
+**[Superpowers](https://github.com/jessevictors/superpowers)** — Complementary skills with deep execution-time discipline: subagent-driven development, strict TDD, systematic debugging, and worktree isolation. Pairs well with YGS's planning and team-intelligence coverage.
 
 ## Credits
 

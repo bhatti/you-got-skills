@@ -109,6 +109,22 @@ Follow these rules:
 - If you touch 3+ unplanned files: STOP. Report the deviation and ask user to confirm expanded scope.
 - Stick to what the task asks. No "while I'm here" cleanups.
 
+### Rulings-not-stalls
+
+When you hit an implementation ambiguity that would block progress (a design detail not covered by the task, a naming choice, a minor interface tradeoff), **make a ruling** rather than stopping:
+
+1. Choose the most technically sound option given available context
+2. Record it in `tasks/in-progress/<task>.progress.md`:
+   ```
+   [RULING] <decision> — <rationale>
+   ```
+3. Continue implementing
+4. Surface all rulings in Step 12 completion summary
+
+**Only stop and ask** when the ambiguity is about requirements (what the feature should do), not implementation (how to build it). Requirement ambiguity produces wrong code. Implementation ambiguity produces different-but-correct code.
+
+For longer implementations: maintain `tasks/in-progress/<task>.progress.md` with completed steps, active rulings, and next action. This survives session compaction.
+
 ### Do NOT (explicit negative constraints)
 - Do NOT refactor code unrelated to the task
 - Do NOT add error handling for impossible states
@@ -206,6 +222,12 @@ Before moving to done, self-check your own work:
 - Confirm changes follow existing architecture — proportional to the problem, not over/under-engineered
 - Check all ways this code can fail: partial failure, concurrent access, large inputs, high throughput
 - If issues found: fix and re-run verification (max 2 self-review cycles, then flag concerns)
+
+## Step 10.5: Verification gate
+
+Before moving to done: read `~/.claude/skills/you-got-skills/skills/shared/verification-gate.md`.
+
+Run the test suite and show the output. Run the feature end-to-end and show the result. **Do not report DONE until you have fresh command output in this response confirming tests pass and behavior is correct.** "Tests should pass" is not evidence. The output is.
 
 ## Step 11: Move to done
 

@@ -7,6 +7,20 @@ description: Ship workflow — run tests, exercise the feature, review diff, bum
 
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` — shipping means it works, not that tests pass.
 
+## Pre-flight: Verification gate
+
+Read `~/.claude/skills/you-got-skills/skills/shared/verification-gate.md`.
+
+All claims in this skill — "tests pass", "feature works", "no regressions" — require fresh command output in this response. Running a command and not showing its output is not verification. Stating that tests "should" pass is not verification.
+
+## Step 0: Worktree check
+
+```bash
+git rev-parse --git-dir
+```
+
+If the output is not `.git` (e.g. it contains `worktrees`), you're in a linked worktree. After the PR is merged, run `/ygs-worktree` cleanup to remove it: `git worktree remove .worktrees/<branch-name> && git worktree prune`.
+
 ## Step 1: Verify clean state
 
 ```bash

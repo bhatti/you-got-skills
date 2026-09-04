@@ -74,7 +74,8 @@ Require **explicit confirmation** — not "sounds good" or "whatever you think."
 After explicit confirmation, offer to write the confirmed intent to `docs/intent/[topic].md`.
 
 The intent doc is the input to downstream skills:
-- `/ygs-refine-prd` — to write a full PRD from this intent
+- `/ygs-brainstorm` — if intent is confirmed but the implementation approach needs a design decision before a full spec (how to build it, not what to build)
+- `/ygs-refine-prd` — to write a full PRD from this intent (for larger features or when stakeholders need a formal spec)
 - `/ygs-spike` — if feasibility of the approach is still uncertain
 - `/ygs-estimate` — if timeline questions need answering before committing
 

@@ -58,3 +58,28 @@ Skills use these when available (graceful fallback if missing):
 
 - `git` — diff-based reviews, branch detection
 - `gh` — GitHub PR integration (comments, status checks)
+
+## Skill Discovery Optimization (SDO)
+
+The `description` field in skill frontmatter is what agents read to decide whether to invoke the skill. Write it as **triggering conditions** — not a workflow summary.
+
+**Bad (workflow summary):**
+> "Manages code review workflow — runs multi-pass review, deduplicates findings, posts structured report"
+
+**Good (triggering conditions):**
+> "Full PR review for GitHub and Bitbucket — use when asked to review a PR, before merging, or after a significant diff"
+
+**Test:** Can an agent read the description and know exactly when to invoke this skill without reading the full SKILL.md? If not, rewrite it.
+
+Descriptions that summarize workflow cause agents to treat the description as a substitute for the full skill content — they follow the summary instead of the steps. Triggering-condition descriptions cause agents to invoke the skill and follow the steps.
+
+## Adding New Skills
+
+1. Create `skills/ygs-<name>/SKILL.md`
+2. Use the SDO principle for the `description` field
+3. Extract shared content to `skills/shared/` if 2+ skills reference it
+4. Reference shared files with the absolute installed path: `~/.claude/skills/you-got-skills/skills/shared/<file>.md`
+5. Run `./setup install` to register the symlink
+6. Update `README.md` skill table and Shared Modules table
+
+For detailed guidance: `/ygs-write-skill`

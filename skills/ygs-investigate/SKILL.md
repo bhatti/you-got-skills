@@ -67,6 +67,12 @@ Before hypothesising, reduce the reproducing case to its smallest form. A minima
 
 ---
 
+## Phase 2.75: Async and timing conditions
+
+If the feedback loop involves waiting for a process, polling state, or async behavior: see `~/.claude/skills/you-got-skills/skills/shared/condition-based-waiting.md`.
+
+Never use `sleep()` to synchronize — use condition polling with explicit timeout. A sleep-based loop that passes today is a flaky test tomorrow.
+
 ## Phase 3: Hypothesize
 
 Generate **3-5 ranked hypotheses** before testing any of them. Single-hypothesis thinking anchors on the first plausible idea.
@@ -88,6 +94,22 @@ Preference:
 3. Never "log everything and grep"
 
 Tag every debug artifact with unique prefix (e.g. `[DEBUG-x7k2]`) for cleanup.
+
+## Phase 4.5: Architecture signal
+
+If you have made **3 or more distinct fix attempts** and the bug persists or resurfaces: stop fixing.
+
+The bug is not a bug — it is a symptom of an architectural constraint. Surface this explicitly:
+
+> "Three fix attempts have not resolved this. The root cause appears to be [X]. This likely requires a design change rather than a targeted fix."
+
+Then run `/ygs-brainstorm` on the architectural concern before attempting another fix. More attempts without a design change will produce the same outcome.
+
+### Backward tracing
+
+When the root cause is not obvious from the symptom: trace backward through the call stack.
+
+Start at the observable symptom (error message, wrong output, crash). For each frame, ask: "What called this, and with what input?" Continue upward until you find the origin — the point where incorrect data was introduced or a contract was violated. **The bug is at the origin, not at the symptom.** Fixing the symptom produces a different error at the same origin.
 
 ## Phase 5: Fix + regression test
 
