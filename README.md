@@ -152,9 +152,28 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-deprecate` | Deprecation and migration: Expand/Contract schema migrations, Strangler pattern, zombie code removal |
 | `/ygs-learn` | Capture and surface operational learnings across sessions |
-| `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations |
+| `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations, git commit-type ratios, hotspot files |
 | `/ygs-handoff` | Compress session into a handoff doc for the next session |
 | `/ygs-changelog` | Generate changelog from git history and task files |
+
+### Codebase Intelligence
+
+Long-horizon analysis skills that look across many commits to detect patterns that per-PR review misses.
+
+| Skill | Purpose |
+|-------|---------|
+| `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) for hotspots (files changed >15% of commits), temporal coupling (hidden cross-module dependencies), duplicate abstractions, architecture drift, security archaeology, test coverage gaps, commit health (fix:commit ratio, large commits), and knowledge silos (bus-factor risk). Reuses ygs-review-deep (architecture) and ygs-security-review (security) protocols. |
+
+**Arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health]`
+
+**Usage:**
+```bash
+/ygs-codebase-audit                                          # analyze codebase in CWD
+/ygs-codebase-audit https://github.com/org/repo             # audit a specific repo
+/ygs-codebase-audit --commits 500 --focus architecture      # focused audit
+```
+
+Via Slack (with Formicary integration): `@bot audit` or `@bot codebase audit`
 
 ## Shared Modules
 
@@ -214,6 +233,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-deprecate               → Retire features and APIs safely
 /ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve
+/ygs-codebase-audit          → Post-merge archaeology (hotspots, drift, silos, test gaps)
 ```
 
 ## Project Conventions

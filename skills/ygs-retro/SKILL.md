@@ -21,6 +21,42 @@ ls tasks/done/*.md 2>/dev/null
 
 Read recent PRDs/TRDs for what was planned vs delivered.
 
+## Step 2b: Git Analytics (quick quantitative signal)
+
+Before asking the human, collect git signal to anchor the retrospective in data:
+
+```bash
+SINCE="${RETRO_SINCE:-1 week ago}"
+# Commit type ratios
+TOTAL=$(git log --format="%s" --since="$SINCE" 2>/dev/null | wc -l | tr -d ' ')
+FIXES=$(git log --format="%s" --since="$SINCE" 2>/dev/null | grep -cE "^fix[(:!]|^bug[(:!]|^hotfix" || echo 0)
+FEATS=$(git log --format="%s" --since="$SINCE" 2>/dev/null | grep -cE "^feat[(:!]" || echo 0)
+if [ "$TOTAL" -gt 0 ]; then
+    echo "Total commits: $TOTAL | feat ratio: $((FEATS * 100 / TOTAL))% | fix ratio: $((FIXES * 100 / TOTAL))%"
+else
+    echo "No commits in the period"
+fi
+
+# Top-5 hotspot files (changed most often this period)
+echo "--- Hotspot files ---"
+git log --name-only --pretty=format: --since="$SINCE" 2>/dev/null \
+  | grep -v "^$" | sort | uniq -c | sort -rn | head -5
+
+# Large commits (many files — risky for regressions)
+echo "--- Large commits (>10 files) ---"
+git log --format="%h %s" --since="$SINCE" 2>/dev/null | while read hash msg; do
+    count=$(git show --name-only "$hash" 2>/dev/null | tail -n +6 | grep -v "^$" | wc -l | tr -d ' ')
+    [ "$count" -gt 10 ] && echo "  $hash ($count files): $msg"
+done | head -5
+```
+
+Flag in the retrospective narrative:
+- fix: ratio >40% → "Team is reactive — shipping debt faster than features"
+- Same file changed >3× in one week → "Potential hotspot: consider refactor"
+- Any commit touching >15 files → "Large commit — review risk and test coverage"
+
+For a deeper analysis of the last 1000 commits across all teams, use `ygs-codebase-audit` instead.
+
 ## Step 2: Ask the human
 
 The artifacts show what happened; only the human observed friction, judgment calls, and frustration. After reviewing artifacts, ask 3-4 targeted questions — tailor them to what you found, not generic prompts.
