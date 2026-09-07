@@ -54,6 +54,22 @@ done | head -3
 
 Only report coupling where (1) files are in different top-level directories, (2) you found ≥ 3 actual co-change examples in git log, (3) both files currently exist.
 
+## Step 4: Bug hotspot cross-reference
+
+Use the **Bug Hotspots** section from Repository Analysis Data (files in fix/bug commits). Cross-reference with the general hotspot list:
+
+- A file that is BOTH a change-frequency hotspot AND a bug hotspot → escalate severity one level
+- Run to confirm bug-related churn on top candidates:
+
+```bash
+git log -i -E --grep='fix|bug|broken' --oneline -- <file> 2>/dev/null | wc -l
+```
+
+Also check the **Emergency / Revert Commits** section. If a hotspot file appears in ≥2 revert/hotfix commits:
+```bash
+git log --oneline --since='1 year ago' -- <file> 2>/dev/null | grep -iE 'revert|hotfix|emergency|rollback'
+```
+
 ## Severity thresholds
 
 | Condition | Severity | Confidence |

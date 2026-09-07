@@ -64,6 +64,17 @@ Read each specialist reference file:
 ### 1d. Read pre-computed git statistics
 The runner has already computed git statistics and placed them in the **Repository Analysis Data** block in the prompt. Use that data as your primary quantitative source. For any statistic not in the pre-computed data, run git commands directly.
 
+Pre-computed sections available (use each where relevant):
+- `## Hotspot Analysis` — top files by change frequency
+- `## Temporal Coupling` — cross-module co-changing pairs
+- `## Knowledge Silos` — single-author concentration in hotspot files
+- `## Commit Health` — fix ratio, avg files/commit, large commits, vague messages
+- `## Test Health` — untested production files, brittle test files
+- `## Bug Hotspots (files in fix/bug commits)` — files most often in fix/bug commits
+- `## Commit Velocity (monthly)` — monthly commit distribution (velocity spikes/crashes)
+- `## Emergency / Revert Commits (last year)` — revert/hotfix/rollback commits
+- `## Top Contributors` — contributor breakdown by commit count
+
 ---
 
 ## Phase 2: Run all 7 specialist passes
