@@ -17,6 +17,30 @@ accumulated across many commits, often from multiple teams or AI-generated code.
 Always emit `::add-task-context` markers so findings are visible in the dashboard.
 Always produce evidence-based findings — run commands, don't just read static files.
 
+## ⚠️ NO FALSE POSITIVES — MANDATORY
+
+**Every single finding MUST be verified before reporting.**
+
+- **Run the command. Read the output. Confirm the finding exists** in actual file contents
+  or git history before writing it to the report.
+- If a pre-computed statistic suggests a problem, **verify it with a direct Bash command
+  before flagging it**. The statistics are hints, not verdicts.
+- **OMIT the finding entirely** if you cannot produce a concrete, reproducible evidence
+  snippet (file path + line number, git commit hash, actual output). A missing finding is
+  better than a wrong one.
+- Do not infer problems from file names, directory names, or commit message patterns alone.
+  Check the actual content.
+- Do not repeat the same finding at multiple severities. Pick one severity and one evidence
+  snippet.
+
+**Evidence format** (required for every finding in the report table):
+```
+Evidence: <command_run> → <actual_output_snippet> (e.g., "grep -r 'import db' src/api/ → src/api/controller.py:3: import db.models")
+```
+
+Unverified speculation goes in the Informational section at most, clearly labeled
+`(unverified — manual review recommended)`.
+
 ## When to use this skill (vs others)
 
 | Situation | Use |
@@ -77,12 +101,24 @@ Severity thresholds:
 - HIGH: changed in >10% of commits OR appears in temporal coupling with confidence >0.7
 - MEDIUM: changed in >5% of commits
 
-For temporal coupling findings:
+**Before flagging any hotspot, verify the file still exists:**
 ```bash
-# Verify a coupling pair is in different modules (not just co-located files):
-echo "Checking module boundaries for coupled files..."
-# List top 5 temporal coupling pairs from the data block
+# Verify hotspot files exist and are not test/generated files
+ls -la <hotspot_file> 2>/dev/null || echo "FILE_MISSING"
+# Confirm it is a code file (not a config or lock file that legitimately changes often)
+head -5 <hotspot_file> 2>/dev/null
 ```
+
+For temporal coupling findings, **verify before flagging**:
+```bash
+# Confirm the two files are in different modules (coupling matters less within same package)
+echo "File A dir: $(dirname <file_a>)"
+echo "File B dir: $(dirname <file_b>)"
+# Only flag if they are in different top-level directories
+```
+
+Only report a hotspot finding if the file: (1) still exists, (2) is a production code file,
+(3) has change count above the threshold. Skip generated files, migrations, and changelogs.
 
 ### Phase B — Architecture Drift
 
@@ -109,11 +145,19 @@ find . \( -name "*.py" -o -name "*.ts" -o -name "*.go" \) \
   -exec wc -l {} + 2>/dev/null | sort -rn | head -10
 ```
 
-Flag:
-- `CRITICAL`: Cross-boundary imports between architectural layers (e.g., controller → DB model)
-- `HIGH`: 3+ files with the same basename in different directories (duplicate abstraction)
-- `HIGH`: File >2000 lines (module needs splitting)
-- `MEDIUM`: Shallow wrapper detected (file that only passes through to another)
+**Before flagging architecture findings, confirm with actual output:**
+```bash
+# Show the exact import line before flagging a cross-boundary import
+grep -n "from.*model\|import.*entity" <suspected_file> 2>/dev/null | head -5
+# Show actual line count before flagging a large file
+wc -l <suspected_file> 2>/dev/null
+```
+
+Flag only with confirmed evidence:
+- `CRITICAL`: Cross-boundary imports between architectural layers — show the exact import line
+- `HIGH`: 3+ files with the same basename in different directories — list all matching paths
+- `HIGH`: File >2000 lines — show `wc -l` output
+- `MEDIUM`: Shallow wrapper — show the specific pass-through lines (not just file name)
 
 ### Phase C — Duplicate Abstractions
 
@@ -157,10 +201,21 @@ echo "Auth-related hotspots from pre-computed data:"
 # (check hotspot list for files matching: auth, login, session, permission, token, jwt, oauth)
 ```
 
-Apply ygs-security-review severity rules:
-- `CRITICAL`: Any credential pattern found in git history
-- `HIGH`: Auth/permission file in top-10 hotspot list (security-sensitive area changing frequently)
-- `HIGH`: Auth file churn without corresponding test file changes (potential bypass)
+**Security findings require the strongest verification — no speculation:**
+```bash
+# Only flag if you see the actual pattern in the output. Show the exact matched line.
+# If the grep returns nothing, do NOT report it.
+git log -p --all --since="6 months ago" \
+  -S "AKIA" -S "ghp_" -- "*.env" "*.yaml" "*.yml" 2>/dev/null \
+  | grep "^\+" | grep -iE "(api_key|secret|password|token)\s*[=:]" \
+  | grep -v "^\+\+\+" | head -5
+```
+
+Apply ygs-security-review severity rules, only with confirmed evidence:
+- `CRITICAL`: Credential pattern **actually found** in git log output — show the commit hash and line
+- `HIGH`: Auth/permission file in top-10 hotspot list — show the file name and change count
+- `HIGH`: Auth file churn without corresponding test changes — show the file names and counts
+- **Do not flag** if the search returns empty results. Empty = clean.
 
 ### Phase E — Test Health
 
@@ -179,11 +234,21 @@ grep -r "skip\|xtest\|xit\b\|@pytest.mark.skip\|it.skip\|describe.skip\|@Ignore\
 # (Use pre-computed brittle_test_files list)
 ```
 
-Flag:
-- `CRITICAL`: Hotspot files (top-5 by churn) with no test coverage
-- `HIGH`: Test files with churn > 2× their production counterpart (brittle)
-- `HIGH`: >10 test skip/xfail markers across the codebase
-- `MEDIUM`: Production files changed 3+ times with no test file changes
+**Before flagging test gaps, confirm the test file truly doesn't exist:**
+```bash
+# For each "untested" production file, actively search for its test
+find . -name "*test*$(basename <prod_file> | sed 's/\..*//')*" \
+     -o -name "*$(basename <prod_file> | sed 's/\..*//')*test*" \
+     -o -name "*$(basename <prod_file> | sed 's/\..*//')*spec*" \
+  2>/dev/null | head -5
+# Only flag as untested if the search returns nothing
+```
+
+Flag only with confirmation:
+- `CRITICAL`: Hotspot files (top-5 by churn) with **no test file found** (search above returns empty)
+- `HIGH`: Test files with churn > 2× production counterpart — show both churn counts
+- `HIGH`: >10 skip markers — show actual count from grep output
+- `MEDIUM`: Production files changed 3+ times with no co-changes to any test file
 
 ### Phase F — Commit Quality + Knowledge Silos
 
@@ -202,6 +267,10 @@ Flag knowledge silos:
 ---
 
 ## Step 4: Synthesize Findings
+
+**Before writing the report, do one final verification pass:**
+For each finding you intend to include, ask: "Did I run a command and see this in the output?"
+If yes → include it with the evidence snippet. If no → drop it or move to Informational.
 
 After running all phases, produce the final report. Use severity levels from `review-scaffold.md`.
 
