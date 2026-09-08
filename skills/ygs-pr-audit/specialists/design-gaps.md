@@ -60,6 +60,23 @@ If the repository has documented architecture patterns (in `ARCHITECTURE.md`, `d
 - Check whether complex PRs align with documented patterns
 - Flag deviations that were not called out by reviewers (blind spots)
 
+## Step 6: Check for simplicity violations and pattern divergence
+
+Scan PR comments and diff for signs of unnecessary complexity or inconsistent patterns:
+
+```
+simplicity_keywords: "over-engineered", "too complex", "simpler approach", "unnecessary abstraction",
+  "premature generalization", "YAGNI", "do we really need", "why not just", "overkill",
+  "this adds indirection without benefit", "too many layers"
+```
+
+Also check for pattern divergence — PRs that introduce a different approach to a concern already solved elsewhere in the codebase:
+- Reviewer comments like "we already have X for this", "inconsistent with how we do Y", "why not use the existing Z"
+- Multiple implementation patterns for the same concern (e.g., 2+ HTTP client wrappers, inconsistent error handling)
+- New abstractions that duplicate existing ones
+
+Flag when 3+ PRs introduce divergent patterns for the same concern — this indicates missing documentation of the canonical approach.
+
 ## Severity thresholds
 
 | Condition | Severity |

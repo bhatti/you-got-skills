@@ -47,6 +47,15 @@ assumption_keywords: "I assumed", "not specified so I", "spec gap", "TODO: clari
   "making a judgment call", "need to confirm with", "placeholder until spec"
 ```
 
+Also check for tech-debt signals introduced by spec ambiguity — authors working around unclear specs often leave debt markers:
+
+```
+tech_debt_keywords: "TODO", "FIXME", "HACK", "XXX", "workaround", "tech debt",
+  "technical debt", "deprecated", "temporary fix", "revisit this", "not ideal but"
+```
+
+When found in PR diff comments or commit messages alongside assumption keywords, escalate severity — this indicates the spec gap forced a suboptimal implementation.
+
 ## Step 4: Check for rework signals
 
 For each PR, look for evidence that spec gaps caused rework:

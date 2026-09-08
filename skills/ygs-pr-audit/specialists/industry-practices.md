@@ -74,6 +74,18 @@ Check for:
 
 Benchmark: 0% of PRs should merge with failing required checks.
 
+## Step 7: Pattern consistency and tech-debt accumulation
+
+Check across the full PR set for signs of tech-debt accumulation and inconsistent implementation patterns:
+
+1. **Tech-debt signals:** Count PRs introducing TODO/FIXME/HACK/XXX markers in diff. Track ratio: debt-introducing PRs / total PRs. Benchmark: >20% suggests systemic under-investment in cleanup.
+
+2. **Pattern divergence:** Look for PRs where reviewers flagged inconsistency:
+   - "We already have X for this", "use the existing Y", "inconsistent with Z"
+   - Multiple PRs solving the same problem differently (e.g., 3 different retry implementations, 2 config loading approaches)
+   
+3. **Cleanup ratio:** Count PRs that reduce tech debt (refactor, cleanup, remove deprecated code) vs those that add it. Benchmark: healthy repos have >15% cleanup PRs.
+
 ## Anti-patterns to flag
 
 | Anti-pattern | Detection | Severity |
@@ -84,6 +96,9 @@ Benchmark: 0% of PRs should merge with failing required checks.
 | Missing changelogs for user-facing changes | No CHANGELOG/docs update on feature PRs | MEDIUM |
 | No rollback plan for infrastructure changes | Missing revert instructions on infra PRs | MEDIUM |
 | CI bypass patterns | Admin merge with failing checks | HIGH |
+| Tech-debt accumulation (>20% PRs add TODO/FIXME) | Debt marker count in diffs | MEDIUM |
+| Pattern divergence (3+ PRs with inconsistent approaches) | Reviewer "use existing X" comments | MEDIUM |
+| Low cleanup ratio (<5% refactor/cleanup PRs) | PR title/label classification | LOW |
 
 ## Finding format
 
