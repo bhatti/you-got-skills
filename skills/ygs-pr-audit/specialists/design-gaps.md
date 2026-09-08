@@ -77,14 +77,26 @@ Also check for pattern divergence — PRs that introduce a different approach to
 
 Flag when 3+ PRs introduce divergent patterns for the same concern — this indicates missing documentation of the canonical approach.
 
+## Step 7: Check for conflicting changes and duplicate abstractions
+
+Across the full PR set, look for:
+1. **Conflicting changes**: Two or more PRs that modify the same files or modules with divergent intent (e.g., PR #A adds a caching layer while PR #B removes caching from the same module). Check file overlap in `file_paths`.
+2. **Duplicate abstractions**: PRs that introduce new abstractions overlapping with existing ones (e.g., two different retry mechanisms, two config loading approaches, two HTTP client wrappers). Look for reviewer comments like "we already have X for this" or "use the existing Y".
+3. **Inconsistent API patterns**: PRs that introduce different conventions for the same concern (error handling, pagination, auth) — indicated by reviewer comments about inconsistency.
+
 ## Severity thresholds
+
+**IMPORTANT: Only raise design gap findings when there is actual evidence** — reviewer comments showing architecture debate, explicit design questions, OR the PR is part of a large feature/epic (>500 LOC touching multiple subsystems). A large PR without a design doc is NOT automatically a design gap unless reviewers raised concerns or it touches architectural boundaries.
 
 | Condition | Severity |
 |-----------|----------|
 | Design gap led to 3+ review rounds AND post-merge refactor | CRITICAL |
+| Reviewer comments show explicit architecture debate (design_keywords match) | HIGH |
 | Design doc existed but did not cover the implementation choice made | HIGH |
-| No design doc for complex feature (>300 lines changed) | MEDIUM |
+| Large feature (>500 LOC, 3+ dirs) without design doc AND reviewer raised concerns | MEDIUM |
+| Conflicting changes between PRs modifying same module | MEDIUM |
 | Architecture disagreement in comments but resolved in 1 round | MEDIUM |
+| No design doc for complex feature but no reviewer concerns | LOW |
 | No design doc for moderate feature, no reviewer concerns | LOW |
 
 ## Finding format

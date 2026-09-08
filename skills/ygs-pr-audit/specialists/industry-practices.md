@@ -86,6 +86,34 @@ Check across the full PR set for signs of tech-debt accumulation and inconsisten
    
 3. **Cleanup ratio:** Count PRs that reduce tech debt (refactor, cleanup, remove deprecated code) vs those that add it. Benchmark: healthy repos have >15% cleanup PRs.
 
+## Step 8: Brittle test detection
+
+For each PR that modifies test files, check for patterns that indicate fragile tests:
+
+1. **Timing-based tests**: Look for `sleep`, `setTimeout`, `time.sleep`, `Thread.sleep`, fixed delay assertions, `waitFor` with short timeouts
+2. **Excessive mocking**: Tests that mock more than 3 dependencies, or mock internal implementation details rather than interfaces
+3. **Environment-dependent assertions**: Tests that depend on specific OS, timezone, locale, file paths, or network availability
+4. **Flaky indicators**: Reviewer comments mentioning "flaky", "intermittent", "sometimes fails", "retry", or CI logs showing test retries
+5. **Snapshot abuse**: Tests relying on large snapshots that change frequently (indicated by snapshot update commits)
+
+Flag when 3+ PRs show brittle test patterns — this indicates systemic testing culture issues.
+
+## Step 9: Human review analysis based on blast radius
+
+Evaluate review quality relative to change risk:
+
+1. **High blast-radius changes** (auth, payments, data pipelines, infra, config, feature flags):
+   - Did these get proportionally more review scrutiny?
+   - Were domain experts involved?
+   - Were rollback plans discussed?
+
+2. **Low-review risky changes**: Flag PRs modifying high-risk areas that received:
+   - Zero human review comments
+   - Only bot/automated comments
+   - "LGTM" without substantive review
+
+3. **Review depth vs risk mismatch**: Compare review comment count/quality against change risk level
+
 ## Anti-patterns to flag
 
 | Anti-pattern | Detection | Severity |
@@ -99,6 +127,9 @@ Check across the full PR set for signs of tech-debt accumulation and inconsisten
 | Tech-debt accumulation (>20% PRs add TODO/FIXME) | Debt marker count in diffs | MEDIUM |
 | Pattern divergence (3+ PRs with inconsistent approaches) | Reviewer "use existing X" comments | MEDIUM |
 | Low cleanup ratio (<5% refactor/cleanup PRs) | PR title/label classification | LOW |
+| Brittle tests (timing, excessive mocking, env-dependent) | Test file analysis + reviewer comments | MEDIUM |
+| High-risk change with no substantive review | Blast radius vs review depth mismatch | HIGH |
+| Conflicting changes across PRs | Same files modified with divergent intent | MEDIUM |
 
 ## Finding format
 

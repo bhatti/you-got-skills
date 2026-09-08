@@ -8,18 +8,20 @@ Review scope: PRs where missing or ambiguous specifications caused confusion, re
 
 For each PR in the pre-computed data, examine the linked issue (if any):
 
-1. Look for acceptance criteria indicators:
-   - Explicit labels: "AC:", "Acceptance Criteria", "Definition of Done"
-   - Checkbox lists: `- [ ]` or `- [x]` patterns
-   - BDD format: "Given", "When", "Then"
-   - Structured requirements: numbered lists with testable conditions
+1. Check the `has_acceptance_criteria` field in the pre-computed data. This field uses **semantic detection** — it checks for:
+   - Explicit headings: "Acceptance Criteria", "Definition of Done", "Requirements", "Expected Behavior", "Success Criteria"
+   - Checkbox lists: `- [ ]` or `- [x]` patterns (2+ checkboxes)
+   - BDD format: "Given", "When", "Then" (2+ BDD statements)
+   - Numbered requirements with modal verbs: "must", "should", "shall" (2+ numbered items)
 
-2. Classify each PR:
-   - **Has AC:** Issue contains any of the above indicators
-   - **No AC:** Issue exists but lacks acceptance criteria
+2. **When `has_acceptance_criteria` is false**, also read the `Issue description excerpt` field — the issue may describe requirements using different language (e.g., "The feature should...", "Users need to be able to...", "When X happens, Y should occur"). Use your judgment to determine if the issue effectively communicates testable requirements, even without a formal AC section.
+
+3. Classify each PR:
+   - **Has AC:** `has_acceptance_criteria` is true, OR issue description contains clear testable requirements
+   - **No AC:** Issue exists but lacks testable requirements in any form
    - **No issue:** PR has no linked issue at all
 
-Record the counts for the metrics dashboard.
+Record the counts for the metrics dashboard. **Accuracy matters** — do not report 0% AC coverage if issues contain clear requirements in non-standard formats.
 
 ## Step 2: Check reviewer comments for spec confusion
 

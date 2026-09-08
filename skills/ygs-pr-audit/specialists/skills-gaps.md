@@ -165,3 +165,21 @@ After processing all PRs, compute:
 - Which human reviewers are doing the most gap-filling work?
 - Are certain reviewers specialized (e.g., one person catches all security issues)?
 - Would upskilling bots in their specialty areas reduce their review burden?
+
+**IMPORTANT: The gap matrix and skill coverage heatmap tables above MUST appear in the final report.** They are the most actionable output of the skills gap analysis — without them, the findings are anecdotal rather than systematic. Include them in the Skills Gaps section of `reports/pr_audit_report.md`.
+
+## Skills Assessment (required in report)
+
+After computing the gap matrix and heatmap, summarize the team's skill profile across these dimensions.
+Rate each as **Strong**, **Developing**, or **Gap** based on evidence:
+
+| Skill Area | What to look for | Rating criteria |
+|------------|------------------|-----------------|
+| Coding | Correctness bugs caught in review, error handling patterns | Strong = <5% PRs had correctness issues, Gap = >15% |
+| Code Review | Review depth, domain knowledge in comments, constructive feedback | Strong = most PRs have substantive review, Gap = >30% rubber-stamp |
+| Testing | Test-to-code ratio, edge case coverage, integration tests | Strong = >80% PRs include tests, Gap = <50% |
+| SRE/Ops | Rollback plans, monitoring, feature flags, incident readiness | Strong = high-risk PRs have rollback plans, Gap = none do |
+| Security | Auth reviews, input validation, secrets management | Strong = bot+human catch security issues, Gap = security misses |
+| Architecture | Modularity, API design, separation of concerns | Strong = design docs for complex PRs, Gap = design debates in review |
+
+Include this table in the report with concrete PR IDs as evidence for each rating.

@@ -76,12 +76,19 @@ Pre-computed sections available (use each where relevant):
 
 **Run ALL 4 dimensions, even when early findings seem sparse.** Each dimension surfaces gaps the others miss. Do not stop after finding a few results.
 
+**CRITICAL: Analyze EVERY PR.** You must examine ALL PRs in the pre-computed data — not just 8-10 interesting ones. A common failure mode is deeply analyzing a handful and skimming the rest. The value of this audit is cross-PR pattern detection, which requires touching every single PR. For each PR, at minimum record:
+- Spec: linked issue present? AC present (check `has_acceptance_criteria` field)?
+- Design: PR size, design doc referenced?
+- Skills: who reviewed, what categories of feedback?
+- Practices: tests included, review quality, PR size bucket?
+
 If the `--focus` flag limits the audit to a single dimension, run only that specialist. Otherwise, run all 4.
 
 Work through each specialist file in order. For each dimension:
 1. Follow the step-by-step analysis in the specialist file.
 2. Collect findings tagged with their dimension: `[SPEC]`, `[DESIGN]`, `[SKILL-GAP]`, `[PRACTICE]`.
-3. For every finding, record: severity, confidence, PR references, evidence from actual PR data.
+3. For every finding, include specific PR IDs (e.g., "PR #46468", "PRs #47554, #47533").
+4. For every finding, record: severity, confidence, PR references, evidence from actual PR data.
 
 **Verification gate:** Before adding any finding to your list, ask: "Did I find this evidence in the actual PR data provided?" If yes -> keep it. If no -> discard it or downgrade to Low / Informational.
 
@@ -173,6 +180,32 @@ and whether skill automation can reduce human review burden.]
 
 | Dimension | Observation | PRs |
 |-----------|-------------|-----|
+
+---
+
+### Skills Assessment
+
+Rate each skill area as **Strong** / **Developing** / **Gap** based on evidence from the PR data.
+Include specific PR IDs as evidence.
+
+| Skill Area | Rating | Evidence |
+|------------|--------|----------|
+| Coding (correctness, error handling, performance) | ? | PRs #... |
+| Code Review (thoroughness, domain knowledge, constructive feedback) | ? | PRs #... |
+| Testing (coverage, edge cases, integration, brittle tests) | ? | PRs #... |
+| SRE/Ops (monitoring, rollback plans, feature flags, incident response) | ? | PRs #... |
+| Security (auth, input validation, secrets, dependency scanning) | ? | PRs #... |
+| Architecture (modularity, separation of concerns, API design) | ? | PRs #... |
+
+---
+
+### Cross-PR Pattern Analysis
+
+Identify and report these cross-cutting patterns:
+- **Conflicting changes**: PRs modifying same files/modules with divergent intent
+- **Duplicate abstractions**: PRs introducing overlapping abstractions (e.g., 2 retry mechanisms)
+- **Brittle tests**: Tests using sleep/timing, excessive mocking, environment-dependent assertions
+- **Recurring review feedback**: Same category of feedback appearing across 3+ PRs
 
 ---
 
