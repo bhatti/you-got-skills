@@ -56,6 +56,39 @@ tech_debt_keywords: "TODO", "FIXME", "HACK", "XXX", "workaround", "tech debt",
 
 When found in PR diff comments or commit messages alongside assumption keywords, escalate severity — this indicates the spec gap forced a suboptimal implementation.
 
+## Step 3b: Analyze acceptance criteria quality and coverage
+
+When a linked issue DOES have acceptance criteria, evaluate their quality:
+
+1. **Completeness check** — Does the AC cover:
+   - Happy path behavior (primary scenario)
+   - Error/edge cases (what happens when input is invalid, service is down, etc.)
+   - Non-functional requirements (performance bounds, security constraints, accessibility)
+   - Backward compatibility or migration considerations
+
+2. **Testability check** — Each AC should be verifiable. Flag vague criteria:
+   - "Should be fast" (no measurable threshold)
+   - "Handle errors gracefully" (no specific error cases)
+   - "Must be secure" (no specific threats or controls)
+   - "Should work like X" (reference to undocumented behavior)
+
+3. **PR-to-AC alignment** — For each PR with AC:
+   - Do the changed files and PR description address each AC item?
+   - Are there AC items with no corresponding test in the PR?
+   - Did the implementation add behavior NOT covered by any AC item (scope creep)?
+   - Did reviewers raise issues about behavior that should have been in the AC but wasn't?
+
+4. **Cross-PR pattern** — Look for repeated AC failures:
+   - Same type of missing edge case across multiple issues (e.g., pagination, auth edge cases)
+   - Same reviewer repeatedly asking about the same category of missing AC
+   - Issues from the same project/epic consistently lacking AC in one area
+
+Classify AC quality as:
+- **Strong**: Covers happy path + edge cases + non-functional, all testable
+- **Weak**: Only covers happy path, vague on edge cases
+- **Absent**: No AC at all
+- **Template-only**: Has AC section header but content is boilerplate or empty checkboxes
+
 ## Step 4: Check for rework signals
 
 For each PR, look for evidence that spec gaps caused rework:

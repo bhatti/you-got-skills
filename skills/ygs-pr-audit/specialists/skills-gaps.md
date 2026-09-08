@@ -56,12 +56,28 @@ If a comment matches multiple categories, assign it to all matching categories.
 
 Apply the same category classification to bot comments. This lets us compute the overlap.
 
+## Step 3b: Account for bot internal self-review
+
+AI coding agents (Claude Code, Copilot, Cursor, etc.) perform internal self-review before submitting code — including security scanning, correctness checks, and style enforcement. This self-review is NOT visible in PR comments because it happens before the code is committed. Therefore:
+
+- **Do NOT claim that a bot "missed" a finding category just because no bot PR comment exists for that category.** The bot may have caught and fixed similar issues during implementation, before the PR was created.
+- **Only flag a skill gap as "bot missed" when a human reviewer found an actual defect in the bot-authored code** — meaning the bot's internal self-review failed to catch that specific issue.
+- **Bot-authored PRs with zero external bot review comments are normal** — the bot's quality gate is internal, not expressed as PR comments.
+- **Focus on what actually slipped through**: if a human reviewer found a real bug, security issue, or design problem in bot-authored code, THAT is the genuine skill gap worth reporting.
+
+When reporting findings, distinguish between:
+- **Genuine skill gap**: Human found a real defect in bot-authored code (the bot's internal review missed it)
+- **Process gap**: No external automated review tool ran on the PR (CI/SAST not configured)
+- **Coverage gap**: Bot's internal review covers some categories but not others (evidenced by patterns of human catches)
+
 ## Step 4: Compute set difference (the gap)
 
 For each PR and each category:
 1. Did any human reviewer flag an issue in this category? (human_found = true/false)
 2. Did any bot comment in the same PR cover this category? (bot_found = true/false)
 3. **Gap = human_found AND NOT bot_found** — the human caught something the bot missed.
+4. **If the PR author is a bot**: a human-only finding in this PR is a genuine self-review gap (higher signal)
+5. **If the PR author is human**: a human-only finding means external review tooling is missing (lower signal — the bot wasn't involved)
 
 Build a gap matrix:
 
