@@ -163,8 +163,9 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) for hotspots (files changed >15% of commits), temporal coupling (hidden cross-module dependencies), duplicate abstractions, architecture drift, security archaeology, test coverage gaps, commit health (fix:commit ratio, large commits), and knowledge silos (bus-factor risk). Reuses ygs-review-deep (architecture) and ygs-security-review (security) protocols. |
+| `/ygs-pr-audit` | Merged PR gap analysis: audit last N PRs (default 50) for spec gaps (missing acceptance criteria), design gaps (undocumented architecture decisions), skills gaps (findings human reviewers caught that bots missed), and industry practice gaps (oversized PRs, rubber-stamp reviews). Produces a findings report with metrics dashboard (spec coverage %, skill catch rate, human review burden) and a skill_improvements.json proposing concrete skill/doc updates. Includes a verification phase that re-examines every finding against cited PR evidence before reporting. |
 
-**Arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health]`
+**ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health]`
 
 **Usage:**
 ```bash
@@ -173,7 +174,17 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 /ygs-codebase-audit --commits 500 --focus architecture      # focused audit
 ```
 
-Via Slack (with Formicary integration): `@bot audit` or `@bot codebase audit`
+Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audit`
+
+**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices]`
+
+**Usage:**
+```bash
+/ygs-pr-audit                                                # audit PRs in CWD repo
+/ygs-pr-audit --n-prs 30 --focus skills                     # focused skills gap audit
+```
+
+Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url>`
 
 ## Shared Modules
 
@@ -200,6 +211,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, iron law, rationalization table |
 | `shared/tracker.md` | DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (`acli`) |
 | `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
+| `shared/pr-audit-context.md` | PR data schema, bot detection rules, issue-linking conventions, skill-to-bot mapping for pr-audit |
 | `shared/verification-gate.md` | Iron law: no completion claims without fresh verification evidence |
 
 ## Typical Workflow
@@ -234,6 +246,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve
 /ygs-codebase-audit          → Post-merge archaeology (hotspots, drift, silos, test gaps)
+/ygs-pr-audit                → Merged PR gap analysis (spec, design, skills, practices)
 ```
 
 ## Project Conventions
