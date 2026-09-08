@@ -199,6 +199,20 @@ Include specific PR IDs as evidence.
 
 ---
 
+### Recommended Skill Updates
+
+List every skill that should be updated or created, with the specific file path, what to change, and which PRs motivated it. This section drives the `skill_improvements.json` output and tells the reader exactly what to fix.
+
+| Action | Skill / File Path | What to Add/Change | Motivated by PRs |
+|--------|-------------------|--------------------|-----------------|
+| Update | `.claude/skills/security-review/SKILL.md` | Add SQL injection detection for f-string patterns | #45, #67 |
+| Create | `.claude/skills/gotchas/pagination.md` | Document pagination edge cases (off-by-one, empty pages) | #34, #56, #78 |
+| Update | `ygs-review-pr` (upstream) | Add check for missing rollback plans in high-risk PRs | #12, #89 |
+
+If no skill updates are needed, write: "No skill updates recommended — current skill coverage is adequate."
+
+---
+
 ### Cross-PR Pattern Analysis
 
 Identify and report these cross-cutting patterns:
