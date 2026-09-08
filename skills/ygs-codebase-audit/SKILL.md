@@ -225,23 +225,13 @@ Write to `reports/audit_findings.json`:
 
 ---
 
-## Phase 4: Emit context markers and final JSON
+## Phase 4: Final JSON output
 
-After writing both report files, emit these bash markers:
+DO NOT emit any `::add-task-context` markers or bash echo commands — the orchestrator
+script reads your JSON output and emits them automatically. Do not print any bash code
+blocks for context markers.
 
-```bash
-echo "::add-task-context AUDIT_REPO::<org/repo>"
-echo "::add-task-context AUDIT_BRANCH::<branch>"
-echo "::add-task-context AUDIT_COMMITS::<N>"
-echo "::add-task-context AUDIT_FOCUS::<focus>"
-echo "::add-task-context AUDIT_CRITICAL_COUNT::<N>"
-echo "::add-task-context AUDIT_HIGH_COUNT::<N>"
-echo "::add-task-context AUDIT_HOTSPOT_FILE::<top hotspot filename>"
-echo "::add-task-context SELECTED_MODEL::<model>"
-echo "SKILLS_USED: ygs-codebase-audit"
-```
-
-Then output ONLY this JSON on the last line (no text after it):
+After writing both report files, output ONLY this JSON on the last line (no text after it):
 
 ```
 {"status":"DONE","critical_count":<N>,"high_count":<N>,"summary":"<one sentence: top finding and fix ratio>"}
