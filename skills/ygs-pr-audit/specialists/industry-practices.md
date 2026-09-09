@@ -56,12 +56,35 @@ For each PR that introduces new APIs, configuration options, or user-facing feat
 
 Benchmark: PRs introducing new features should update docs in >50% of cases.
 
-## Step 5: Rollback preparedness
+## Step 5: Rollback preparedness and SRE readiness
 
-For PRs that modify critical paths (auth, payments, data pipelines, infrastructure):
-- Check for rollback instructions in PR description
-- Check for feature flags or gradual rollout mentions
-- Check for revert plan or "how to revert" section
+**High-risk change patterns** — trigger rollback check for ANY of these, regardless of directory:
+
+| Pattern | File indicators |
+|---------|----------------|
+| Feature flags | `flags.yml`, `launchdarkly*`, `featureflags*`, `experiments*`, `toggles*` |
+| Database migrations | `migrations/`, `*.migration.*`, `db/migrate/`, `flyway*`, `liquibase*` |
+| Authentication/authorization | `auth*`, `rbac*`, `permission*`, `oauth*`, `saml*`, `iam*` |
+| Infrastructure-as-code | `*.tf`, `*.tfvars`, `helm/`, `k8s/`, `kubernetes/`, `*.yaml` in infra dirs |
+| API contract changes | OpenAPI/Swagger files, proto files, REST endpoint path changes |
+| Configuration changes | `config/`, `*.env`, `settings*`, `application.yml` |
+
+For each PR matching a high-risk pattern, check PR description AND review comments for:
+```
+rollback_keywords: "rollback", "revert", "feature flag", "gradual rollout", "canary",
+  "blast radius", "what if this fails", "how to undo", "migration rollback", "dark launch"
+```
+
+**Known-limitation policy**: When a PR author documents a known limitation, deadlock risk, or "this breaks under condition X", check:
+1. Did the author create a follow-up Jira/GitHub issue to track the limitation?
+2. Is the limitation documented in AUTHZ.md, ARCHITECTURE.md, or a relevant `docs/` file?
+
+If neither, report as `[PRACTICE]` MEDIUM — undocumented known limitations become invisible technical debt.
+
+**SRE readiness signals** (check for absence):
+- Observability: new code paths with no logging, metrics, or tracing
+- Alerting: feature flag changes or threshold changes with no alert update
+- Incident response: complex stateful changes with no runbook reference
 
 Benchmark: high-risk PRs should have rollback plans in >80% of cases.
 
@@ -113,6 +136,17 @@ Evaluate review quality relative to change risk:
    - "LGTM" without substantive review
 
 3. **Review depth vs risk mismatch**: Compare review comment count/quality against change risk level
+
+## Step 10: Recurring reviewer correction patterns
+
+Look for PRs where the same *type* of reviewer correction appears 3+ times across the PR set:
+
+1. **Style rule corrections**: reviewer pointing out violations of documented rules (`.cursor/rules/`, `.claude/skills/`, `CONTRIBUTING.md`) — suggests those rules aren't being applied during implementation
+2. **Repeated "use existing X"**: multiple PRs where reviewer says "we already have X for this" — suggests missing skill that auto-detects duplicate abstractions
+3. **Test correctness corrections**: reviewer finding wrong expected values, missing edge cases, or incorrect mock setup — suggests test generation isn't being verified
+4. **Branch/target corrections**: reviewer catching wrong base branch — suggests pre-push branch validation is missing
+
+Report each pattern as `[PRACTICE]` with count of PRs affected and recommendation.
 
 ## Anti-patterns to flag
 

@@ -74,13 +74,29 @@ When a linked issue DOES have acceptance criteria, evaluate their quality:
    - "Must be secure" (no specific threats or controls)
    - "Should work like X" (reference to undocumented behavior)
 
-3. **PR-to-AC alignment** — For each PR with AC:
+3. **Template-only AC detection** — Flag AC sections that appear structural but contain no real requirements:
+   - All checkboxes unchecked with generic text: "Feature works as expected", "All tests pass", "Code reviewed"
+   - AC section header present but body is empty or contains only boilerplate
+   - Identical AC text copied from a previous issue in the same project (identical wording across multiple issues)
+   - AC that merely restates the PR title: "The bug is fixed" or "The feature is implemented"
+   
+   Classify these as **Template-only** (not absent, but also not meaningful). Include the count in spec coverage metrics as a separate category.
+
+4. **Cross-PR AC pattern gaps** — Common categories of missing AC that appear across multiple PRs:
+   - No AC for error/failure scenarios (what happens when the service is down, input is invalid, etc.)
+   - No AC for performance bounds (e.g., "should handle 1000 requests/second")
+   - No AC for backward compatibility or migration path
+   - No AC for accessibility or security constraints
+   
+   Flag when the same *category* of AC gap appears in 3+ PRs — this indicates a systemic gap in how the team writes issues, not an individual oversight.
+
+5. **PR-to-AC alignment** — For each PR with AC:
    - Do the changed files and PR description address each AC item?
    - Are there AC items with no corresponding test in the PR?
    - Did the implementation add behavior NOT covered by any AC item (scope creep)?
    - Did reviewers raise issues about behavior that should have been in the AC but wasn't?
 
-4. **Cross-PR pattern** — Look for repeated AC failures:
+6. **Cross-PR pattern** — Look for repeated AC failures:
    - Same type of missing edge case across multiple issues (e.g., pagination, auth edge cases)
    - Same reviewer repeatedly asking about the same category of missing AC
    - Issues from the same project/epic consistently lacking AC in one area
@@ -89,7 +105,7 @@ Classify AC quality as:
 - **Strong**: Covers happy path + edge cases + non-functional, all testable
 - **Weak**: Only covers happy path, vague on edge cases
 - **Absent**: No AC at all
-- **Template-only**: Has AC section header but content is boilerplate or empty checkboxes
+- **Template-only**: Has AC section header but content is boilerplate, empty checkboxes, or generic placeholder text — present in form but not in substance
 
 ## Step 4: Check for rework signals
 

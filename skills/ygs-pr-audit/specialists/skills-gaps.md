@@ -17,10 +17,24 @@ Using the pre-classified data in the PR context, verify the classification:
 
 **Human:** Everything else. Verify that classified-human reviewers are not bots by checking if their comments look templated or automated.
 
+**CRITICAL: CI bots vs Code-review bots are different things**
+
+Classify comments into THREE buckets, not two:
+
+- **CI bots** (github-actions, Jenkins, CircleCI, build runners, Travis): catch build/lint/type errors. Their findings measure *pipeline health*, not review skill quality. Example CI bot comments: "Linux - Backend Tests failed", "Build #42: TypeScript error".
+- **Code-review bots** (Claude PR Review Agent, CodeRabbit, SonarCloud PR findings, Snyk, Codacy): catch logical/security/style issues. Their catch rate is the **code-review skill catch rate** metric.
+- **Humans**: everyone else.
+
+**Never conflate CI bots with code-review bots.** A "skill catch rate" metric that includes CI bot catches is misleading — it measures whether the build pipeline works, not whether code-review skills are effective.
+
+The gap matrix compares: **human findings vs code-review bot findings** for the same categories. CI bot findings are reported separately as "CI catch rate."
+
 Record per-PR:
-- Count of bot comments
+- Count of CI bot comments
+- Count of code-review bot comments
 - Count of human comments
-- List of unique bot identifiers
+- List of unique CI bot identifiers
+- List of unique code-review bot identifiers
 - List of unique human reviewers
 
 ## Step 2: Categorize human review comments by type
@@ -54,7 +68,7 @@ If a comment matches multiple categories, assign it to all matching categories.
 
 ## Step 3: Categorize bot comments by type
 
-Apply the same category classification to bot comments. This lets us compute the overlap.
+Apply the same category classification to **code-review bot** comments only. CI bot comments are not categorized for the gap matrix — they are only counted for the CI catch rate metric. This lets us compute the human vs code-review bot overlap.
 
 ## Step 3b: Account for bot internal self-review
 
@@ -70,25 +84,50 @@ When reporting findings, distinguish between:
 - **Process gap**: No external automated review tool ran on the PR (CI/SAST not configured)
 - **Coverage gap**: Bot's internal review covers some categories but not others (evidenced by patterns of human catches)
 
+## Step 3c: Bot-finding follow-through
+
+For every finding flagged by a **code-review bot** (not CI), determine whether it was acted on before merge:
+
+1. Did the author reply to the bot's comment?
+2. Was the flagged code changed in a subsequent commit before merge?
+3. Did the PR merge with the bot finding unresolved?
+
+**Classification:**
+- `resolved`: author acknowledged AND code changed (or finding explicitly dismissed as not applicable)
+- `dismissed`: author acknowledged but code not changed (author decided not to fix)
+- `ignored`: no reply and no code change — PR merged with finding open
+
+Compute: `bot_finding_follow_through_rate = (resolved + dismissed) / total_review_bot_findings`
+
+When a bot flags a **real defect** (correctness, security, performance) and it ships unaddressed (`ignored`), report as:
+```
+[PRACTICE] HIGH — Bot-flagged defect shipped without resolution
+Evidence: Bot "X" flagged "[issue]" in PR #N. No author reply. Code unchanged. Defect confirmed by [evidence].
+```
+
+This is a **process gap**, not a skill gap: the review process has no enforcement gate for bot-found critical issues.
+
 ## Step 4: Compute set difference (the gap)
 
 For each PR and each category:
 1. Did any human reviewer flag an issue in this category? (human_found = true/false)
-2. Did any bot comment in the same PR cover this category? (bot_found = true/false)
-3. **Gap = human_found AND NOT bot_found** — the human caught something the bot missed.
+2. Did any **code-review bot** (not CI) comment in the same PR cover this category? (review_bot_found = true/false)
+3. **Gap = human_found AND NOT review_bot_found** — the human caught something the code-review bot missed.
 4. **If the PR author is a bot**: a human-only finding in this PR is a genuine self-review gap (higher signal)
 5. **If the PR author is human**: a human-only finding means external review tooling is missing (lower signal — the bot wasn't involved)
 
-Build a gap matrix:
+Build a gap matrix with three rows per PR: CI bots, Review bots, Humans:
 
 ```
-| PR    | correctness | security | performance | architecture | testing | documentation |
-|-------|-------------|----------|-------------|--------------|---------|---------------|
-| #45   | human-only  | both     | —           | human-only   | bot-only| —             |
-| #67   | —           | human-only| —          | human-only   | both    | human-only    |
+| PR    | correctness       | security          | performance | architecture      | testing     | documentation |
+|-------|-------------------|-------------------|-------------|-------------------|-------------|---------------|
+| #45   | review-bot+human  | human-only        | —           | human-only        | ci-only     | —             |
+| #67   | —                 | review-bot-only   | —           | human-only        | both        | human-only    |
 ```
 
-Cells marked `human-only` are the skill gaps.
+Cells marked `human-only` are the **code-review skill gaps** (where code-review bots should improve).
+Cells marked `ci-only` are CI pipeline catches (not skill gaps).
+Cells marked `review-bot-only` are where code-review bots found things humans missed (good coverage).
 
 ## Step 5: Cross-reference with installed skills
 
@@ -143,20 +182,20 @@ After processing all PRs, compute:
 - security: N human-only findings across M PRs
 - (repeat for all categories)
 
-**Skill coverage heatmap:**
+**Skill coverage heatmap** (code-review bots only — CI bots excluded):
 
 ```
-| Category      | Bot catches | Human-only | Gap rate |
-|---------------|------------|------------|----------|
-| correctness   | N          | N          | X%       |
-| security      | N          | N          | X%       |
-| performance   | N          | N          | X%       |
-| architecture  | N          | N          | X%       |
-| testing       | N          | N          | X%       |
-| documentation | N          | N          | X%       |
+| Category      | CI-bot catches | Review-bot catches | Human-only | Review-bot gap rate |
+|---------------|----------------|--------------------|------------|---------------------|
+| correctness   | N              | N                  | N          | X%                  |
+| security      | N              | N                  | N          | X%                  |
+| performance   | N              | N                  | N          | X%                  |
+| architecture  | N              | N                  | N          | X%                  |
+| testing       | N              | N                  | N          | X%                  |
+| documentation | N              | N                  | N          | X%                  |
 ```
 
-**Top skill improvement priorities** (ranked by gap rate * severity):
+**Top skill improvement priorities** (ranked by review-bot gap rate * severity):
 1. Highest-gap category with specific skill file and section to update
 2. Second-highest
 3. Third-highest
@@ -165,6 +204,24 @@ After processing all PRs, compute:
 - Which human reviewers are doing the most gap-filling work?
 - Are certain reviewers specialized (e.g., one person catches all security issues)?
 - Would upskilling bots in their specialty areas reduce their review burden?
+
+**Reviewer exhaustion signals**
+
+After computing reviewer load analysis, identify reviewers who consistently leave the same *category* of comment across 3+ PRs:
+
+- Map each human reviewer's comments to categories (correctness/security/performance/architecture/testing/documentation)
+- If reviewer @X left `testing` category comments in 4+ PRs: they are compensating for missing test coverage automation
+- If reviewer @Y left `architecture` comments in 3+ PRs: a design doc requirement or architecture linting tool would reduce their burden
+
+Report format:
+```
+**Reviewer exhaustion**: @alice left "testing" comments in 6/20 PRs — highest ROI: automate test coverage checks.
+**Reviewer exhaustion**: @bob left "architecture" comments in 4/20 PRs — suggest design doc requirement for PRs >300 LOC.
+```
+
+These are the highest-ROI skill improvement targets — the reviewers doing this work are telling you exactly what automation is missing.
+
+Also compute `bot_finding_follow_through_rate` from Step 3c and include it in the metrics section.
 
 **IMPORTANT: The gap matrix and skill coverage heatmap tables above MUST appear in the final report.** They are the most actionable output of the skills gap analysis — without them, the findings are anecdotal rather than systematic. Include them in the Skills Gaps section of `reports/pr_audit_report.md`.
 

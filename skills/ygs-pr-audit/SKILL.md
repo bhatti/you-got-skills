@@ -94,6 +94,33 @@ Work through each specialist file in order. For each dimension:
 
 ---
 
+## Phase 2.5: Targeted Deep Review (conditional)
+
+After Phase 2, identify PRs that qualify for specialized deep review:
+
+**Security-sensitive PRs**: PR file paths contain any of: `auth`, `iam`, `credential`, `permission`, `secret`, `sandbox`, `rbac`, `encrypt`, `token`, `oauth`, `saml`, `acl`. OR human reviewers used security keywords ("injection", "auth bypass", "privilege", "credential", "vulnerability").
+
+**Large under-reviewed PRs**: PR >800 LOC with fewer than 3 human review comments.
+
+For qualifying PRs (limit: `MAX_DEEP_REVIEWS` env var, default 2 total), invoke the appropriate skill:
+
+```
+For security-sensitive PRs:   use the Skill tool → /ygs-security-review
+For large under-reviewed PRs: use the Skill tool → /ygs-review-deep
+```
+
+Tag findings from deep reviews with `(deep-review)` and include them in the appropriate finding sections.
+
+**Skip Phase 2.5 if:**
+- `--focus` is not `all` or `skills`
+- `MAX_DEEP_REVIEWS` env var is `0`
+- No qualifying PRs found
+- The PR diff is not available in the working directory (pr-audit analyzes history, not open PRs)
+
+**Note**: Phase 2.5 is best-effort. If the deep-review skill is not installed or fails, continue to Phase 3 with Phase 2 findings only.
+
+---
+
 ## Phase 3: Verify findings
 
 **This is NOT a code review — it is an evidence audit.**
@@ -126,12 +153,18 @@ Before writing the report, compute these metrics from the PR data:
 
 **Spec coverage %** — Count PRs whose linked issues contain acceptance criteria (look for "AC:", "Acceptance Criteria", checkbox lists, BDD "Given/When/Then"). Divide by total PRs analyzed.
 
-**Skill catch rate** — Count issues flagged by bot reviewers. Divide by total issues flagged (bot + human). Higher = bots catching more, lower = humans doing the heavy lifting.
+**CI catch rate** — Count issues flagged by CI bots (build/test/lint failures). Divide by total issues flagged (all bots + human). This measures pipeline health, not code-review skill quality.
 
-**Human review burden** — Count findings that only a human reviewer caught (no bot flagged the same area in the same PR). Divide by total findings. Higher = more burden on humans, skills need improvement.
+**Code-review skill catch rate** — Count issues flagged by code-review bots (Claude PR Review Agent, CodeRabbit, etc.). Divide by total issues flagged by code-review bots + humans. Higher = review skills effective. NEVER mix CI bots into this metric.
+
+**Bot-finding follow-through rate** — Count code-review bot findings that were resolved or acknowledged before merge. Divide by total code-review bot findings. Below 70% = process gap (bot findings being ignored).
+
+**Human review burden** — Count findings that only a human reviewer caught (no code-review bot flagged the same area in the same PR). Divide by total findings. Higher = more burden on humans, skills need improvement.
 
 **Additional metrics:**
 - Average PR size (lines changed)
+- Large PR review depth: average human review comments on PRs >400 LOC
+- Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had `/ygs-security-review` invoked
 - Rubber-stamp rate (approvals with zero comments on PRs with >100 lines changed)
 - Revert/follow-up rate (PRs that reference a previous PR as fix/follow-up)
 
@@ -227,12 +260,16 @@ Identify and report these cross-cutting patterns:
 
 | Metric | Value | Benchmark | Signal |
 |--------|-------|-----------|--------|
-| Spec coverage | X% | >80% healthy -- 50-80% warning -- <50% reactive | |
-| Skill catch rate | X% | >60% healthy -- 30-60% developing -- <30% gap | |
-| Human review burden | X% | <40% healthy -- 40-70% warning -- >70% overloaded | |
-| Avg PR size (LOC) | X | <400 healthy -- 400-800 warning -- >800 risk | |
-| Rubber-stamp rate | X% | <10% healthy -- 10-25% warning -- >25% problem | |
-| Revert/follow-up rate | X% | <5% healthy -- 5-15% warning -- >15% unstable | |
+| Spec coverage | X% | >80% healthy / 50-80% warning / <50% reactive | |
+| CI catch rate | X% | measures pipeline health — not review skill quality | |
+| Code-review skill catch rate | X% | >60% healthy / 30-60% developing / <30% gap | |
+| Bot-finding follow-through | X% | >90% healthy / 70-90% warning / <70% process gap | |
+| Human review burden | X% | <40% healthy / 40-70% warning / >70% overloaded | |
+| Avg PR size (LOC) | X | <400 healthy / 400-800 warning / >800 risk | |
+| Large PR review depth (avg comments, PRs >400 LOC) | X | >5 healthy / 2-5 warning / <2 gap | |
+| Security review invocation rate | X% | % security-sensitive PRs that received /ygs-security-review | |
+| Rubber-stamp rate | X% | <10% healthy / 10-25% warning / >25% problem | |
+| Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | |
 | PRs analyzed | N | — | — |
 
 ---
@@ -271,9 +308,13 @@ Write to `reports/pr_audit_findings.json`:
   ],
   "metrics": {
     "spec_coverage_pct": 0.0,
-    "skill_catch_rate": 0.0,
+    "ci_catch_rate": 0.0,
+    "code_review_skill_catch_rate": 0.0,
+    "bot_finding_follow_through_rate": 0.0,
     "human_review_burden": 0.0,
     "avg_pr_size_loc": 0,
+    "large_pr_review_depth": 0.0,
+    "security_review_invocation_rate": 0.0,
     "rubber_stamp_rate": 0.0,
     "revert_followup_rate": 0.0
   }
@@ -306,7 +347,8 @@ Write to `reports/skill_improvements.json`:
       "skill_name": "<ygs skill name>",
       "section": "<section within the skill>",
       "gap": "<what the skill currently misses>",
-      "suggestion": "<specific change to make>"
+      "suggestion": "<specific change to make>",
+      "pr_evidence_count": 0
     }
   ]
 }
