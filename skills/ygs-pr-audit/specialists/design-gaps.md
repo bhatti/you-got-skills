@@ -4,6 +4,30 @@ Review scope: PRs where missing or insufficient design documentation caused arch
 
 **Rule: Only report findings where the PR data actually contains evidence. Missing data = skip. No speculation.**
 
+## Step 0: Detect ADR and design-doc infrastructure
+
+Before flagging individual PRs, check whether the repo has any decision-logging infrastructure.
+Run these commands in the cloned repo:
+
+```bash
+find . -type d \( -name "adr" -o -name "adrs" \) 2>/dev/null | head -5
+find . -type d -path "*/docs/decisions" -o -path "*/design/decisions" 2>/dev/null | head -5
+find . -name "*.md" -path "*/adr/*" 2>/dev/null | head -5
+find . -name "ARCHITECTURE*" -o -name "DESIGN*" -o -name "RFC*" 2>/dev/null | head -10
+```
+
+Classify the repo:
+- **Established**: Has `docs/adr/`, `adr/`, or `design/decisions/` with 3+ ADR files
+- **Informal**: Has architecture docs but no structured ADR directory
+- **None**: No design-doc infrastructure found
+
+If classification is **None** AND design debates are present in PR comments (see Step 2 keywords),
+recommend establishing an ADR directory (`docs/adr/`) with a standard template. Each ADR should
+answer: "What did we consider? What did we decide? Why?" — a permanent searchable decision log.
+
+Do NOT flag "missing design docs" for individual PRs if the repo has no design-doc infrastructure
+at all — that is a process gap, not a per-PR gap. Report it once as a systemic finding.
+
 ## Step 1: Check linked issues for design doc references
 
 For each PR in the pre-computed data, examine the linked issue and PR description for design documentation:

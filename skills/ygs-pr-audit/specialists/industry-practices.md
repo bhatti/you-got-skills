@@ -23,18 +23,33 @@ For each PR, compute total lines changed (additions + deletions). Build a distri
 
 Flag PRs >800 LOC individually. Check if oversized PRs had more post-merge fixes.
 
-## Step 2: Rubber-stamp reviews
+## Step 2: Rubber-stamp and under-reviewed high-risk changes
 
-A rubber-stamp review is an approval with zero substantive comments on a non-trivial PR.
+A rubber-stamp is an approval with zero substantive human review on a non-trivial or high-risk PR.
 
-Detection criteria:
-- PR has >100 lines changed
-- Reviewer approved without leaving any comments, OR
-- Reviewer left only bot-generated or single-word comments ("LGTM", "looks good", "+1")
+**Detection criteria — flag if ALL three apply:**
+1. PR has no substantive human comments (zero comments, or only "LGTM", "looks good", "+1", single-word approvals)
+2. PR was approved and merged
+3. ANY of the following risk indicators are present:
 
-Compute rubber-stamp rate: rubber-stamp approvals / total approvals on PRs >100 LOC.
+   **Blast-radius indicators (flag regardless of LOC):**
+   - Security/auth/ACL code — even a 2-line change to access-control or permission checks can break enforcement
+   - Feature flag files (`flags.yml`, `FeatureFlags.*`, `feature-flags.*`) — directly affects live production
+   - Production configuration changes (`config/prod.*`, `.env.production`, environment-specific config)
+   - Infrastructure-as-code (`terraform/`, `k8s/`, `deploy/`, `ci-cd/`, pipeline definitions)
+   - API surface changes (routes, request/response schemas, public interface contracts)
+   - Data migrations or schema changes
+   - Incident-fix branches (tagged `hotfix/`, `fix/incident`, or linked to incident ticket)
+   - SRE/monitoring/alerting configuration
 
-Benchmark: <10% is healthy, 10-25% is warning, >25% indicates review culture problems.
+   **LOC-based indicators:**
+   - PR has >300 lines changed
+
+**IMPORTANT**: A 2-line change to ACL/auth/config has higher blast radius than a 300-line internal refactor. Use blast-radius as the PRIMARY criterion; LOC as SECONDARY. Never report a rubber-stamp finding based solely on LOC when the files changed are low-risk.
+
+**Compute rubber-stamp rate**: (high-risk PRs with no substantive review) / (all high-risk PRs). Report separately from LOC-only rate.
+
+Benchmark: <10% of high-risk changes should have zero substantive review.
 
 ## Step 3: Test coverage in PRs
 

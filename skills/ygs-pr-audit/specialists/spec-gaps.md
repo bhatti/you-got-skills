@@ -16,12 +16,24 @@ For each PR in the pre-computed data, examine the linked issue (if any):
 
 2. **When `has_acceptance_criteria` is false**, also read the `Issue description excerpt` field — the issue may describe requirements using different language (e.g., "The feature should...", "Users need to be able to...", "When X happens, Y should occur"). Use your judgment to determine if the issue effectively communicates testable requirements, even without a formal AC section.
 
-3. Classify each PR:
+## CRITICAL: Inaccessible Issues Are Not Findings
+
+When `has_acceptance_criteria` shows `unknown (Jira access denied — restricted project)`:
+- The AC status is **UNKNOWN** — the issue EXISTS but the audit bot could not read it (HTTP 401/403)
+- Do **NOT** count these PRs as "AC missing"
+- Do **NOT** include them in the AC coverage denominator or numerator
+- Treat them as a separate category: **Access denied**
+- Never report "X/N PRs missing AC" when many of those X are access-denied — that is a false positive
+
+3. Classify each PR into one of four buckets:
    - **Has AC:** `has_acceptance_criteria` is true, OR issue description contains clear testable requirements
-   - **No AC:** Issue exists but lacks testable requirements in any form
+   - **No AC (confirmed):** Issue was readable but lacks testable requirements in any form
+   - **Access denied:** `has_acceptance_criteria` is unknown — issue is restricted, no data available
    - **No issue:** PR has no linked issue at all
 
-Record the counts for the metrics dashboard. **Accuracy matters** — do not report 0% AC coverage if issues contain clear requirements in non-standard formats.
+Spec coverage % = (Has AC) / (Has AC + No AC confirmed). Exclude access-denied and no-issue PRs from both numerator and denominator.
+
+Record the counts for the metrics dashboard. **Accuracy matters** — do not report 0% AC coverage if issues contain clear requirements in non-standard formats, and never conflate access-denied with absent AC.
 
 ## Step 2: Check reviewer comments for spec confusion
 
@@ -137,7 +149,8 @@ For each PR, look for evidence that spec gaps caused rework:
 ## Aggregation
 
 After processing all PRs, summarize:
-- Total PRs with AC vs without AC (spec coverage %)
+- Total PRs by bucket: Has AC / No AC (confirmed) / Access denied / No issue
+- Spec coverage % = Has AC / (Has AC + No AC confirmed) — exclude access-denied and no-issue from both numerator and denominator
 - Top 3 most common confusion keywords across all PRs
 - Authors most frequently making assumptions (may indicate they work on under-specified features)
 - Reviewers most frequently flagging spec issues (may indicate they are compensating for weak specs)

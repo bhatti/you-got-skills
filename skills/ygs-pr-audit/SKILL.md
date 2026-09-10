@@ -164,9 +164,13 @@ Before writing the report, compute these metrics from the PR data:
 **Additional metrics:**
 - Average PR size (lines changed)
 - Large PR review depth: average human review comments on PRs >400 LOC
-- Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had `/ygs-security-review` invoked
+- Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had a security skill invoked (check `.claude/skills/` for any security-review skill in the repo)
 - Rubber-stamp rate (approvals with zero comments on PRs with >100 lines changed)
 - Revert/follow-up rate (PRs that reference a previous PR as fix/follow-up)
+
+**Security review invocation rate — recommendation guidance:**
+When this rate is low, do NOT tell teams to invoke `/ygs-security-review` (it may not exist in their repo).
+Instead recommend the repo **add or improve a security review skill** in `.claude/skills/` (e.g., create `.claude/skills/security-review/SKILL.md`). You may mention `/ygs-security-review` as a reference example they can copy from.
 
 ### 4c. Write the full report
 
@@ -213,6 +217,23 @@ and whether skill automation can reduce human review burden.]
 
 | Dimension | Observation | PRs |
 |-----------|-------------|-----|
+
+---
+
+### Positive Patterns
+
+Highlight exemplary behavior from this PR set. Recognition reinforces good practices and shows
+the audit is balanced, not just a defect hunt.
+
+- **Exceptional reviewers**: Name reviewers who demonstrated deep domain expertise or caught
+  high-impact issues before merge (e.g., "Abbas Mashayekh caught an auth bypass in PR #xxx;
+  Zeynep Acar identified 4 architectural issues across PRs #yyy, #zzz, #www, #vvv.")
+- **High-quality PRs**: PRs with excellent descriptions, comprehensive tests, or well-structured
+  rollback plans
+- **Good practices in action**: Teams or individuals who consistently provide constructive,
+  detailed feedback that prevents rework or production incidents
+
+If no standout positive patterns are found, write: "No exceptional patterns identified in this batch."
 
 ---
 
@@ -267,7 +288,7 @@ Identify and report these cross-cutting patterns:
 | Human review burden | X% | <40% healthy / 40-70% warning / >70% overloaded | |
 | Avg PR size (LOC) | X | <400 healthy / 400-800 warning / >800 risk | |
 | Large PR review depth (avg comments, PRs >400 LOC) | X | >5 healthy / 2-5 warning / <2 gap | |
-| Security review invocation rate | X% | % security-sensitive PRs that received /ygs-security-review | |
+| Security review coverage | X% | % security-sensitive PRs with dedicated security skill invoked | |
 | Rubber-stamp rate | X% | <10% healthy / 10-25% warning / >25% problem | |
 | Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | |
 | PRs analyzed | N | — | — |
