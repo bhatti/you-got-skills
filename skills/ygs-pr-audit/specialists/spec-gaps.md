@@ -13,6 +13,10 @@ For each PR in the pre-computed data, examine the linked issue (if any):
    - Checkbox lists: `- [ ]` or `- [x]` patterns (2+ checkboxes)
    - BDD format: "Given", "When", "Then" (2+ BDD statements)
    - Numbered requirements with modal verbs: "must", "should", "shall" (2+ numbered items)
+   - **Prose fix/approach descriptions**: "Fix — ...", "Revised approach:", "Expected behavior:", "Goal:", "The fix:", "This PR fixes/wires/adds..." followed by a behavioral description
+   - **Behavioral sentences**: multiple sentences describing what happens when/if/after a condition — even without formal AC headings
+
+   Trust `has_acceptance_criteria: true` — the detection is semantic, not just keyword-based.
 
 2. **When `has_acceptance_criteria` is false**, also read the `Issue description excerpt` field — the issue may describe requirements using different language (e.g., "The feature should...", "Users need to be able to...", "When X happens, Y should occur"). Use your judgment to determine if the issue effectively communicates testable requirements, even without a formal AC section.
 

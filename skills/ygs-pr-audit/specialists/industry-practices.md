@@ -28,7 +28,7 @@ Flag PRs >800 LOC individually. Check if oversized PRs had more post-merge fixes
 A rubber-stamp is an approval with zero substantive human review on a non-trivial or high-risk PR.
 
 **Detection criteria — flag if ALL three apply:**
-1. PR has no substantive human comments (zero comments, or only "LGTM", "looks good", "+1", single-word approvals)
+1. PR has no substantive human comments (zero inline review comments, or only "LGTM", "looks good", "+1", single-word approvals). **NOTE**: a formal approval (shown in `Approved by:` field or review decision "APPROVED") IS a form of review — but a silent approval with zero substantive comments on a high-risk change still qualifies as rubber-stamp.
 2. PR was approved and merged
 3. ANY of the following risk indicators are present:
 
@@ -168,7 +168,7 @@ Report each pattern as `[PRACTICE]` with count of PRs affected and recommendatio
 | Anti-pattern | Detection | Severity |
 |--------------|-----------|----------|
 | Oversized PRs (>800 LOC) that had post-merge fixes | Size + follow-up PR correlation | HIGH |
-| Rubber-stamp reviews on complex PRs (>300 LOC, 3+ dirs) | Approval without comments on complex PR | HIGH |
+| Rubber-stamp reviews on high-risk changes (blast-radius areas: auth/flags/config/infra regardless of LOC) | Approved with zero substantive comments on high blast-radius PR | HIGH |
 | No tests with production changes (3+ consecutive PRs) | Test file absence pattern | MEDIUM |
 | Missing changelogs for user-facing changes | No CHANGELOG/docs update on feature PRs | MEDIUM |
 | No rollback plan for infrastructure changes | Missing revert instructions on infra PRs | MEDIUM |

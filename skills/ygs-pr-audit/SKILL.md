@@ -151,7 +151,7 @@ For each finding in your list:
 
 Before writing the report, compute these metrics from the PR data:
 
-**Spec coverage %** — Count PRs whose linked issues contain acceptance criteria (look for "AC:", "Acceptance Criteria", checkbox lists, BDD "Given/When/Then"). Divide by total PRs analyzed.
+**Spec coverage %** — Use the pre-computed `has_acceptance_criteria` field from the PR data. For entries marked `false`, read the `Issue description excerpt` and apply semantic judgment — prose that clearly describes the desired fix or behavior counts as requirements (see spec-gaps specialist). Exclude access-denied and no-issue PRs from the denominator. Formula: (Has AC) / (Has AC + No AC confirmed).
 
 **CI catch rate** — Count issues flagged by CI bots (build/test/lint failures). Divide by total issues flagged (all bots + human). This measures pipeline health, not code-review skill quality.
 
@@ -165,7 +165,7 @@ Before writing the report, compute these metrics from the PR data:
 - Average PR size (lines changed)
 - Large PR review depth: average human review comments on PRs >400 LOC
 - Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had a security skill invoked (check `.claude/skills/` for any security-review skill in the repo)
-- Rubber-stamp rate (approvals with zero comments on PRs with >100 lines changed)
+- Rubber-stamp rate: high-blast-radius PRs (auth/flags/infra/config) approved with no substantive human comments — **IMPORTANT**: a PR with `Approved by:` IS reviewed; only flag if approver left zero substantive inline comments AND the change is high blast-radius
 - Revert/follow-up rate (PRs that reference a previous PR as fix/follow-up)
 
 **Security review invocation rate — recommendation guidance:**
