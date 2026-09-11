@@ -151,7 +151,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-write-skill` | Create or improve YGS skills — SDO-optimized descriptions, DRY shared modules, skill verification |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-deprecate` | Deprecation and migration: Expand/Contract schema migrations, Strangler pattern, zombie code removal |
-| `/ygs-learn` | Capture and surface operational learnings across sessions |
+| `/ygs-learn` | Capture and surface operational learnings across sessions. When invoked post-merge (with PR data), also runs a single-PR health check (spec coverage, design decisions, security/SRE, review quality, CI churn) and produces a combined report posted to the PR and issue. |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations, git commit-type ratios, hotspot files |
 | `/ygs-handoff` | Compress session into a handoff doc for the next session |
 | `/ygs-changelog` | Generate changelog from git history and task files |

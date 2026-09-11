@@ -7,6 +7,37 @@ description: Capture and surface operational learnings across sessions — failu
 
 Persistent knowledge capture that feeds back into future sessions. Unlike `/ygs-retro` (which reviews a period of work), `/ygs-learn` captures a single atomic learning as it happens.
 
+When invoked with a combined post-merge prompt (Phase 0 + Phase 1), first run the PR health check (Phase 0), then extract learnings (Phase 1).
+
+## Phase 0: PR Health Check (single PR)
+
+When the prompt includes a "PR Data" section with pre-computed fields, run a quick health check **before** extracting learnings. This is a single-PR check — do NOT do cross-PR pattern analysis or frequency-based findings. Omit any dimension where there is nothing to flag.
+
+For each dimension, write 1–3 bullet points under `## PR Health Analysis`:
+
+**Spec Coverage**
+- Check `has_acceptance_criteria` in the PR data. If `true`, note the AC briefly.
+- If `false`, read the issue excerpt — does it describe testable behavior? If yes, note "semantic AC present".
+- Flag "AC missing" only if the issue description has NO testable outcome at all.
+
+**Design Decisions**
+- Did this PR make a significant architectural choice? (new pattern, new dependency, new abstraction)
+- Check: `ls docs/adr/ 2>/dev/null | head -5`
+- If a decision was made and no ADR exists for it, recommend one with a 2-line summary of what to capture.
+
+**Security & SRE**
+- Scan `file_paths` for: `auth`, `rbac`, `iam`, `credential`, `secret`, `permission`, `token`, `oauth`
+- If present: was security reviewed? (check human comments for security keywords)
+- Was a rollback plan or feature flag mentioned? Were metrics/logging/alerting added for new code paths?
+
+**Review Quality** — only flag HIGH blast-radius issues (same taxonomy as `ygs-pr-audit`)
+- Check `rubber_stamp_approvers`. If non-empty AND files touch auth/billing/infra → flag.
+- Check `substantive_human_comment_count`. If 0 on a bot-authored PR → flag.
+- Low-risk silent approval is acceptable — do not flag.
+
+**CI Health**
+- Count "Build #" in CI bot comments. Flag only if ≥5 iterations (indicates missing pre-push checks).
+
 ## Step 1: Capture the learning
 
 Ask (or infer from context):
