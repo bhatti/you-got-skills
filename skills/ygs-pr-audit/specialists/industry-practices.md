@@ -25,31 +25,73 @@ Flag PRs >800 LOC individually. Check if oversized PRs had more post-merge fixes
 
 ## Step 2: Rubber-stamp and under-reviewed high-risk changes
 
-A rubber-stamp is an approval with zero substantive human review on a non-trivial or high-risk PR.
+A rubber-stamp is an approval where the approver left zero substantive feedback.
 
-**Detection criteria — flag if ALL three apply:**
-1. PR has no substantive human comments (zero inline review comments, or only "LGTM", "looks good", "+1", single-word approvals). **NOTE**: a formal approval (shown in `Approved by:` field or review decision "APPROVED") IS a form of review — but a silent approval with zero substantive comments on a high-risk change still qualifies as rubber-stamp.
+**Use pre-computed fields**: Each PR includes:
+- `Substantive human comments` — count of human comments that are NOT rubber-stamp phrases
+- `Rubber-stamp approvers` — list of approvers who left zero substantive comments on this PR
+- `Author type: AI/bot-authored PR` — flag when the author's username ends with `bot` or matches known AI coding agents
+
+Use these fields directly. Do not re-scan comment text manually.
+
+**Rubber-stamp phrase list** — these phrases count as zero substantive feedback regardless of length:
+- Explicit approvals: "LGTM", "L.G.T.M.", "looks good", "looks good to me", "approved"
+- Short affirmations: "+1", "👍", "💯", "🚀", "✅", ":+1:", ":thumbsup:", ":ok_hand:"
+- Generic praise: "nice work", "great", "perfect", "awesome", "excellent", "ship it", "merge it"
+- Non-committal: "sounds good", "all good", "no issues", "no comments", "no concerns"
+- Any emoji-only comment or comment under 60 characters matching the above patterns
+
+**CRITICAL: Rubber-stamp on LOW-RISK changes is ACCEPTABLE — do NOT flag it.**
+An LGTM on a cosmetic fix, doc update, or self-contained refactor is normal and expected.
+
+Only flag rubber-stamp when ALL three conditions hold:
+1. `Substantive human comments` = 0 (all approvers in `Rubber-stamp approvers`)
 2. PR was approved and merged
-3. ANY of the following risk indicators are present:
+3. Change has HIGH or MEDIUM blast-radius:
 
-   **Blast-radius indicators (flag regardless of LOC):**
-   - Security/auth/ACL code — even a 2-line change to access-control or permission checks can break enforcement
-   - Feature flag files (`flags.yml`, `FeatureFlags.*`, `feature-flags.*`) — directly affects live production
-   - Production configuration changes (`config/prod.*`, `.env.production`, environment-specific config)
-   - Infrastructure-as-code (`terraform/`, `k8s/`, `deploy/`, `ci-cd/`, pipeline definitions)
-   - API surface changes (routes, request/response schemas, public interface contracts)
+   **HIGH blast-radius → flag as HIGH finding:**
+   - Security/auth/ACL — even a 2-line change to access-control or permission checks
+   - Feature flags (`flags.yml`, `FeatureFlags.*`) — directly affects live production behavior
+   - Billing, payments, or financial data pipelines
+   - Query execution engines (ClickHouse, SQL query builders)
    - Data migrations or schema changes
-   - Incident-fix branches (tagged `hotfix/`, `fix/incident`, or linked to incident ticket)
+
+   **MEDIUM blast-radius → flag as MEDIUM finding:**
+   - Production configuration (`config/prod.*`, `.env.production`)
+   - Infrastructure-as-code (`terraform/`, `k8s/`, `deploy/`, pipeline files)
+   - API surface changes (routes, request/response schemas, public interface contracts)
    - SRE/monitoring/alerting configuration
 
-   **LOC-based indicators:**
-   - PR has >300 lines changed
+   **LOW blast-radius → SKIP (rubber-stamp is fine):**
+   - Internal refactors, docs, test-only changes, cosmetic fixes, style cleanup
+   - LOC alone is NOT sufficient — a 1000-line refactor with no blast-radius signals = fine with LGTM
 
-**IMPORTANT**: A 2-line change to ACL/auth/config has higher blast radius than a 300-line internal refactor. Use blast-radius as the PRIMARY criterion; LOC as SECONDARY. Never report a rubber-stamp finding based solely on LOC when the files changed are low-risk.
+**IMPORTANT**: Never conflate rubber-stamp with "no human review":
+- **No human review** = `Approved by` absent AND zero human comments → separate (usually more severe) finding
+- **Rubber-stamp** = approved but no substantive feedback — reviewers present but not engaged
 
-**Compute rubber-stamp rate**: (high-risk PRs with no substantive review) / (all high-risk PRs). Report separately from LOC-only rate.
+**Compute rubber-stamp rate**: (high-blast-radius PRs where ALL approvers are rubber-stamp) / (all high-blast-radius PRs).
 
-Benchmark: <10% of high-risk changes should have zero substantive review.
+Benchmark: <10% of high-blast-radius changes should have zero substantive review.
+
+## Step 2b: Bot/AI-authored PR review adequacy
+
+Bot-authored PRs (any PR whose author's username ends with `bot`, or known AI coding agents) carry **higher** correctness risk than human-authored ones because:
+1. Bots optimize for implementing the stated spec — they miss emergent interactions
+2. Bots don't ask "does this make sense" — they implement what was described
+3. A silent approval provides zero evidence the reviewer understood what changed
+
+**Detection**: Use the `Author type: AI/bot-authored PR` flag.
+
+**Minimum acceptable review for bot-authored PRs**:
+- ≥1 substantive human comment from a reviewer who can verify correctness — not just LGTM or approval
+- The reviewer should state **what they validated** (e.g., "Verified the forecast threshold change: when no prediction data, the No forecast preview message is now shown correctly")
+- Silent approval or rubber-stamp phrases on a bot-authored PR = MEDIUM finding
+- Silent approval on a bot-authored PR touching HIGH blast-radius files = HIGH finding
+
+**Positive pattern**: Bot PRs that received thorough review (≥3 substantive comments, AC-aligned) are worth calling out as examples of correct bot-human collaboration.
+
+**Report metric**: "Bot-authored PRs with substantive review: X/N (N%)"
 
 ## Step 3: Test coverage in PRs
 

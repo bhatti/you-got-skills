@@ -70,6 +70,11 @@ Pre-computed sections available (use each where relevant):
 - `## Review Decisions` — approvals, request-changes, comment-only reviews
 - `## CI/CD Status` — check suite results, required checks, bypassed checks
 
+**New pre-computed review-depth fields** (use directly — do not re-compute from comment text):
+- `Substantive human comments` — count of human comments that are NOT rubber-stamp phrases
+- `Rubber-stamp approvers` — list of approvers who left zero substantive comments on this PR
+- `Author type: AI/bot-authored PR` — present when the PR author's username ends with `bot` or matches known AI coding agents (Copilot, Claude agent, etc.)
+
 ---
 
 ## Phase 2: Run all 4 specialist passes
@@ -165,7 +170,10 @@ Before writing the report, compute these metrics from the PR data:
 - Average PR size (lines changed)
 - Large PR review depth: average human review comments on PRs >400 LOC
 - Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had a security skill invoked (check `.claude/skills/` for any security-review skill in the repo)
-- Rubber-stamp rate: high-blast-radius PRs (auth/flags/infra/config) approved with no substantive human comments — **IMPORTANT**: a PR with `Approved by:` IS reviewed; only flag if approver left zero substantive inline comments AND the change is high blast-radius
+- Rubber-stamp rate: use `Rubber-stamp approvers` field — (high-blast-radius PRs where ALL approvers are rubber-stamp) / (all high-blast-radius PRs). Severity by blast-radius: auth/billing/query-engine = HIGH; config/API surface = MEDIUM; other = LOW.
+  **NEVER conflate with "no review"**: rubber-stamp = approved but shallow; no review = not approved at all.
+  Rubber-stamp phrases: LGTM, +1, looks good, ship it, emoji-only, silent approval (no comment), "approved", "no issues".
+- Bot-authored PR review depth: (bot-authored PRs with ≥1 substantive human comment) / (all bot-authored PRs). Benchmark: 100% — every bot-authored PR should have at least one reviewer who documented what they validated.
 - Revert/follow-up rate (PRs that reference a previous PR as fix/follow-up)
 
 **Security review invocation rate — recommendation guidance:**
@@ -282,14 +290,16 @@ Identify and report these cross-cutting patterns:
 | Metric | Value | Benchmark | Signal |
 |--------|-------|-----------|--------|
 | Spec coverage | X% | >80% healthy / 50-80% warning / <50% reactive | |
-| CI catch rate | X% | measures pipeline health — not review skill quality | |
+| CI catch rate | X% | pipeline health — not review skill quality | |
 | Code-review skill catch rate | X% | >60% healthy / 30-60% developing / <30% gap | |
 | Bot-finding follow-through | X% | >90% healthy / 70-90% warning / <70% process gap | |
 | Human review burden | X% | <40% healthy / 40-70% warning / >70% overloaded | |
 | Avg PR size (LOC) | X | <400 healthy / 400-800 warning / >800 risk | |
 | Large PR review depth (avg comments, PRs >400 LOC) | X | >5 healthy / 2-5 warning / <2 gap | |
+| High-risk large PR review depth (new subsystem / query engine) | X | >5 healthy / <2 gap | |
 | Security review coverage | X% | % security-sensitive PRs with dedicated security skill invoked | |
-| Rubber-stamp rate | X% | <10% healthy / 10-25% warning / >25% problem | |
+| Rubber-stamp rate (high-blast-radius PRs, all approvers left 0 substantive comments) | X% | <10% healthy / 10-25% warning / >25% problem | |
+| Bot-authored PR review depth (% with ≥1 substantive human comment) | X% | 100% target — every bot PR needs documented human validation | |
 | Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | |
 | PRs analyzed | N | — | — |
 
