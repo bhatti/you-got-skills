@@ -294,21 +294,21 @@ Identify and report these cross-cutting patterns:
 
 ### Metrics Dashboard
 
-| Metric | Value | Benchmark | Signal |
-|--------|-------|-----------|--------|
-| Spec coverage | X% | >80% healthy / 50-80% warning / <50% reactive | |
-| CI catch rate | X% | pipeline health — not review skill quality | |
-| Code-review skill catch rate | X% | >60% healthy / 30-60% developing / <30% gap | |
-| Bot-finding follow-through | X% | >90% healthy / 70-90% warning / <70% process gap | |
-| Human review burden | X% | <40% healthy / 40-70% warning / >70% overloaded | |
-| Avg PR size (LOC) | X | <400 healthy / 400-800 warning / >800 risk | |
-| Large PR review depth (avg comments, PRs >400 LOC) | X | >5 healthy / 2-5 warning / <2 gap | |
-| High-risk large PR review depth (new subsystem / query engine) | X | >5 healthy / <2 gap | |
-| Security review coverage | X% | % security-sensitive PRs with dedicated security skill invoked | |
-| Rubber-stamp rate (high-blast-radius PRs, all approvers left 0 substantive comments) | X% | <10% healthy / 10-25% warning / >25% problem | |
-| Bot-authored PR review depth (% with ≥1 substantive human comment) | X% | 100% target — every bot PR needs documented human validation | |
-| Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | |
-| PRs analyzed | N | — | — |
+| Metric | Value | Benchmark | Signal | Description |
+|--------|-------|-----------|--------|-------------|
+| Spec coverage | X% | >80% healthy / 50-80% warning / <50% reactive | | % of PRs that have a linked issue with acceptance criteria. No spec = no way to verify the right thing was built. |
+| CI catch rate | X% | pipeline health — not review skill quality | | % of all flagged issues that were caught by CI bots (build/test/lint). Measures pipeline health; do NOT mix with code-review skill quality. |
+| Code-review skill catch rate | X% | >60% healthy / 30-60% developing / <30% gap | | % of issues caught by AI code-review tools (vs. human + tool total). Measures how effectively automated skills substitute for manual review. |
+| Bot-finding follow-through | X% | >90% healthy / 70-90% warning / <70% process gap | | % of code-review bot findings that were resolved or acknowledged before merge. Below 70% = reviewers are rubber-stamping over bot findings. |
+| Human review burden | X% | <40% healthy / 40-70% warning / >70% overloaded | | % of findings only humans caught (no bot caught the same area in the same PR). High = over-reliance on human reviewers; skills need improvement. |
+| Avg PR size (LOC) | X | <400 healthy / 400-800 warning / >800 risk | | Mean lines changed per PR. Large PRs receive shallower reviews and carry higher revert blast radius. |
+| Large PR review depth (avg comments, PRs >400 LOC) | X | >5 healthy / 2-5 warning / <2 gap | | Average substantive human review comments on PRs over 400 LOC. Low = reviewers are rubber-stamping large changes. |
+| High-risk large PR review depth (new subsystem / query engine) | X | >5 healthy / <2 gap | | Same as above, scoped to security/critical-path PRs. These warrant deeper scrutiny regardless of size. |
+| Security review coverage | X% | % security-sensitive PRs with dedicated security skill invoked | | % of PRs touching auth/IAM/credentials/sandbox that had a dedicated security skill invoked. Low = security-sensitive changes merged without targeted review. |
+| Rubber-stamp rate (high-blast-radius PRs, all approvers left 0 substantive comments) | X% | <10% healthy / 10-25% warning / >25% problem | | High-blast-radius PRs where every approver left zero substantive comments. Distinct from no-review: someone approved, but documented nothing they validated. |
+| Bot-authored PR review depth (% with ≥1 substantive human comment) | X% | 100% target — every bot PR needs documented human validation | | % of AI/bot-authored PRs that had at least one substantive human comment. AI-generated code needs documented human validation before merge. |
+| Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | | % of PRs that reference a previous PR as a fix or follow-up. High = shipping incomplete/broken work and patching in follow-on commits. |
+| PRs analyzed | N | — | — | Sample size for all metrics above. |
 
 ---
 

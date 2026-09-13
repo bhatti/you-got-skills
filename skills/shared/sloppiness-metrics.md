@@ -7,13 +7,13 @@ Referenced by: `ygs-codebase-audit/specialists/sloppiness.md`, `ygs-review-deep/
 
 ## Metric Definitions and Benchmarks
 
-| Metric | Formula | Established repos | AI-generated code |
-|--------|---------|-------------------|-------------------|
-| Verbosity | \|AST-Grep flagged lines ∪ clone lines\| / total LOC | 0.15 ± 0.06 | 0.33 ± 0.10 |
-| Mass(f) | CC(f) × √SLOC(f) per function | — | — |
-| Erosion | Σ(f: CC(f)>10) mass(f) / Σ(f) mass(f) | 0.31 ± 0.17 | 0.68 ± 0.20 |
+| Metric | Formula | Established repos | AI agent code | Vibe-coded |
+|--------|---------|-------------------|---------------|------------|
+| Verbosity | \|AST-Grep flagged lines ∪ clone lines\| / total LOC | 0.15 ± 0.06 | 0.33 ± 0.10 | up to 0.40 |
+| Mass(f) | CC(f) × √SLOC(f) per function | — | — | — |
+| Erosion | Σ(f: CC(f)>10) mass(f) / Σ(f) mass(f) | 0.31 ± 0.17 | 0.68 ± 0.20 | up to 0.75 |
 
-Source: "Measuring Code Sloppiness" (earendil.com). AI-generated code is on average **2× more verbose** and has **2× the erosion** of established repos.
+Source: ["Measuring Code Sloppiness"](https://earendil.com/posts/measuring-code-sloppiness/). AI agent code is on average **2× more verbose** and has **2× the erosion** of established repos. Vibe-coded (user-directed, minimal review) projects are worse still.
 
 ---
 

@@ -34,10 +34,16 @@ For the full instrumentation design guide, read `~/.claude/skills/you-got-skills
 - Trace context propagated across async boundaries (thread pools, message queues, HTTP calls)
 - Span names are stable and low-cardinality (no user IDs in span names)
 
+## Metrics isolation
+
+- Canary/shadow traffic and test load metrics must be kept separate from real-traffic metrics — mixing them poisons alarm thresholds and desensitizes on-call teams
+- Verify: canary metric labels (`canary=true`, separate namespaces) exclude canary traffic from production SLO dashboards and alarms
+
 ## Alertability
 
 - Would a failure in this new code path be detectable via existing alerts?
 - If not, is the code path important enough to warrant a new alert?
+- Alarm fatigue: avoid threshold alerts so noisy they are routinely ignored — prefer anomaly detection or SLO-based burn-rate alerts
 
 ## Severity guidance
 

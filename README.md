@@ -314,10 +314,6 @@ Skills use these when available (graceful fallback if missing):
 - `git` — diff-based reviews, branch detection
 - `gh` — GitHub CLI for PR workflows
 
-## Related Projects
-
-**[Superpowers](https://github.com/jessevictors/superpowers)** — Complementary skills with deep execution-time discipline: subagent-driven development, strict TDD, systematic debugging, and worktree isolation. Pairs well with YGS's planning and team-intelligence coverage.
-
 ## Credits
 
 Inspired by and borrowing best practices from:
@@ -329,6 +325,8 @@ Inspired by and borrowing best practices from:
 - [Kiro](https://kiro.dev/docs/specs/) — dependency waves for parallel task execution
 - [EARS (Easy Approach to Requirements Syntax)](https://alistairmavin.com/ears/) — six temporal patterns (Ubiquitous, Event-driven, State-driven, Optional feature, Unwanted behaviour, Complex) for unambiguous, testable requirements
 - [Shahzad Bhatti's engineering blog](https://shahbhat.medium.com) — API design patterns, microservice security, fault tolerance, transaction boundaries, production readiness, and post-mortem practices
+- ["Measuring Code Sloppiness"](https://earendil.com/posts/measuring-code-sloppiness/) — Verbosity ratio and Erosion score formulas, benchmark data showing AI-generated code is ~2× more verbose and eroded than established repos; basis for `shared/sloppiness-metrics.md` and the `[SLOP]` audit dimension
+- **[Superpowers](https://github.com/jessevictors/superpowers)** — Complementary skills with deep execution-time discipline: subagent-driven development, strict TDD, systematic debugging, and worktree isolation. Pairs well with YGS's planning and team-intelligence coverage.
 
 ## License
 

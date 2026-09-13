@@ -113,6 +113,36 @@ grep -r "\".*/${HOTSPOT}\"" --include="*.go" 2>/dev/null | wc -l
 
 High fan-in (>10 importers) on a hotspot file = broad blast radius. Document the count.
 
+## Step 6: Resilience configuration checks
+
+Verify these four rules that are frequently misconfigured and cause production incidents:
+
+**Idle timeout vs. load balancer timeout:**
+```bash
+# Service idle timeout must exceed LB idle timeout; if service closes first,
+# LB retries to a dead connection → 502s under sustained load
+grep -rn "idle.*timeout\|IdleTimeout\|keepalive\|keep.alive" \
+  --include="*.go" --include="*.py" --include="*.ts" --include="*.yaml" --include="*.yml" \
+  ! -path "*/test*" 2>/dev/null | head -10
+```
+
+**Circuit breaker calibration:**
+```bash
+grep -rn "circuitbreaker\|circuit.breaker\|CircuitBreaker\|resilience4j\|hystrix" \
+  --include="*.go" --include="*.py" --include="*.ts" --include="*.java" \
+  ! -path "*/test*" 2>/dev/null | head -10
+```
+Flag if circuit breaker is present but no explicit thresholds are configured — aggressive defaults (e.g., opens after 1 failure) cause the CB itself to cascade (Azure 2014 incident).
+
+**Aggregate throttle limit > sum of per-API limits:**
+If throttle limits are configured, verify: `aggregate_limit > sum(all per-endpoint limits)`. If aggregate equals one of the per-API limits, a single API flood can exhaust the whole quota and starve unrelated traffic.
+
+**Two-phase schema release for backward compatibility:**
+Flag direct schema migrations that drop or repurpose columns without a two-phase release:
+- Phase 1: new column added, code reads both old+new, writes old
+- Phase 2: code writes new; old column removed in a separate deploy
+A single-deploy migration that renames/removes a column breaks active instances still running the old code.
+
 ## Severity guidance
 
 | Finding | Severity | Confidence |
@@ -125,6 +155,10 @@ High fan-in (>10 importers) on a hotspot file = broad blast radius. Document the
 | DB call without timeout context | MEDIUM | HIGH |
 | Missing retry on external call | MEDIUM | MEDIUM |
 | Hardcoded port or magic number in business logic | MEDIUM | HIGH |
+| Circuit breaker present but no explicit thresholds configured | MEDIUM | HIGH |
+| Service idle timeout not confirmed > LB idle timeout | MEDIUM | MEDIUM |
+| Schema migration drops/renames column without two-phase release | HIGH | HIGH |
+| Aggregate throttle limit ≤ sum of per-API limits | HIGH | MEDIUM |
 
 ## Finding format
 

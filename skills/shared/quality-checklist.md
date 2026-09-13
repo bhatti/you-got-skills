@@ -199,10 +199,13 @@ At **light** depth: run grep only; flag confirmed patterns.
 For deep SRE analysis, use `ygs-sre-review`. This lightweight checklist applies at all levels.
 
 - Every external HTTP/gRPC/DB call has an explicit timeout
-- Retry logic uses exponential backoff with jitter (not fixed delay, not infinite retry)
+- Retry logic uses exponential backoff with jitter (not fixed delay, not infinite retry) — missing jitter causes thundering herd under correlated failures
 - No unbounded queues or caches (always set max size)
 - Graceful shutdown handles in-flight requests (drains on SIGTERM)
 - No hard startup dependencies (service starts and degrades if dependencies unavailable)
+- Circuit breakers have explicit, tested thresholds — default/aggressive settings open under normal load and cause cascades
+- Schema changes use two-phase release: add+read-both before removing old column (avoid breaking running instances)
+- Canary/test traffic metrics excluded from production SLO dashboards to avoid polluting alarm thresholds
 
 ```bash
 # HTTP calls without timeout

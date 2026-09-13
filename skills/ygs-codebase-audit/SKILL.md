@@ -183,19 +183,19 @@ Mention if any dimension came back clean.]
 
 ### Metrics Dashboard
 
-| Metric | Value | Benchmark | Signal |
-|--------|-------|-----------|--------|
-| Fix: commit ratio | X% | <25% healthy · 25-40% warning · >40% reactive | 🟢/🟡/🔴 |
-| Avg files/commit | X.X | <5 healthy · >10 risk | 🟢/🟡/🔴 |
-| Single-author hotspots | N | 0 ideal | 🟢/🟡/🔴 |
-| Temporal coupling pairs | N | 0 ideal | 🟢/🟡/🔴 |
-| Verified test gaps (hotspots) | N | 0 ideal | 🟢/🟡/🔴 |
-| Disabled/skipped tests | N | 0 ideal | 🟢/🟡/🔴 |
-| Verbosity ratio | X.XX | <0.20 healthy · 0.20-0.30 warning · >0.30 high (AI avg: 0.33) | 🟢/🟡/🔴 |
-| Erosion score | X.XX | <0.40 healthy · 0.40-0.55 warning · >0.55 high (AI avg: 0.68) | 🟢/🟡/🔴 |
-| High-mass functions (CC>10) | N | 0 ideal | 🟢/🟡/🔴 |
-| Churn × CC hotspots | N | 0 ideal (high churn + CC>10) | 🟢/🟡/🔴 |
-| Commits analyzed | N | — | — |
+| Metric | Value | Benchmark | Signal | Description |
+|--------|-------|-----------|--------|-------------|
+| Fix: commit ratio | X% | <25% healthy · 25-40% warning · >40% reactive | 🟢/🟡/🔴 | Ratio of fix/bug/hotfix commits to total commits. High = team is firefighting instead of shipping features. |
+| Avg files/commit | X.X | <5 healthy · >10 risk | 🟢/🟡/🔴 | Mean files touched per commit. Large commits are hard to review atomically and increase revert blast radius. |
+| Single-author hotspots | N | 0 ideal | 🟢/🟡/🔴 | Hotspot files where one person wrote >80% of commits. Bus-factor risk: departure = unowned critical code. |
+| Temporal coupling pairs | N | 0 ideal | 🟢/🟡/🔴 | File pairs that co-change frequently without an explicit dependency. Hidden coupling that should be encapsulated. |
+| Verified test gaps (hotspots) | N | 0 ideal | 🟢/🟡/🔴 | Hotspot files (high churn) with no test counterpart. Highest-change code with no automated safety net. |
+| Disabled/skipped tests | N | 0 ideal | 🟢/🟡/🔴 | `@Skip`, `t.Skip()`, `xit()`, `pytest.mark.skip`, etc. Silenced tests mean known-broken code ships undetected. |
+| Verbosity ratio | X.XX | <0.20 healthy · 0.20-0.30 warning · >0.30 high (AI avg: 0.33) | 🟢/🟡/🔴 | `\|AST-Grep flagged lines ∪ clone lines\| / LOC`. AST-Grep flags verbose patterns (trivial delegators, wrapper-of-wrappers, duplicated guards); clone lines = jscpd duplicate blocks. AI agent code averages 0.33; established repos 0.15. High = codebase is ~2× more verbose than it needs to be. |
+| Erosion score | X.XX | <0.40 healthy · 0.40-0.55 warning · >0.55 high (AI avg: 0.68) | 🟢/🟡/🔴 | `Σ(CC(f)>10) mass(f) / Σ mass(f)` where `mass(f) = CC(f) × √SLOC(f)`. Measures what fraction of the codebase lives in dense, hard-to-test functions. AI code averages 0.68; established repos 0.31. |
+| High-mass functions (CC>10) | N | 0 ideal | 🟢/🟡/🔴 | Functions where cyclomatic complexity exceeds 10. Each branch needs a test; CC>15 is virtually untestable. |
+| Churn × CC hotspots | N | 0 ideal (high churn + CC>10) | 🟢/🟡/🔴 | Files in the "risky quadrant": both frequently changed AND containing high-CC functions. Highest defect probability in the codebase. |
+| Commits analyzed | N | — | — | Sample size for all metrics above. |
 
 ---
 
