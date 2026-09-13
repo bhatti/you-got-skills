@@ -38,6 +38,13 @@ For each dimension, write 1–3 bullet points under `## PR Health Analysis`:
 **CI Health**
 - Count "Build #" in CI bot comments. Flag only if ≥5 iterations (indicates missing pre-push checks).
 
+**Sloppiness** — Lightweight grep-visible signals only; no tool invocation required. Omit if none apply.
+- Flag if LOC delta is >300 lines with no new tests added (potential verbosity accumulation without coverage)
+- Flag if the diff introduces functions visibly longer than ~50 lines with no decomposition (proxy for CC > 10)
+- Flag if 2+ trivial delegator or wrapper-of-wrapper patterns are introduced in the same PR
+- Flag if the same guard block (`if x is None`, `if not authorized`, etc.) is copy-pasted to 3+ new sites
+- See `shared/sloppiness-metrics.md` for the full verbosity anti-pattern catalogue and CC thresholds
+
 ## Step 1: Capture the learning
 
 Ask (or infer from context):

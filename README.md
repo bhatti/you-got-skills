@@ -127,7 +127,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-review-pr` | Full PR review: fetch diff, four-domain analysis (correctness/security/API/SRE), ranked findings by severity, verdict (APPROVE/REQUEST_CHANGES/COMMENT) |
-| `/ygs-review-deep` | Deep PR review: seven-domain analysis (adds performance, testing quality, architecture to the standard four), verdict + severity ranking |
+| `/ygs-review-deep` | Deep PR review: seven-domain analysis (adds performance, testing quality, architecture to the standard four), verdict + severity ranking. Maintainability dimension includes CC thresholds (SHOULD >10, MUST >15) and verbosity anti-patterns from `shared/sloppiness-metrics.md`. |
 | `/ygs-code-review` | Two-pass code review (critical/informational) with testing discipline |
 | `/ygs-security-review` | Security audit + red-team adversarial analysis |
 | `/ygs-sre-review` | Operational review: failure modes, observability, capacity, rollback, deploy gate |
@@ -151,7 +151,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-write-skill` | Create or improve YGS skills — SDO-optimized descriptions, DRY shared modules, skill verification |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
 | `/ygs-deprecate` | Deprecation and migration: Expand/Contract schema migrations, Strangler pattern, zombie code removal |
-| `/ygs-learn` | Capture and surface operational learnings across sessions. When invoked post-merge (with PR data), also runs a single-PR health check (spec coverage, design decisions, security/SRE, review quality, CI churn) and produces a combined report posted to the PR and issue. |
+| `/ygs-learn` | Capture and surface operational learnings across sessions. When invoked post-merge (with PR data), also runs a single-PR health check (spec coverage, design decisions, security/SRE, review quality, CI churn, sloppiness signals) and produces a combined report posted to the PR and issue. |
 | `/ygs-retro` | Retrospective on recent work: keep/start/stop recommendations, git commit-type ratios, hotspot files |
 | `/ygs-handoff` | Compress session into a handoff doc for the next session |
 | `/ygs-changelog` | Generate changelog from git history and task files |
@@ -162,10 +162,10 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) for hotspots (files changed >15% of commits), temporal coupling (hidden cross-module dependencies), duplicate abstractions, architecture drift, security archaeology, test coverage gaps, commit health (fix:commit ratio, large commits), and knowledge silos (bus-factor risk). Reuses ygs-review-deep (architecture) and ygs-security-review (security) protocols. |
+| `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) across 8 dimensions — hotspots, temporal coupling, duplicate abstractions, architecture drift, security, test coverage gaps, commit health, knowledge silos, and **sloppiness** (verbosity ratio, erosion score, churn × complexity hotspots). Metrics dashboard includes benchmark-calibrated thresholds (established repos vs. AI-generated baselines). |
 | `/ygs-pr-audit` | Merged PR gap analysis: audit last N PRs (default 50) for spec gaps (missing acceptance criteria), design gaps (undocumented architecture decisions), skills gaps (findings human reviewers caught that bots missed), and industry practice gaps (oversized PRs, rubber-stamp reviews). Produces a findings report with metrics dashboard (spec coverage %, skill catch rate, human review burden) and a skill_improvements.json proposing concrete skill/doc updates. Includes a verification phase that re-examines every finding against cited PR evidence before reporting. |
 
-**ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health]`
+**ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness]`
 
 **Usage:**
 ```bash
@@ -213,6 +213,8 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
 | `shared/pr-audit-context.md` | PR data schema, bot detection rules, issue-linking conventions, skill-to-bot mapping for pr-audit |
 | `shared/verification-gate.md` | Iron law: no completion claims without fresh verification evidence |
+| `shared/sloppiness-metrics.md` | Single source of truth for sloppiness metrics: Verbosity/Mass/Erosion formulas, benchmark numbers (AI-gen vs. established repos), CC thresholds, verbosity anti-pattern catalogue, and tooling (lizard, jscpd). Referenced by codebase-audit, review-deep, code-review, and learn skills. |
+| `shared/quality-checklist.md` | Master quality checklist applied across all implement/review/audit skills at appropriate depth. Covers: sloppiness, CC thresholds, cyclic dependencies, modular boundaries, test coverage, observability, security basics, SRE basics. Includes a depth guide (deep for implement/review, aggregate for audit). Skills reference this instead of duplicating rules. |
 
 ## Typical Workflow
 

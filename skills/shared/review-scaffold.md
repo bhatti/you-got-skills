@@ -24,6 +24,28 @@ Use this context to distinguish "intentional trade-off" from "mistake" during re
 
 Findings from project rules use the same severity/confidence format as all other findings.
 
+## Repo-local skill consolidation
+
+Skills have specialist files (security, architecture, sre, testing, etc.). When loading any specialist, check for a repo-local override first:
+
+```bash
+ls .claude/skills/ 2>/dev/null || echo "no repo-local overrides"
+```
+
+**Consolidation protocol — applies to every skill that loads specialist files:**
+
+1. **Check first:** does `.claude/skills/<dimension>.md` exist? (e.g., `security.md`, `architecture.md`, `sre.md`)
+2. **If repo override exists:**
+   - Load it as the **primary** reference for that dimension
+   - Also load the ygs default for that dimension
+   - **Apply:** repo rules first; ygs rules fill any gap the repo file does not cover
+   - **On conflict:** repo wins — the team knows their codebase constraints
+   - Note the override in the Informational section: `(repo-local override applied for <dimension>)`
+3. **If no repo override:** use the ygs default as-is
+4. **Never silently drop ygs rules** — if the repo override doesn't cover a ygs check, apply the ygs check. Only drop a ygs check if the repo file explicitly says to skip it.
+
+**Rationale:** Repo-local overrides encode project-specific constraints (security policies, tenant isolation rules, API conventions) that ygs cannot know. But ygs provides the universal baseline (cyclic deps, CC thresholds, sloppiness signals) that every project benefits from. Consolidation ensures both are applied.
+
 ## Getting the diff
 
 ```bash

@@ -13,6 +13,21 @@ This skill runs a 7-dimension specialist review in parallel, then synthesizes fi
 
 ---
 
+## Phase 0: Repo-local skill consolidation
+
+Before loading any specialist, check for repo-local overrides per `shared/review-scaffold.md#repo-local-skill-consolidation`:
+
+```bash
+ls .claude/skills/ 2>/dev/null \
+  | grep -E "security|architecture|sre|testing|performance|maintainability|logic|observability" \
+  || echo "no repo-local overrides"
+```
+
+For each ACTIVE dimension where a repo-local file exists (e.g., `.claude/skills/security.md`):
+- Read the repo-local file **first** (project-specific rules — takes priority on conflicts)
+- **Also** read the ygs specialist below (universal baseline — fills any gap the repo file doesn't cover)
+- Consolidate: repo wins on conflicts; ygs fills gaps; note the override in Informational
+
 ## Phase 1: Get diff and route dimensions
 
 Follow the diff protocol from `shared/review-scaffold.md`. Then classify each changed file across 7 dimensions:

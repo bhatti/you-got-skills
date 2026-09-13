@@ -55,13 +55,19 @@ performance:    "slow", "memory", "O(n", "cache", "timeout", "leak",
 
 architecture:   "coupling", "abstraction", "interface", "dependency", "layer",
                 "separation of concerns", "single responsibility", "pattern",
-                "doesn't belong", "wrong module"
+                "doesn't belong", "wrong module", "circular import", "import cycle",
+                "wrong direction", "business logic in"
 
 testing:        "test", "coverage", "edge case", "regression test", "mock",
                 "assertion", "missing test", "untested", "flaky"
 
 documentation:  "doc", "comment", "unclear", "confusing", "readme",
                 "changelog", "jsdoc", "docstring", "explain"
+
+sloppiness:     "too complex", "hard to follow", "split this", "cyclomatic",
+                "trivial", "delegates to", "wrapper", "redundant", "unnecessary",
+                "simplify", "over-engineered", "verbose", "too long", "duplicate",
+                "extract this", "this already exists", "use existing"
 ```
 
 If a comment matches multiple categories, assign it to all matching categories.

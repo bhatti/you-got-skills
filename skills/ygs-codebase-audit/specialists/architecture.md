@@ -1,6 +1,8 @@
 # Specialist: Architecture Drift
 
-Review scope: cross-boundary imports, duplicate abstractions, large files needing splits, shallow wrappers, and conflicting changes between teams.
+Review scope: cross-boundary imports, cyclic dependencies, duplicate abstractions, large files needing splits, shallow wrappers, and conflicting changes between teams.
+
+**Reference:** `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md` sections 3 (Cyclic Dependencies) and 4 (Modular Boundaries) — canonical detection commands and severity rules.
 
 ## Step 1: Cross-boundary imports
 

@@ -97,6 +97,8 @@ Before reviewing, establish context:
 
 ## Step 5: Four-domain review
 
+Apply the quality checklist at **medium** depth — changed code only: `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
+
 Run all four domains in parallel. Use the finding format from `shared/review-scaffold.md` (Severity: MUST/SHOULD/MAY, Confidence: HIGH/MEDIUM/LOW, file:line reference, issue, fix).
 
 ### Domain 1 — Correctness
@@ -109,6 +111,10 @@ Run all four domains in parallel. Use the finding format from `shared/review-sca
 - Boundary conditions: empty inputs, max limits, type coercion at system edges
 - Data loss: destructive writes without confirmation, missing transactions
 - Scalability: N+1 patterns, unbounded allocations, O(n²) in hot paths
+- **Cyclomatic complexity:** new functions with CC > 10 (SHOULD), CC > 15 (MUST) — count `if/else if/for/while/case/catch/&&/||` in any new function > 30 lines
+- **Cyclic dependencies:** new circular import introduced? (check import chain for back-edges)
+- **Modular boundaries:** dependencies flow correct direction; no business logic in handler/adapter layers
+- **Sloppiness:** 2+ verbosity anti-patterns in diff (trivial delegators, wrappers-of-wrappers, duplicated guards) — flag as SHOULD (see `shared/sloppiness-metrics.md`)
 
 ### Domain 2 — Security
 

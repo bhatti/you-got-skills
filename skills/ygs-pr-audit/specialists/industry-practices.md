@@ -205,6 +205,27 @@ Look for PRs where the same *type* of reviewer correction appears 3+ times acros
 
 Report each pattern as `[PRACTICE]` with count of PRs affected and recommendation.
 
+## Step 11: Code Quality Patterns (Sloppiness and Complexity)
+
+Apply the quality checklist at **aggregate** depth across all PRs: `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
+
+For aggregate audit, track rates and trends — not per-function detail. Flag only patterns that appear in 3+ PRs or show measurable negative trend.
+
+**Sloppiness indicators to track across PRs:**
+- PRs where reviewers commented on verbosity, delegation-only methods, or redundant wrapping (search comments for: "trivial", "delegates to", "wrapper", "redundant", "unnecessary")
+- PRs with LOC delta > 300 but no new tests — potential verbosity without coverage
+- PRs where follow-up cleanup/simplify PRs were filed within 2 weeks (rework signal)
+
+**Cyclomatic complexity indicators:**
+- Reviewer comments mentioning "too complex", "hard to follow", "split this function", "cyclomatic" — count per PR
+- PRs that introduced large functions (>50-line blocks in diff) with no decomposition
+
+**Cyclic dependency introductions:**
+- Post-merge issues or reverts caused by import cycle introduced in a PR
+- Reviewer comments mentioning "circular import", "import cycle", "circular dependency"
+
+**Report as:** Count of PRs showing each pattern; whether the pattern is improving or worsening across the audit window.
+
 ## Anti-patterns to flag
 
 | Anti-pattern | Detection | Severity |
@@ -221,6 +242,8 @@ Report each pattern as `[PRACTICE]` with count of PRs affected and recommendatio
 | Brittle tests (timing, excessive mocking, env-dependent) | Test file analysis + reviewer comments | MEDIUM |
 | High-risk change with no substantive review | Blast radius vs review depth mismatch | HIGH |
 | Conflicting changes across PRs | Same files modified with divergent intent | MEDIUM |
+| Verbosity accumulation (3+ PRs with reviewer "simplify/trivial/redundant" comments) | Comment keyword scan | MEDIUM |
+| Complexity creep (3+ PRs introducing large functions without decomposition) | Large function block count in diffs | MEDIUM |
 
 ## Finding format
 

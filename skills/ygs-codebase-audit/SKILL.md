@@ -1,9 +1,10 @@
 ---
 name: ygs-codebase-audit
-argument-hint: "[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health]"
-description: "Post-merge codebase archaeology — 7-dimension specialist audit across hotspots,
+argument-hint: "[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness]"
+description: "Post-merge codebase archaeology — 8-dimension specialist audit across hotspots,
   architecture drift, security, duplicate abstractions, test health, SRE/operational reliability,
-  and knowledge silos. Produces ranked findings with file:line evidence and a metrics dashboard.
+  knowledge silos, and sloppiness (verbosity/erosion/churn×complexity). Produces ranked findings
+  with file:line evidence and a benchmark-calibrated metrics dashboard.
   Run after teams have shipped at scale, especially with AI-generated code."
 ---
 
@@ -41,16 +42,24 @@ Evidence: `<command>` → `<actual output snippet (first 3-5 lines)>`
 Read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md` — severity levels, confidence levels, finding format, and the principal quality bar. Apply throughout.
 
 ### 1b. Check for repo-specific skill overrides
-Before loading the default specialist files below, check if the cloned repository has its own skill overrides:
+
+Follow the **Repo-local skill consolidation** protocol from `shared/review-scaffold.md`.
 
 ```bash
 # Check for repo-local skill overrides
-ls .claude/skills/ 2>/dev/null || echo "no repo-local skills"
+ls .claude/skills/ 2>/dev/null \
+  | grep -E "security|architecture|sre|test-health|duplicates|hotspot|sloppiness" \
+  || echo "no repo-local overrides"
 ```
 
-If `.claude/skills/security.md`, `.claude/skills/architecture.md`, `.claude/skills/sre.md`, or similar exist in the repo: **use those instead of the defaults below** for that dimension. Repo-specific protocols override ygs defaults — the team knows their own codebase.
+For each dimension where a repo-local file exists:
+- Read the repo-local file **first** as primary (project-specific rules — priority on conflicts)
+- **Also** read the ygs specialist below (the ygs paths below always point to the ygs baseline regardless of any override)
+- Consolidate: repo wins on conflicts; ygs fills any gap not covered; note override in Informational
 
-### 1c. Load the 7 specialist files
+Never drop ygs checks silently — either apply them or note "repo overrides this check."
+
+### 1c. Load the 8 specialist files
 
 Read each specialist reference file:
 - `~/.claude/skills/you-got-skills/skills/ygs-codebase-audit/specialists/hotspot.md`
@@ -60,6 +69,10 @@ Read each specialist reference file:
 - `~/.claude/skills/you-got-skills/skills/ygs-codebase-audit/specialists/test-health.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-codebase-audit/specialists/sre.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-codebase-audit/specialists/knowledge-silos.md`
+- `~/.claude/skills/you-got-skills/skills/ygs-codebase-audit/specialists/sloppiness.md`
+
+Also read the shared sloppiness reference (loaded by the sloppiness specialist — no need to re-read):
+- `~/.claude/skills/you-got-skills/skills/shared/sloppiness-metrics.md`
 
 ### 1d. Read pre-computed git statistics
 The runner has already computed git statistics and placed them in the **Repository Analysis Data** block in the prompt. Use that data as your primary quantitative source. For any statistic not in the pre-computed data, run git commands directly.
@@ -79,11 +92,11 @@ Pre-computed sections available (use each where relevant):
 
 ## Phase 2: Run all 7 specialist passes
 
-**Run ALL 7 dimensions, even when early findings seem sparse.** Each dimension may surface something the others missed. Do not stop after finding 3 findings.
+**Run ALL 8 dimensions, even when early findings seem sparse.** Each dimension may surface something the others missed. Do not stop after finding 3 findings.
 
 Work through each specialist file in order. For each dimension:
 1. Follow the step-by-step commands in the specialist file.
-2. Collect findings tagged with their dimension: `[HOTSPOT]`, `[ARCH]`, `[SECURITY]`, `[DUP]`, `[TEST]`, `[SRE]`, `[SILO]`, `[COMMIT]`.
+2. Collect findings tagged with their dimension: `[HOTSPOT]`, `[ARCH]`, `[SECURITY]`, `[DUP]`, `[TEST]`, `[SRE]`, `[SILO]`, `[COMMIT]`, `[SLOP]`.
 3. For every finding, record: severity, confidence, file:line, evidence command, actual output.
 
 **Verification gate (from review-scaffold.md):** Before adding any finding to your list, ask: "Did I run a command and see this in the output?" If yes → keep it. If no → discard it or downgrade to Informational.
@@ -178,6 +191,10 @@ Mention if any dimension came back clean.]
 | Temporal coupling pairs | N | 0 ideal | 🟢/🟡/🔴 |
 | Verified test gaps (hotspots) | N | 0 ideal | 🟢/🟡/🔴 |
 | Disabled/skipped tests | N | 0 ideal | 🟢/🟡/🔴 |
+| Verbosity ratio | X.XX | <0.20 healthy · 0.20-0.30 warning · >0.30 high (AI avg: 0.33) | 🟢/🟡/🔴 |
+| Erosion score | X.XX | <0.40 healthy · 0.40-0.55 warning · >0.55 high (AI avg: 0.68) | 🟢/🟡/🔴 |
+| High-mass functions (CC>10) | N | 0 ideal | 🟢/🟡/🔴 |
+| Churn × CC hotspots | N | 0 ideal (high churn + CC>10) | 🟢/🟡/🔴 |
 | Commits analyzed | N | — | — |
 
 ---
@@ -206,7 +223,7 @@ Write to `reports/audit_findings.json`:
   "findings": [
     {
       "severity": "CRITICAL|HIGH|MEDIUM|LOW",
-      "dimension": "hotspot|architecture|security|tests|sre|duplicate|knowledge-silo|commit-quality",
+      "dimension": "hotspot|architecture|security|tests|sre|duplicate|knowledge-silo|commit-quality|sloppiness",
       "location": "path/to/file:line",
       "evidence": "one-line evidence summary",
       "recommendation": "specific action"
@@ -218,7 +235,11 @@ Write to `reports/audit_findings.json`:
     "single_author_hotspots": 0,
     "temporal_coupling_pairs": 0,
     "test_gap_files": 0,
-    "skip_markers": 0
+    "skip_markers": 0,
+    "verbosity_ratio": 0.0,
+    "erosion_score": 0.0,
+    "high_mass_functions": 0,
+    "churn_complexity_hotspots": 0
   }
 }
 ```

@@ -69,6 +69,13 @@ Then explore the codebase in parallel:
   grep -rl "<task-related keyword>" docs/learnings/ 2>/dev/null | head -5
   ```
   Review matches — they document past surprises, edge cases, and gotchas. Incorporate into your approach. Capture new surprises with `/ygs-learn`.
+- **Check repo-local implementation rules:** Per `shared/review-scaffold.md#repo-local-skill-consolidation`:
+  ```bash
+  ls .claude/skills/ 2>/dev/null \
+    | grep -E "coding|implementation|architecture|security|sre" \
+    || echo "no repo-local implementation overrides"
+  ```
+  If overrides exist, read them as **primary** (project-specific constraints); ygs quality-checklist fills any gap not covered.
 
 ### Challenge the premise
 
@@ -212,13 +219,24 @@ If gaps found: write the missing test, re-run. **Max 3 QA rounds** — after 3, 
 
 ## Step 10: Self-review (before requesting external review)
 
+Apply the quality checklist at **deep** depth: `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
+
 Before moving to done, self-check your own work:
 - Re-read the acceptance criteria — does the implementation satisfy each one?
 - Review the diff as a principal engineer: debug code, TODOs, hardcoded values, issue number references in comments
 - Check for unintended scope expansion: did you touch files beyond what was planned?
 - Verify naming consistency with surrounding code; no surprises
 - Check: unused variables, empty tests, dead code, ungated debug logs
-- Verify: no circular imports introduced; all new dependencies are intentional
+
+**Quality checklist (deep — apply to every new function):**
+- **Cyclomatic complexity:** count `if/else if/for/while/case/catch/&&/||` branches. CC > 10 = SHOULD split; CC > 15 = MUST split (see `shared/sloppiness-metrics.md`)
+- **Cyclic dependencies:** verify no new circular imports (Go: `go build ./... 2>&1 | grep "import cycle"`; Python: trace import chain; JS/TS: `npx madge --circular`)
+- **Modular boundaries:** dependencies flow inward only (domain ← service ← infra). No business logic in handlers/adapters. No layer-skipping imports.
+- **Sloppiness:** no trivial delegators, wrapper-of-wrappers, or duplicated guard blocks introduced (see `shared/sloppiness-metrics.md` anti-patterns)
+- **Observability:** every new failure path has a structured log at the correct level; no ungated debug logs; no PII in logs
+- **SRE basics:** every external call has an explicit timeout; retry logic uses exponential backoff
+- **Security basics:** no hardcoded secrets; input validated at boundaries; auth checks present on new endpoints
+
 - Confirm changes follow existing architecture — proportional to the problem, not over/under-engineered
 - Check all ways this code can fail: partial failure, concurrent access, large inputs, high throughput
 - If issues found: fix and re-run verification (max 2 self-review cycles, then flag concerns)

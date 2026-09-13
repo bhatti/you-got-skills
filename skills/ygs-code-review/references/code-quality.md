@@ -1,5 +1,7 @@
 # Code Quality Principles
 
+**Reference:** `~/.claude/skills/you-got-skills/skills/shared/sloppiness-metrics.md` — verbosity anti-patterns, CC thresholds, and benchmark numbers. The Verbosity and Complexity section below is a summary; the shared file is authoritative.
+
 ## Cognitive Load
 - Methods limited to ~24 lines (80/24 rule)
 - No more than 7 things in a single code section (hex flower)
@@ -45,6 +47,27 @@
 - Devil's Advocate — attempt passing tests with incomplete implementation
 - Parameterized tests for systematic invariant validation
 - Test through public interfaces, not internals
+
+## Verbosity and Complexity Thresholds
+
+**Cyclomatic Complexity (CC):** count `if / else if / for / while / case / catch / && / ||` branches + 1.
+
+| CC | Risk | Action in review |
+|----|------|-----------------|
+| 1–5 | Low | No action |
+| 6–10 | Medium | Each branch needs a test |
+| > 10 | High | Flag **SHOULD** split |
+| > 15 | Very high | Flag **MUST** split |
+
+**Verbosity anti-patterns to flag in diff** (see `shared/sloppiness-metrics.md` for full catalogue):
+- **Trivial delegators** — method body = single forwarding call, no logic added
+- **Wrapper-of-wrapper** — new class wraps existing class with zero added logic
+- **Duplicated guards** — same `if nil/None/not authorized` repeated at 3+ call sites
+- **Shallow pass-throughs** — function that only renames args to call one other function
+
+Flag as SHOULD when 2+ of these patterns appear together in a diff.
+
+**Benchmark context:** AI-generated code is ~2× more verbose (verbosity ratio 0.33) and ~2× higher erosion (0.68) vs. established repos (0.15 / 0.31). These patterns are the most common contributors.
 
 ## Transaction & Concurrency
 - Explicit transaction boundaries — atomicity requirements drive architecture

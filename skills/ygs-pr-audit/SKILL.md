@@ -42,14 +42,21 @@ Read `~/.claude/skills/you-got-skills/skills/shared/pr-audit-context.md` — PR 
 
 ### 1b. Check for repo-specific skill overrides
 
-Before loading the default specialist files below, check if the repository has its own skill overrides:
+Follow the **Repo-local skill consolidation** protocol from `shared/review-scaffold.md`.
 
 ```bash
 # Check for repo-local skill overrides
-ls .claude/skills/ 2>/dev/null || echo "no repo-local skills"
+ls .claude/skills/ 2>/dev/null \
+  | grep -E "pr-audit|spec|design|practices" \
+  || echo "no repo-local overrides"
 ```
 
-If `.claude/skills/pr-audit/` or dimension-specific overrides exist in the repo: **use those instead of the defaults below** for that dimension. Repo-specific protocols override ygs defaults — the team knows their own codebase.
+For each dimension where a repo-local file exists:
+- Read the repo-local file **first** as primary (project-specific rules — priority on conflicts)
+- **Also** read the ygs specialist below (the ygs paths below always point to the ygs baseline regardless of any override)
+- Consolidate: repo wins on conflicts; ygs fills any gap not covered; note override in Informational
+
+Never drop ygs checks silently — either apply them or note "repo overrides this check."
 
 ### 1c. Load the 4 specialist files
 

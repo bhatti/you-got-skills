@@ -3,6 +3,7 @@
 Review scope: does the structure of this change belong in the existing design, or does it introduce technical debt?
 
 For functional design principles, read `~/.claude/skills/you-got-skills/skills/shared/functional-design.md`.
+For quality rules (cyclic deps, modular boundaries, CC thresholds), read `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md` sections 3 and 4.
 
 ## Module boundaries
 
@@ -28,6 +29,34 @@ For functional design principles, read `~/.claude/skills/you-got-skills/skills/s
 
 - New circular module reference introduced — resolve with proper abstraction, not a trait workaround
 - Dependency inversion missing where it would break the cycle cleanly
+
+**Detection (run for any diff touching import lists):**
+```bash
+# Go — build-time cycle detection
+go build ./... 2>&1 | grep "import cycle" | head -10
+
+# Python — grep for mutual imports (A imports B and B imports A)
+python3 -c "
+import ast, os, sys
+deps = {}
+for root, _, files in os.walk('.'):
+    for f in files:
+        if f.endswith('.py') and '__pycache__' not in root:
+            path = os.path.join(root, f)
+            mod = path.replace('/', '.').replace('.py', '').lstrip('.')
+            try:
+                tree = ast.parse(open(path).read())
+                deps[mod] = [n.module or '' for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom)) and hasattr(n, 'module')]
+            except: pass
+for a, bs in deps.items():
+    for b in bs:
+        if b in deps and any(a in (x or '') for x in deps[b]):
+            print(f'CYCLE: {a} <-> {b}')
+" 2>/dev/null | head -10
+
+# JS/TS — madge
+npx madge --circular --extensions ts,js src/ 2>/dev/null | head -20
+```
 
 ## Interface design (deep modules)
 
