@@ -161,7 +161,9 @@ For each finding in your list:
 
 ### 4b. Compute the Metrics Dashboard
 
-Before writing the report, compute these metrics from the PR data:
+Before writing the report, compute these metrics from the PR data.
+
+**MANDATORY — Fixed row set, fixed order:** The dashboard table MUST contain exactly the rows defined in the template below, in the order shown. Never add, remove, or rename rows. If a value cannot be computed (e.g., no bot-authored PRs), write `N/A` in the Value column. Extra observations belong in the findings sections, not as extra dashboard rows. Two audit runs on the same repo must produce dashboards that differ only in values, not in row structure.
 
 **Spec coverage %** — Use the pre-computed `has_acceptance_criteria` field from the PR data. For entries marked `false`, read the `Issue description excerpt` and apply semantic judgment — prose that clearly describes the desired fix or behavior counts as requirements (see spec-gaps specialist). Exclude access-denied and no-issue PRs from the denominator. Formula: (Has AC) / (Has AC + No AC confirmed).
 
@@ -308,6 +310,8 @@ Identify and report these cross-cutting patterns:
 | Rubber-stamp rate (high-blast-radius PRs, all approvers left 0 substantive comments) | X% | <10% healthy / 10-25% warning / >25% problem | | High-blast-radius PRs where every approver left zero substantive comments. Distinct from no-review: someone approved, but documented nothing they validated. |
 | Bot-authored PR review depth (% with ≥1 substantive human comment) | X% | 100% target — every bot PR needs documented human validation | | % of AI/bot-authored PRs that had at least one substantive human comment. AI-generated code needs documented human validation before merge. |
 | Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | | % of PRs that reference a previous PR as a fix or follow-up. High = shipping incomplete/broken work and patching in follow-on commits. |
+| Verbosity accumulation rate | X% | <10% healthy / 10-25% warning / >25% problem | | % of PRs where reviewers flagged verbosity signals (search comments for: "trivial", "delegates to", "wrapper", "redundant", "simplify") OR LOC delta >300 with no new tests. High = codebase is accumulating structural bloat across the sprint. |
+| Complexity creep (large-fn PRs) | N | 0 ideal | | Count of PRs that introduced functions visibly >50 lines (proxy for CC>10) with no decomposition comment or follow-up ticket. Cross-reference with `shared/sloppiness-metrics.md` CC thresholds. |
 | PRs analyzed | N | — | — | Sample size for all metrics above. |
 
 ---
@@ -354,7 +358,9 @@ Write to `reports/pr_audit_findings.json`:
     "large_pr_review_depth": 0.0,
     "security_review_invocation_rate": 0.0,
     "rubber_stamp_rate": 0.0,
-    "revert_followup_rate": 0.0
+    "revert_followup_rate": 0.0,
+    "verbosity_accumulation_rate": 0.0,
+    "complexity_creep_pr_count": 0
   }
 }
 ```

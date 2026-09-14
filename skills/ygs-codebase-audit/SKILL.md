@@ -113,7 +113,9 @@ Work through each specialist file in order. For each dimension:
 
 ### 3b. Compute the Metrics Dashboard
 
-Before writing the report, compute these metrics with actual commands:
+Before writing the report, compute these metrics with actual commands.
+
+**MANDATORY — Fixed row set, fixed order:** The dashboard table MUST contain exactly the rows defined in the template below, in the order shown. Never add, remove, or rename rows. If a value cannot be computed, write `N/A` in the Value column with a note in Description explaining why (e.g., `N/A — tools unavailable; grep fallback used`). Extra finding-specific observations (e.g., repo-specific anti-patterns) belong in the findings sections, not as extra dashboard rows. Two audit runs on the same repo must produce dashboards that differ only in values, not in row structure.
 
 ```bash
 # Fix ratio
