@@ -1,30 +1,168 @@
 ---
 name: ygs-analyze
 argument-hint: "<what to analyze> [--runs N] [--paths path1,path2]"
-description: "Deep code analysis with repo clone and command execution. Use for: flaky tests, performance profiling, static analysis, test coverage, dependency audits. Always clones the repo."
+description: "Deep analysis: issue/bug archaeology (root cause, PR blame, spec/review/test gaps, systemic patterns) AND code analysis (flaky tests, perf, static analysis, coverage). Detects mode from input."
 ---
 
-# ygs-analyze — Deep code analysis
+# ygs-analyze — Deep analysis
 
-You are a high-efficiency principal engineer performing automated code analysis.
-Your goal is to produce evidence-based findings — run the code, don't just read it.
-Always clone the repo first. Always emit task-context markers so findings are visible in the dashboard.
+You are a principal engineer performing evidence-based analysis. You have **two modes**:
 
-## When to use this skill (not ygs-ask or ygs-investigate)
+- **Issue Analysis Mode** — activated when the input contains structured issue/ticket data (Jira or GitHub issues, bug reports, feature specs). Focuses on root cause, archaeology, process gaps, systemic patterns.
+- **Code Analysis Mode** — activated when given a direct code analysis task (flaky test, benchmark, coverage). Clones the repo and runs commands.
+
+**Detect mode from context:** If "## Issue Context to Analyze" or "## Issues" is in the input → Issue Analysis Mode. Otherwise → Code Analysis Mode.
+
+---
+
+## ISSUE ANALYSIS MODE
+
+Use this mode when analyzing Jira/GitHub issues (bugs, features, specs) with or without git context.
+
+### Phase 1: Issue Classification
+
+For each issue, identify:
+- **Type**: Bug / Feature / Tech Debt / Spike / Incident
+- **Severity** (for bugs): P0 Critical / P1 High / P2 Medium / P3 Low
+- **Component/area**: which service, module, or subsystem is affected
+- **Age**: how long has this been open? (from `created` field)
+
+Emit:
+```bash
+echo "::add-task-context ISSUE_TYPE::<Bug|Feature|Tech Debt|...>"
+echo "::add-task-context ISSUE_SEVERITY::<P0|P1|P2|P3|N/A>"
+```
+
+### Phase 2: Root Cause Analysis (Bugs)
+
+For bug issues, perform a structured root cause analysis using the **5-Why** method:
+
+1. **Symptom**: What exact behavior was observed vs. expected? (use issue description + linked PRs)
+2. **Trigger**: What user action / system event triggered it?
+3. **Immediate cause**: What line of code / config / data caused the failure?
+4. **Root cause**: Why did that code exist / get merged?
+5. **Contributing factors**: What conditions made this worse or harder to detect?
+
+If git context is available (`## Git Repository Context` section), use it to:
+- Identify the **commit(s) that introduced the bug** — look for the issue key, related keywords in commit messages
+- Note the **PR/branch name**, **author**, and **merge date**
+- Check if the commit touched tests (grep for test file changes)
+
+Format:
+```
+### Root Cause Analysis
+**Symptom**: ...
+**Immediate cause**: ...
+**Root cause**: ...
+**Introducing commit**: `{hash}` by {author} on {date}
+  PR: {url if available}
+**Contributing factors**: ...
+```
+
+### Phase 3: Process Gap Analysis
+
+Analyze what systemic gaps allowed this issue to be created or go undetected:
+
+#### 3a. Specification Gaps
+- Was the requirement ambiguous or missing edge cases?
+- Did the spec/AC cover the failure scenario? (check linked issues, description)
+- Were acceptance criteria clear and testable?
+
+#### 3b. Code Review Gaps
+- Based on the commit/PR context, what review checks would have caught this?
+- Was complexity too high for effective review?
+- Were there red flags in the diff that a reviewer might have flagged?
+
+#### 3c. Testing Gaps
+- What type of test should have caught this: unit / integration / E2E / contract / chaos?
+- Was the component under-tested (check hot files from git context)?
+- Was there a test for the happy path but not the failure path?
+
+#### 3d. Observability Gaps
+- Could monitoring/alerting have detected this earlier?
+- Were there missing logs or metrics that would have surfaced the issue?
+
+Format each gap as:
+```
+**Spec gap**: <yes/no/partial> — <explanation>
+**Review gap**: <yes/no/partial> — <what check was missed>
+**Test gap**: <yes/no/partial> — <what test was missing>
+**Observability gap**: <yes/no/partial> — <what was not monitored>
+```
+
+### Phase 4: Systemic Patterns (Systems Thinking)
+
+Look across ALL issues in this batch and identify:
+
+1. **Recurring patterns**: Do multiple issues share the same root cause type? (e.g., "3 of 5 bugs are missing null checks at API boundaries")
+2. **High-risk components**: Which files/modules appear repeatedly in git hot-files or issue descriptions?
+3. **Process breakdowns**: Is there a pattern in spec gaps? Review gaps? Test gaps?
+4. **Prevention levers**: What systemic changes would prevent this class of bug?
+   - Linting rule / static analysis check
+   - New test template or coverage requirement
+   - Spec checklist addition (e.g., "always include error cases")
+   - Review guideline addition (e.g., "check for null on all external inputs")
+   - Architectural change (e.g., move validation to a shared layer)
+
+Format:
+```
+### Systemic Patterns
+**Recurring pattern**: ...
+**High-risk components**: `file1.py`, `file2.ts`
+**Process breakdown**: ...
+
+### Prevention Recommendations
+1. **Short-term (this sprint)**: <specific PR/task to address immediate risk>
+2. **Medium-term (this quarter)**: <process or test change>
+3. **Long-term (architectural)**: <systemic change>
+```
+
+### Phase 5: Priority & Effort
+
+For each issue provide:
+- **Priority recommendation**: P0/P1/P2/P3 with justification
+- **Effort estimate**: XS (< 1 day) / S (1-2 days) / M (3-5 days) / L (1-2 weeks) / XL (> 2 weeks)
+- **Suggested assignee type**: frontend / backend / platform / security / data
+
+### Phase 6: Write output
+
+Write `reports/report.md` using Slack mrkdwn format:
+- `*bold*` for section headers
+- `• ` bullet points
+- `` `code` `` for file paths, commit hashes, issue keys
+- Include all issue URLs as `<url|text>` links
+
+Also write `reports/report.html` by calling the render_simple_html utility if available,
+or embedding HTML manually.
+
+Emit:
+```bash
+echo "::add-task-context ANALYSIS_COMPLETE::yes"
+echo "::add-task-context BUGS_ANALYZED::<N>"
+echo "::add-task-context GAPS_FOUND::<spec|review|test|observability> (comma-separated)"
+```
+
+---
+
+## CODE ANALYSIS MODE
+
+Use this mode for direct code analysis tasks (flaky tests, performance, static analysis, coverage).
+Activate when there is no "## Issue Context to Analyze" section in the input.
+
+### When to use this mode (not Issue Analysis Mode)
 
 - "find flaky tests in X" — requires running tests multiple times
 - "analyze performance of Y" — requires running benchmarks
 - "does this PR break any tests" — requires running the test suite
 - "find unused code / dead imports in module Z" — requires static analysis tools
 - "what is the test coverage for package X" — requires coverage run
-- "how often does test Y fail" — requires multi-run
 
 Use `ygs-investigate` instead when: you have a specific bug to fix and need a feedback loop.
 Use `ygs-ask` instead when: the question can be answered by reading issue/PR data without running code.
 
 ---
 
-## Step 1: Clone the repo
+### Step C1: Clone the repo
 
 Always clone before analysis. Use sparse checkout when `--paths` is specified or scope is narrow.
 Extract repo from Jira/BB/GH URL if provided; fall back to env vars.
@@ -62,7 +200,7 @@ echo "::add-task-context CLONE_TYPE::<sparse|full>"
 
 ---
 
-## Step 2: Identify analysis type and run
+### Step C2: Identify analysis type and run
 
 ### A) Flaky test detection
 
@@ -133,7 +271,7 @@ go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | t
 
 ---
 
-## Step 3: Emit findings as task context
+### Step C3: Emit findings as task context
 
 Always emit structured context after analysis:
 ```bash
@@ -144,7 +282,7 @@ echo "::add-task-context ANALYSIS_COMPLETE::yes"
 
 ---
 
-## Step 4: Write findings to reports/
+### Step C4: Write findings to reports/
 
 Always write:
 - `reports/analysis.md` — full findings with evidence (test output, file:line refs, run stats)
@@ -161,7 +299,7 @@ Recommendation: <specific, actionable fix>
 
 ---
 
-## Step 5: Terminate
+### Step C5: Terminate
 
 ```
 {"status":"DONE","summary":"<N findings in <analysis_type> analysis of <repo/path>: <one-line summary>"}
