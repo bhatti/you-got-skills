@@ -32,7 +32,10 @@ Think step by step before responding.
    - Keep answers concise — this is a Slack thread, not a doc page.
    - Include relevant links (Jira issue URLs, GitHub PR links).
 
-4. **Write a copy** of the answer to `reports/report.md` (plain markdown, no Slack formatting).
+4. **Write the full answer** to `adhoc_report.md` in the working directory.
+   Use Slack mrkdwn formatting: `*bold*` for section headers, `• ` bullet points, `` `code` `` for
+   commands or values. Do NOT truncate — include all relevant details in this file.
+   Also write a plain-markdown copy to `reports/report.md`.
 
 5. **Terminate** with ONLY this JSON line as the last line of output (no prose after it):
    `{"status":"DONE","summary":"<one sentence describing the answer>"}`
