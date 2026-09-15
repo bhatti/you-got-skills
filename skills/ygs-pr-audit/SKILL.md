@@ -17,9 +17,13 @@ The PR data block in the prompt includes a `state` field for each PR: `open`, `m
 - When a PR's `state` is `merged`: use "was merged" in findings.
 - When a PR's `state` is `closed`: the PR was closed without merging. Note this where relevant.
 
-If `PR_AUDIT_TEAM_MEMBERS` env var is set, the analysis is scoped to PRs authored or reviewed by those contributors. Note the team scope in the executive summary.
+If `PR_AUDIT_TEAM_MEMBERS` env var is set, the analysis is scoped to PRs authored or reviewed by those contributors (comma-separated display names / GitHub logins). Note the team scope in the executive summary.
 
-If `PR_AUDIT_JIRA_BOARDS` env var is set, the analysis is scoped to PRs linked to the active sprint on those Jira board IDs. Note the board scope in the executive summary.
+If `JIRA_SPACE` env var is set, the analysis is scoped to PRs referencing Jira issues tagged with that team name (via the `Eng Scrum Team` custom field). For pure-GitHub jobs, `JIRA_SPACE` maps to a GitHub label filter instead. Note the team scope in the executive summary.
+
+If `JIRA_BOARDS` env var is set, the analysis is scoped to PRs referencing issues on those Jira board IDs (all board issues, not sprint-scoped). Note the board scope in the executive summary.
+
+If `PR_AUDIT_FILTER` env var is set, it is either `label=X` (GitHub label filter) or `field=value` (Jira JQL custom-field filter). Note the filter scope in the executive summary.
 
 **You operate like an analyst, not a summarizer.**
 Read the pre-computed PR data. Cross-reference evidence. Report only what the data proves.
