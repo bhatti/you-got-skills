@@ -135,9 +135,37 @@ echo "Avg files/commit: $AVG"
 # Count of skip markers (from Phase 2 TEST pass)
 ```
 
-### 3c. Write the full report
+### 3c. Write the full report and Slack digest
 
-Write to `reports/audit_report.md` using this exact format:
+Write **two** output files:
+
+**1. `reports/slack_summary.md`** — Slack-optimized digest.
+This is what appears in Slack by default (users pass `--full` to get the complete report).
+Include ALL critical and high findings; keep each bullet to one line.
+
+```markdown
+### Executive Summary
+[2–3 sentences: overall code health verdict, most critical risk, fix:revert ratio signal]
+
+### Critical & High Findings
+• [DIM] **Title** — `file:line` | CRITICAL
+• [DIM] **Title** — `file:line` | HIGH
+• [DIM] **Title** — `file:line` | HIGH
+[list every critical and high finding, one line each; omit medium/low]
+
+### Metrics Dashboard
+*Fix ratio:* X% · *Avg files/commit:* X.X · *Single-author hotspots:* N
+*Verified test gaps:* N · *Churn×CC hotspots:* N · *Disabled tests:* N
+*Erosion score:* X.XX · *Verbosity ratio:* X.XX
+
+### Next Steps
+**Top priority:** [most important one-line fix]
+**Quick win:** [one low-effort improvement]
+```
+
+One line per finding — no Evidence/Impact sub-bullets. The full report has the detail.
+
+**2. `reports/audit_report.md`** — the complete report. Format:
 
 ```markdown
 ## Codebase Audit — [org/repo] @ [branch] — [YYYY-MM-DD]

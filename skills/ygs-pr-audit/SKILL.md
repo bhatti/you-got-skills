@@ -202,9 +202,38 @@ Before writing the report, compute these metrics from the PR data.
 When this rate is low, do NOT tell teams to invoke `/ygs-security-review` (it may not exist in their repo).
 Instead recommend the repo **add or improve a security review skill** in `.claude/skills/` (e.g., create `.claude/skills/security-review/SKILL.md`). You may mention `/ygs-security-review` as a reference example they can copy from.
 
-### 4c. Write the full report
+### 4c. Write the full report and Slack digest
 
-Write to `reports/pr_audit_report.md` using this exact format:
+Write **two** output files:
+
+**1. `reports/slack_summary.md`** — Slack-optimized digest.
+This is what appears in Slack by default (users pass `--full` to get the complete report).
+Include ALL critical and high findings; keep each bullet to one line (title + PRs + severity).
+
+```markdown
+### Executive Summary
+[2–3 sentences: overall verdict, most critical systemic gap, whether skill automation can reduce review burden]
+
+### Critical & High Findings
+• [DIM] **Title** — PRs #N, #M | CRITICAL
+• [DIM] **Title** — PR #N | HIGH
+• [DIM] **Title** — PRs #N, #M, #P | HIGH
+[list every critical and high finding, one line each; omit medium/low]
+
+### Skills Assessment
+*Spec* ⚠️ Gap · *Design* ✅ Strong · *Skills* ⚠️ Developing · *Practices* ❌ Gap
+[one line covering all four audit dimensions]
+
+### Metrics & Next Steps
+*N PRs analyzed · X spec · Y design · Z skill · W practice gaps*
+**Top priority:** [one concrete action item]
+**Positive pattern:** [one strength worth calling out]
+```
+
+Use ✅ Strong / ⚠️ Developing / ❌ Gap for each dimension.
+One line per finding — no Evidence/Impact sub-bullets. The full report has the detail.
+
+**2. `reports/pr_audit_report.md`** — the complete report. Format:
 
 ```markdown
 ## PR Audit — [org/repo] @ [branch] — [YYYY-MM-DD]
