@@ -186,6 +186,20 @@ Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audi
 
 Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url>`
 
+### Generic Skill Invocation (via Formicary)
+
+Any skill can be run against any repo from Slack using the `skill` command:
+
+```
+@bot skill ygs-analyze myapp --branch dev -- focus on test coverage
+@bot skill ygs-review-pr myapp 4444
+@bot skill ygs-security-review --repo https://github.com/org/repo --branch release-2.0
+@bot skill ygs-investigate -- investigate flaky test JIRA-123
+@bot skill ygs-qa myapp -- run E2E tests
+```
+
+Positional shorthand: first word after skill = repo, first number = PR/issue ID. Flags: `--repo`, `--branch`, `--tracker`, `--model`, `--service`, `-- <instructions>`. Repo names are expanded using org config. See [ai-dev-tools](https://github.com/bhatti/ai-dev-tools) for details.
+
 ## Shared Modules
 
 Reusable protocols in `skills/shared/` referenced by individual skills. Not invoked directly — skills pull them in as needed.
