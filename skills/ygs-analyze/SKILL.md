@@ -126,14 +126,13 @@ For each issue provide:
 
 ### Phase 6: Write output
 
-Write `reports/report.md` using Slack mrkdwn format:
-- `*bold*` for section headers
-- `• ` bullet points
-- `` `code` `` for file paths, commit hashes, issue keys
-- Include all issue URLs as `<url|text>` links
+Write `reports/report.md` using standard Markdown:
+- `## Section` headings, `**bold**`, `- ` bullets, `` `code` ``
+- Include all issue URLs as `[text](url)` links
 
-Also write `reports/report.html` by calling the render_simple_html utility if available,
-or embedding HTML manually.
+Write `reports/report.html` using the render_simple_html utility if available, or embed HTML manually.
+
+When posting to Slack, format the summary as mrkdwn: `*bold*`, `• ` bullets, `<url|text>` links, no `#` headings.
 
 Emit:
 ```bash
