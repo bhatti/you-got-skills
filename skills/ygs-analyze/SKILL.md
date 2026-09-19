@@ -103,7 +103,7 @@ For each blocked-by or blocking ticket ID from 0a:
 
 Do NOT infer scope or status from a ticket number alone.
 
-**Blocker direction**: distinguish "this ticket blocks X" (X depends on this) from "X blocks this ticket" (this ticket depends on X). A ticket this issue blocks will NOT unblock once this feature ships — it is already a downstream consumer. Only tickets that block this issue are relevant to unblocking work. State the direction explicitly: "[ID] blocks this ticket" or "this ticket blocks [ID]".
+**Blocker direction**: each linked issue shows Jira's own relationship description in parentheses — e.g., "KEY (is blocked by)" means KEY is a dependency of this ticket; "KEY (blocks)" means this ticket is a dependency of KEY. Use that description literally; do not infer or reverse the direction. Downstream tickets this issue unblocks ("blocks KEY") are already closed in this case — note that, don't list them as pending work.
 
 #### 0e. Check tests
 
@@ -189,7 +189,7 @@ Prevention (concrete, not generic):
 ### Phase 5: Priority & Effort
 
 Per issue:
-- **Priority**: P0–P3 with justification grounded in Phase 0 (existing infrastructure → lower risk)
+- **Priority**: Copy the priority field from the issue data verbatim (e.g., "P2-High (might block progress)"). Do NOT re-derive or override it — the issue's own priority field is authoritative.
 - **Effort**: XS (<1d) / S (1–2d) / M (3–5d) / L (1–2w) / XL (>2w) — factor in what already exists
 - **Assignee type**: frontend / backend / platform / security / data
 
