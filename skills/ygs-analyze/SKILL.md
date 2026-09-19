@@ -158,6 +158,7 @@ Write the **complete analysis** to `reports/report.md` using standard Markdown:
 - Include all issue URLs as `[text](url)` links
 - Include specific file paths and line numbers discovered in Phase 0
 - Do NOT include a title heading — start directly with the analysis content
+- Do NOT add any trailing signoff line like "Full report at reports/report.md" — end the file with the last analysis content only
 
 ```bash
 mkdir -p reports
