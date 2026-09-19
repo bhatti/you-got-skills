@@ -174,30 +174,37 @@ For each issue provide:
 
 ### Phase 6: Write output
 
-Write the **complete analysis** to `reports/report.md` using standard Markdown:
-- `## Section` headings, `**bold**`, `- ` bullets, `` `code` ``
-- Include all issue URLs as `[text](url)` links
-- Include specific file paths and line numbers discovered in Phase 0
-- Do NOT include a title heading — start directly with the analysis content
-- Do NOT add any trailing signoff line like "Full report at reports/report.md" — end the file with the last analysis content only
+**CRITICAL: Two separate steps. The emit commands must NEVER appear inside the report.md file.**
+
+**Step 6a — Write the analysis to reports/report.md:**
 
 ```bash
 mkdir -p reports
-cat > reports/report.md << 'EOF'
-## Root Cause Analysis
+cat > reports/report.md << 'REPORT_EOF'
+## <First section heading>
 ...full analysis here...
-EOF
+REPORT_EOF
 ```
 
-The `reports/report.md` content is what gets posted to Slack (converted to mrkdwn by the caller)
-and rendered as HTML. Write the complete analysis there — not just a summary.
+Rules for report.md content:
+- Use `## Section` headings, `**bold**`, `- ` bullets, `` `code` ``
+- Include all issue URLs as `[text](url)` links
+- Include specific file paths and line numbers discovered in Phase 0
+- Do NOT include a title heading — start directly with the first section
+- Do NOT include any echo commands, task-context markers, or signoff lines
+- End the file with the last analysis content — nothing after it
 
-Emit:
+The `reports/report.md` content is what gets posted to Slack and rendered as HTML.
+
+**Step 6b — Emit task context (run AFTER closing REPORT_EOF, as separate commands):**
+
 ```bash
 echo "::add-task-context ANALYSIS_COMPLETE::yes"
 echo "::add-task-context BUGS_ANALYZED::<N>"
-echo "::add-task-context GAPS_FOUND::<spec|review|test|observability> (comma-separated)"
+echo "::add-task-context GAPS_FOUND::<spec|review|test|observability>"
 ```
+
+These echo commands are NOT part of report.md. Run them in the shell after writing the file.
 
 ---
 
