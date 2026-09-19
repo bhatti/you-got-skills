@@ -42,7 +42,7 @@ Read **everything supplied**: title, description, comments, attachments, linked 
 1. **File paths named explicitly** (e.g., `src/sluice/js/sse/ServerSentEventEmitter.ts`) → open these with `Read` or `cat` immediately; do not grep for them
 2. **Class / function names** (e.g., `publishServerEvents`, `useSSE`) → grep for these
 3. **Feature keywords** (e.g., `SSE`, `HTTP/2`, `worker_connected`) → grep for these
-4. **Blocker ticket IDs** (e.g., `CRIBL-19038`) → note for Step 0d
+4. **Blocker ticket IDs** (e.g., `PROJ-1234`) → note for Step 0d
 5. **Reference patterns mentioned in description** (e.g., "similar to `Captures.ts`") → read the referenced file, but also note any explicit caveats in the issue ("but does not spawn a separate process" = different mechanism, not an exact template)
 6. **Any additional context from comments** — comments often contain workarounds, test cases, reproduction steps, or file references that sharpen the analysis
 
@@ -65,24 +65,23 @@ For each file record:
 - **Access modifiers**: `protected` (intended for subclassing) vs `private` (sealed) — note if `protected` with no subclass
 - **Keep-alive / ping**: is there a periodic heartbeat sent to the client? If not and the endpoint is a long-lived stream, note "proxy idle-timeout risk"
 - **Deduplication**: in registration/subscription methods, is the same ID checked before adding? If not, note "duplicate registration risk"
+- **Process topology**: if the implementation involves two services and you are about to propose cross-process communication (RPC, message bus, IPC), first verify they are actually in separate processes. Check how each service is instantiated — if service A constructs service B directly (e.g., `new ServiceB(...)` inside `ServiceA._run()`), they are in the same process and a direct method call or instance variable is sufficient. Only propose an RPC bridge if you can cite code showing the services run in separate OS processes.
 
 #### 0c. Grep for remaining keywords AND check git history
 
 ```bash
-# 1. Keyword grep across source (backend)
-grep -r "ServerSentEvent\|publishServerEvents\|useSSE" <repo_path>/src -l 2>/dev/null | head -30
-find <repo_path>/src -name "*SSE*" -o -name "*ServerSentEvent*" 2>/dev/null | head -20
-grep -r "<keyword>" <repo_path>/src -l 2>/dev/null | head -20
+# 1. Keyword grep across source — use symbols and class names extracted in Step 0a
+grep -r "<ClassName>\|<methodName>\|<keyword>" <repo_path>/src -l 2>/dev/null | head -30
+find <repo_path>/src -name "*<Keyword>*" 2>/dev/null | head -20
 
-# 2. UI / frontend hooks that gate the feature — often the critical missing piece
-#    If the feature involves a UI component, grep for hooks, feature flags, or client-side gates:
-grep -r "use<FeatureName>\|isSupported\|flags\.allows\|feature/" <repo_path>/src/ui -l 2>/dev/null | head -20
-#    Example: if issue is about SSE:
-grep -r "useSSE\|isSSESupported\|apiProtocol" <repo_path>/src -l 2>/dev/null | head -20
-#    Always read the UI hook file if found — it may reveal gating conditions (e.g. requires HTTP/2 flag)
+# 2. UI / frontend hooks that gate the feature — often reveal gating conditions missed by backend search
+#    Look for: React hooks named after the feature, feature flag checks, protocol/mode guards
+grep -r "use<FeatureName>\|isSupported\|flags\.allows\|feature/<name>" <repo_path>/src/ui -l 2>/dev/null | head -20
+#    Always read any hook file found — it may contain conditions (feature flags, protocol checks, auth guards)
+#    that silently disable the feature regardless of backend state
 
-# 3. Files touched in commits that mention the issue key — often finds files the keyword grep misses
-ISSUE_KEY="<e.g. CRIBL-16249>"
+# 3. Files touched in commits that mention the issue key — finds files keyword grep misses
+ISSUE_KEY="<issue-key>"
 git -C <repo_path> log --all --grep="$ISSUE_KEY" --name-only --pretty=format: 2>/dev/null \
   | grep -v "^$" | sort -u | head -20
 ```
@@ -98,11 +97,13 @@ For each blocked-by or blocking ticket ID from 0a:
 1. **Find its status in the linked issues data** — look for the `[Closed]` or `[Open]` tag appended to the linked issue line in the Issue Context section.
 2. **If the blocker shows `[Closed]`**: write explicitly — *"Blocker [ID] appears **CLOSED** — verify whether resolved or abandoned before treating as a hard dependency. This ticket may no longer be blocked."*
    - Do NOT continue to describe a `[Closed]` ticket as an active blocker in Phase 2, Phase 4, or Phase 5.
-   - Do NOT write recommendations like "unblock PLAT-4625 to enable X" if PLAT-4625 shows `[Closed]`.
+   - Do NOT write recommendations like "unblock [ID] to enable X" if [ID] shows `[Closed]`.
 3. **If the status is absent or unknown**: write *"Blocker [ID] scope not in provided data — verify before treating as hard dependency."*
 4. **If tickets this issue BLOCKS are `[Closed]`**: note they are already closed; do not list them as pending unblocking work.
 
 Do NOT infer scope or status from a ticket number alone.
+
+**Blocker direction**: distinguish "this ticket blocks X" (X depends on this) from "X blocks this ticket" (this ticket depends on X). A ticket this issue blocks will NOT unblock once this feature ships — it is already a downstream consumer. Only tickets that block this issue are relevant to unblocking work. State the direction explicitly: "[ID] blocks this ticket" or "this ticket blocks [ID]".
 
 #### 0e. Check tests
 
