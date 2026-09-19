@@ -54,7 +54,18 @@ Note which files have test coverage and which are untested.
 
 **Step 5 — Summarise implementation state BEFORE reading git context**:
 List what EXISTS, what is WIRED, what is PARTIAL, and what is MISSING.
+Only include items you personally read in Steps 3-4. No inferences.
 This prevents git recency bias from distorting your analysis.
+
+**Step 6 — Verify blocking/linked tickets (if mentioned in the issue)**:
+If the issue description references other ticket IDs (e.g. "blocked by PROJ-456"), search
+the provided issue context for that ticket's title and description:
+```
+grep -i "PROJ-456" in the issue text supplied
+```
+If the blocker ticket's scope is not in the supplied text, note explicitly:
+"Blocker PROJ-456 scope not in provided data — verify before treating as hard dependency."
+Do NOT invent or assume the blocker's scope from its ticket ID alone.
 
 Cite specific file paths and line numbers throughout your analysis (e.g., `src/foo/bar.ts:42`).
 
@@ -77,6 +88,18 @@ echo "::add-task-context ISSUE_SEVERITY::<P0|P1|P2|P3|N/A>"
 **Ground truth = issue description + Phase 0 codebase grep. Git commit recency is irrelevant to
 implementation state. Never conclude "work has not started" from recent git activity alone.**
 
+**ANTI-HALLUCINATION RULES (mandatory):**
+- **Only assert what you read.** Every claim about code behaviour must cite a specific `file:line`.
+  If you did not read that line yourself in Phase 0, do not assert it.
+- **No invented features.** If a capability (e.g. keep-alive, retry, metrics) is not found in the
+  file you read, say "not implemented" — do not infer it from a similar pattern elsewhere.
+- **Blocking tickets require evidence.** If the issue references a blocker ticket (e.g. CRIBL-19038),
+  search the issue text and linked issues for that ticket's description. Do NOT assume its scope.
+  If the description is not available, write "blocker scope unknown — verify before treating as hard
+  dependency" rather than asserting it is a prerequisite.
+- **Flag uncertainty explicitly.** Use "likely", "possibly", or "not verified — needs confirmation"
+  when you cannot read the relevant code or ticket. Never present an inference as a fact.
+
 For **bug issues**, perform a structured root cause analysis using the **5-Why** method:
 
 1. **Symptom**: What exact behavior was observed vs. expected? (from issue description)
@@ -86,10 +109,11 @@ For **bug issues**, perform a structured root cause analysis using the **5-Why**
 5. **Contributing factors**: What conditions made this worse or harder to detect?
 
 For **feature/blocked issues**, assess actual implementation state using Phase 0 findings:
-- What is ALREADY built? (list files:lines found in Phase 0)
-- What is WIRED to production vs. behind a flag?
-- What is truly missing vs. what exists but is not connected?
-- Why is it blocked? (read the blocking issue description if referenced)
+- What is ALREADY built? (list files:lines from Phase 0 — only what you actually read)
+- What is WIRED to production vs. behind a flag? (cite the flag name and file:line)
+- What is truly missing vs. what exists but is not connected? (grep for the wiring point)
+- Why is it blocked? If a blocker ticket is mentioned, search for its title/description in the
+  provided issue text; if not available, note "blocker scope not verified"
 
 **Git context** (`## Git Repository Context`) is useful ONLY for:
 - Finding the commit that introduced a specific bug (grep by issue key or keywords)
