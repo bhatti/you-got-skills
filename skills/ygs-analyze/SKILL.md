@@ -14,9 +14,26 @@ description: "Deep analysis: issue/bug archaeology (root cause, PR blame, spec/r
 
 ## ISSUE ANALYSIS MODE
 
-### Phase 0: Ground Truth (MANDATORY — every claim must trace to a line read here)
+### Phase 0: Ground Truth (MANDATORY — every claim must trace to evidence gathered here)
 
-**Rule: No file read → no claim. If you didn't read it, you cannot assert it.**
+**Rule: No evidence → no claim. If you didn't read it from the supplied text or a file, you cannot assert it.**
+
+**Two sub-modes — choose based on whether a cloned repo is available:**
+- **Repo present** (`## Git Repository (Cloned — Read Files Directly)` is in the input) → run Steps 0a–0f
+- **No repo** → run Step 0a then Step 0g (comment mining), then skip to Phase 1
+
+#### 0g. Comment mining (no-repo mode only)
+
+When no cloned repo is provided, the issue's comments, linked tickets, and attachments are the ground truth. Read all comments in chronological order and extract:
+
+1. **Design decisions** — what approach was chosen and why (e.g., "team agreed on SSE over polling")
+2. **Rejections** — what was proposed and ruled out (e.g., "polling ruled out due to UX lag")
+3. **Blocker status** — for each blocker ticket referenced, what does the issue text say about its status? Note: if a linked issue shows `[Closed]` in the issue data, the blocker may be resolved
+4. **Last blocking comment** — who wrote it, when, and what specifically is blocked
+5. **Open questions** — anything explicitly marked as unresolved or needing a follow-up
+6. **File/function references in comments** — extract any code symbols mentioned; they often point to exactly where work is needed
+
+Build a decision timeline: `[date] person — decision/event` ordered oldest→newest. This replaces the evidence table when there is no repo.
 
 #### 0a. Extract all clues from the issue text
 
@@ -26,35 +43,66 @@ Read **everything supplied**: title, description, comments, attachments, linked 
 2. **Class / function names** (e.g., `publishServerEvents`, `useSSE`) → grep for these
 3. **Feature keywords** (e.g., `SSE`, `HTTP/2`, `worker_connected`) → grep for these
 4. **Blocker ticket IDs** (e.g., `CRIBL-19038`) → note for Step 0d
-5. **Any additional context from comments** — comments often contain workarounds, test cases, reproduction steps, or file references that sharpen the analysis
+5. **Reference patterns mentioned in description** (e.g., "similar to `Captures.ts`") → read the referenced file, but also note any explicit caveats in the issue ("but does not spawn a separate process" = different mechanism, not an exact template)
+6. **Any additional context from comments** — comments often contain workarounds, test cases, reproduction steps, or file references that sharpen the analysis
 
 #### 0b. Open explicitly-named files
 
-For every file path from 0a:
+For every file path from 0a, open and read the full file. Then check for:
+
 ```bash
 # Open and read each file directly — do NOT skip this step
 cat <repo_path>/src/path/to/File.ts
 # or use the Read tool with the absolute path
 ```
-Record for each: purpose, key function names, line numbers, TODOs, whether it is wired or stub/dead.
 
-#### 0c. Grep for remaining keywords
+For each file record:
+- **Purpose and key function names** with line numbers
+- **TODOs** — copy the exact text; they identify known gaps
+- **Wired / partial / stub / dead**
+- **Error handling**: scan every line that writes to a network object — `response.write()`, `stream.send()`, `socket.emit()`, `res.write()`. Is it inside a `try/catch` (or equivalent)? If NOT, note "silent failure risk: uncaught write error will propagate and abort delivery to remaining clients in the same iteration." A TODO comment about retries does NOT substitute for this check — explicitly state whether try/catch exists.
+- **Hardcoded limits**: scan for numeric literals like `> 2`, `=== 6`, `max = 100` that could be capacity ceilings
+- **Access modifiers**: `protected` (intended for subclassing) vs `private` (sealed) — note if `protected` with no subclass
+- **Keep-alive / ping**: is there a periodic heartbeat sent to the client? If not and the endpoint is a long-lived stream, note "proxy idle-timeout risk"
+- **Deduplication**: in registration/subscription methods, is the same ID checked before adding? If not, note "duplicate registration risk"
+
+#### 0c. Grep for remaining keywords AND check git history
 
 ```bash
+# 1. Keyword grep across source (backend)
 grep -r "ServerSentEvent\|publishServerEvents\|useSSE" <repo_path>/src -l 2>/dev/null | head -30
 find <repo_path>/src -name "*SSE*" -o -name "*ServerSentEvent*" 2>/dev/null | head -20
 grep -r "<keyword>" <repo_path>/src -l 2>/dev/null | head -20
+
+# 2. UI / frontend hooks that gate the feature — often the critical missing piece
+#    If the feature involves a UI component, grep for hooks, feature flags, or client-side gates:
+grep -r "use<FeatureName>\|isSupported\|flags\.allows\|feature/" <repo_path>/src/ui -l 2>/dev/null | head -20
+#    Example: if issue is about SSE:
+grep -r "useSSE\|isSSESupported\|apiProtocol" <repo_path>/src -l 2>/dev/null | head -20
+#    Always read the UI hook file if found — it may reveal gating conditions (e.g. requires HTTP/2 flag)
+
+# 3. Files touched in commits that mention the issue key — often finds files the keyword grep misses
+ISSUE_KEY="<e.g. CRIBL-16249>"
+git -C <repo_path> log --all --grep="$ISSUE_KEY" --name-only --pretty=format: 2>/dev/null \
+  | grep -v "^$" | sort -u | head -20
 ```
 
-Open and read every file returned. Document: `<path>:<line> — <purpose> — wired/partial/stub/dead`
+Open and read every file returned by any step. Document: `<path>:<line> — <purpose> — wired/partial/stub/dead`
 
 **To assert something doesn't exist**: show the grep command and its empty output. Never write "no X exists" without that proof.
 
 #### 0d. Verify blockers
 
-For each blocked-by ticket ID from 0a: search the supplied issue text for that ticket's title and description.
-If not found: write "Blocker [ID] scope not in provided data — verify before treating as hard dependency."
-Do NOT infer scope from a ticket number alone.
+For each blocked-by or blocking ticket ID from 0a:
+
+1. **Find its status in the linked issues data** — look for the `[Closed]` or `[Open]` tag appended to the linked issue line in the Issue Context section.
+2. **If the blocker shows `[Closed]`**: write explicitly — *"Blocker [ID] appears **CLOSED** — verify whether resolved or abandoned before treating as a hard dependency. This ticket may no longer be blocked."*
+   - Do NOT continue to describe a `[Closed]` ticket as an active blocker in Phase 2, Phase 4, or Phase 5.
+   - Do NOT write recommendations like "unblock PLAT-4625 to enable X" if PLAT-4625 shows `[Closed]`.
+3. **If the status is absent or unknown**: write *"Blocker [ID] scope not in provided data — verify before treating as hard dependency."*
+4. **If tickets this issue BLOCKS are `[Closed]`**: note they are already closed; do not list them as pending unblocking work.
+
+Do NOT infer scope or status from a ticket number alone.
 
 #### 0e. Check tests
 
