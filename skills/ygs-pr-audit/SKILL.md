@@ -15,7 +15,8 @@ The PR data block in the prompt includes a `state` field for each PR: `open`, `m
 
 - When a PR's `state` is `open`: it has not yet been merged. Use "is open" (not "was merged") in all findings. Example: "PR #47862 is open with 0 substantive human review to date."
 - When a PR's `state` is `merged`: use "was merged" in findings.
-- When a PR's `state` is `closed`: the PR was closed without merging. Note this where relevant.
+- When a PR's `state` is `declined`: the PR was REJECTED — do NOT generate "merged without review" findings. See the Phase 2 state gate for full rules.
+- When a PR's `state` is `closed`: treat as declined (closed without merging). Note positively if there was review engagement; otherwise note as a process observation only.
 
 If `PR_AUDIT_TEAM_MEMBERS` env var is set, the analysis is scoped to PRs authored or reviewed by those contributors (comma-separated display names / GitHub logins). Note the team scope in the executive summary.
 
@@ -112,6 +113,18 @@ Pre-computed sections available (use each where relevant):
 
 If the `--focus` flag limits the audit to a single dimension, run only that specialist. Otherwise, run all 4.
 
+### ⚠️ MANDATORY: PR State Gate — check before writing any finding
+
+Before recording any finding, inspect the PR's `state` field:
+
+| state | Meaning | Finding rule |
+|-------|---------|--------------|
+| `merged` | PR landed in the codebase | Generate findings normally — the risk has materialized |
+| `open` | PR is currently in review | Frame as a current risk ("is open with…"), not a historical failure |
+| `declined` | PR was rejected — review process worked | **SKIP** "merged without review" and "scope explosion that landed" findings. Note high-engagement declines as **positive evidence** the process caught the issue. Only flag a declined PR when it had zero review activity AND zero comments before decline. |
+
+**Do NOT generate a CRITICAL or HIGH finding about a declined PR** unless it had zero human engagement of any kind (no comments, no approvals, no requests-for-changes) before being declined. A bot-authored PR that was closed without merging is not a sign of process failure — it is the process working.
+
 Work through each specialist file in order. For each dimension:
 1. Follow the step-by-step analysis in the specialist file.
 2. Collect findings tagged with their dimension: `[SPEC]`, `[DESIGN]`, `[SKILL-GAP]`, `[PRACTICE]`.
@@ -192,7 +205,14 @@ Before writing the report, compute these metrics from the PR data.
 
 **Human review burden** — Count findings that only a human reviewer caught (no code-review bot flagged the same area in the same PR). Divide by total findings. Higher = more burden on humans, skills need improvement.
 
-**Additional metrics:**
+**Additional metrics — include ALL of these in the dashboard table:**
+
+- **PR State Breakdown** — merged=N  open=N  declined=N  total=N. Use the pre-computed `pr_state_summary` from the prompt header. Declined PRs excluded from all gap-rate denominators.
+- **PR Size Distribution** — count PRs in each bucket using the `size_bucket` field (xs/s/m/l/xl). Add a median_loc value. Formula: use `additions + deletions` per PR.
+- **Average Changed Files/PR** — avg `files_changed` across merged PRs.
+- **Large PR (xl) Review Coverage** — % of xl-bucket PRs (≥1000 LOC) that had ≥1 substantive human review comment. Benchmark: 100%. Below 80% = HIGH gap.
+- **Large PR Human Comments Avg** — average human comment count on PRs >400 LOC vs PRs ≤400 LOC. A lower ratio for large PRs signals review burden scaling problem.
+- **Review Depth vs Size Correlation** — does review quality (human comments, approvers) increase with PR size? State "Yes — larger PRs get more review" or "No — review depth is flat regardless of size (risk)".
 - Average PR size (lines changed)
 - Large PR review depth: average human review comments on PRs >400 LOC
 - Security review invocation rate: % of security-sensitive PRs (touching auth/IAM/credentials) that had a security skill invoked (check `.claude/skills/` for any security-review skill in the repo)
