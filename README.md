@@ -47,22 +47,29 @@ The setup script symlinks each skill into `~/.claude/skills/` where Claude Code 
 Recommended flow for a feature from idea to ship:
 
 ```
-intent unclear?  →  /ygs-interview
-                          ↓
+too foggy for a PRD?  →  /ygs-wayfinder
+                               ↓
+      intent unclear?  →  /ygs-interview
+                               ↓
       design unclear?  →  /ygs-brainstorm
-                          ↓ (architectural path)
-           /ygs-refine-prd  →  /ygs-refine-trd
-                          ↓ (all paths)
-     /ygs-estimate   /ygs-wbs   /ygs-spike
-                          ↓
-   /ygs-worktree  →  /ygs-implement  →  /ygs-qa
-                          ↓
-  /ygs-code-review / /ygs-review-pr / /ygs-receive-review
-                          ↓
-                     /ygs-ship
+                               ↓ (architectural path)
+            /ygs-refine-prd  →  /ygs-refine-trd
+                               ↓ (all paths)
+      /ygs-estimate   /ygs-wbs   /ygs-spike   /ygs-prototype
+                               ↓
+       /ygs-ac-writer  →  /ygs-enrich-ticket  →  /ygs-sprint-ready
+                               ↓
+                       /ygs-sprint-plan
+                               ↓
+    /ygs-worktree  →  /ygs-implement  →  /ygs-qa
+                               ↓
+   /ygs-code-review / /ygs-review-pr / /ygs-receive-review
+                               ↓
+                    /ygs-review-ready  →  /ygs-ship
 ```
 
 Cross-cutting (use any time): `/ygs-investigate`, `/ygs-triage`, `/ygs-observe`, `/ygs-parallel`
+Ops procedures: `/ygs-wizard` (human-in-loop setup scripts)
 CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-contract-test`, `/ygs-fuzz-test`
 
 ## Skills
@@ -77,6 +84,14 @@ CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-c
 | `/ygs-review-trd` | Critique a TRD for soundness, testability, and operational readiness |
 | `/ygs-refine-architecture` | Evolve system architecture: deep-module principles, Design It Twice, inline glossary/ADRs |
 | `/ygs-review-architecture` | Critique architecture for depth, scalability, and proportionality |
+
+### Grooming & Sprint Readiness
+
+| Skill | Purpose |
+|-------|---------|
+| `/ygs-ac-writer` | Write testable given/when/then acceptance criteria for a ticket — gap-analyses the current state first, researches the codebase, confirms before writing back |
+| `/ygs-enrich-ticket` | Add an AI-generated implementation plan to a ticket — grids each ticket against the codebase with confidence scoring; supports batch mode |
+| `/ygs-sprint-ready` | Pre-planning ticket validator — checks 6 readiness fields per ticket, auto-enriches with ac-writer + enrich-ticket, flags what needs human action |
 
 ### Team Intelligence
 
@@ -108,6 +123,8 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 |-------|---------|
 | `/ygs-interview` | One-question-at-a-time intent extraction for underspecified asks — closes the want-vs-stated-want gap before any spec or code |
 | `/ygs-brainstorm` | Design gate before writing code — classifies work (spike/bounded/architectural), explores approach, requires approval before any implementation |
+| `/ygs-wayfinder` | Decision-map planning for fog-bound efforts — charts decision tickets and resolves one per session until the path to a PRD is clear |
+| `/ygs-prototype` | Build something concrete to settle a design question: interactive state machine (logic mode) or side-by-side UI variants (ui mode) |
 
 ### Planning & Execution
 
@@ -120,7 +137,6 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-git` | Atomic commits, save-point pattern, semantic versioning, changelog hygiene |
 | `/ygs-worktree` | Git worktree management — isolate feature work in a linked worktree before implementing |
 | `/ygs-sync` | Bidirectional sync: keep design docs accurate as implementation evolves |
-| `/ygs-ship` | Ship workflow: test, version bump, changelog, create PR |
 | `/ygs-parallel` | Dispatch independent parallel subagents for 2+ tasks with no shared state or sequential dependencies |
 
 ### Reviews
@@ -147,11 +163,19 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | `/ygs-contract-test` | API contract testing: record interactions via api-mock-service, validate producer/consumer contracts, run 11-strategy mutation testing, export JUnit results |
 | `/ygs-fuzz-test` | API fuzz testing: 7 field-level + 4 sequence-level mutation strategies, 8-class CWE security injection testing, delta-debugging failure shrinking |
 
+### Pre-Ship & Ship
+
+| Skill | Purpose |
+|-------|---------|
+| `/ygs-review-ready` | Pre-PR gate: hygiene + tests + quick review in one pass/fail signal — lighter than ygs-ship, runs from hooks or CI |
+| `/ygs-ship` | Ship workflow: run tests, exercise feature, pre-PR hygiene gate, version bump, changelog, create PR |
+
 ### Operations & Learning
 
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-observe` | Production instrumentation: structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting |
+| `/ygs-wizard` | Generate a guided interactive bash setup script for procedures only a human can complete: credentials, OAuth flows, CI secrets, third-party dashboards |
 | `/ygs-investigate` | Disciplined debugging: feedback loop, hypotheses, root-cause enforcement, backward tracing, architectural handoff |
 | `/ygs-write-skill` | Create or improve YGS skills — SDO-optimized descriptions, DRY shared modules, skill verification |
 | `/ygs-triage` | Issue triage state machine: classify, reproduce, write agent briefs, track out-of-scope rejections |
@@ -211,6 +235,9 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 
 | Module | Purpose |
 |--------|---------|
+| `shared/ac-format.md` | Given/when/then AC template, DoD checklist fields, out-of-scope block format, gap analysis table schema — referenced by ac-writer, sprint-ready, triage |
+| `shared/confidence-rubric.md` | 0–100 implementation plan confidence scoring (repo evidence + ticket fit − blast radius) with HIGH/MEDIUM/LOW decision thresholds — referenced by enrich-ticket |
+| `shared/hygiene-checks.md` | Pre-PR mechanical checklist: BLOCKER violations (debug artifacts, hardcoded credentials, logic mixed with cleanup) and WARN violations (stale TODOs, commented-out code) — referenced by review-ready, ship |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
 | `shared/condition-based-waiting.md` | Replace sleep/timeouts with condition polling — polyglot patterns |
 | `shared/definition-of-done.md` | Project-wide quality bar: Correctness / Quality / Integration / Ship-readiness |
@@ -238,23 +265,29 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 ## Typical Workflow
 
 ```
+/ygs-wayfinder               → (optional) Chart decision map for fog-bound efforts before speccing
 /ygs-interview               → (optional) Extract confirmed intent before speccing
 /ygs-brainstorm              → Design gate: classify work, explore approach, get approval
+/ygs-prototype               → (optional) Build throwaway artifact to answer a design question
 /ygs-refine-prd              → Question until requirements are precise
 /ygs-review-prd              → Independent critique
 /ygs-refine-trd              → Question until design is sound
 /ygs-refine-architecture     → For larger changes: define system architecture
 /ygs-review-trd              → Validate design
 /ygs-estimate                → T-shirt sizing + story points + capacity planning
-/ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks
+/ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks (PRD or ticket-first)
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
+/ygs-ac-writer               → Write testable ACs for a ticket before sprint planning
+/ygs-enrich-ticket           → Add codebase-grounded implementation plan to a ticket
+/ygs-sprint-ready            → Validate ticket readiness field-by-field before planning
 /ygs-worktree                → Isolate feature work in a linked worktree
-/ygs-implement               → Build with discipline
+/ygs-implement               → Build with discipline (invariants pre-flight in step 1.5)
 /ygs-git                     → Commit with discipline (save-point pattern, atomic commits)
 /ygs-parallel                → Dispatch independent tasks to parallel subagents
 /ygs-triage                  → Classify issues, write agent briefs
 /ygs-review-pr               → Full PR review (all four domains, ranked findings, verdict)
-/ygs-receive-review          → Evaluate and respond to review feedback with technical reasoning
+/ygs-review-ready            → Pre-PR gate: hygiene + tests + quick review before opening PR
+/ygs-receive-review          → Evaluate and respond to review feedback (verify before implementing)
 /ygs-code-review             → Two-pass review
 /ygs-security-review         → Security + red-team
 /ygs-sre-review              → Operational readiness
@@ -263,6 +296,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-sync                    → Sync design docs with implementation reality
 /ygs-ship                    → Test, version, PR (checks deploy freeze)
 /ygs-observe                 → Instrument: logging, metrics, tracing, alerting
+/ygs-wizard                  → Generate interactive bash wizard for human-in-loop ops procedures
 /ygs-deprecate               → Retire features and APIs safely
 /ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve

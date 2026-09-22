@@ -25,6 +25,18 @@ ls tasks/backlog/*.md 2>/dev/null
 
 Pick the highest-priority task with lowest ID (respecting dependency order) unless user directs otherwise.
 
+## Step 1.5: System invariants pre-flight
+
+Read `CLAUDE.md` (project root) and any architecture docs found via `~/.claude/skills/you-got-skills/skills/shared/docs-discovery.md`. Extract invariants that apply to this task:
+
+- Backwards-compatibility rules (no breaking changes to public APIs, config schema, wire format)
+- Shared-nothing constraints (workers must not share state across requests)
+- Tenant/security isolation requirements
+- Dependency direction rules (which layers can call which)
+- Any explicit "do not" rules in CLAUDE.md
+
+Write a `[GUARDRAILS]` section at the top of `tasks/in-progress/<task>.progress.md` (before any `[RULING]` or change entries) with a 3–5 bullet list. If any implementation choice would violate a guardrail, stop and raise it before proceeding. An implementation that violates a system invariant cannot be fixed by testing — it requires redesign.
+
 ## Step 2: Move to in-progress
 
 ```bash

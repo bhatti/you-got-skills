@@ -68,10 +68,15 @@ If you can't exercise it (no dev environment, external dependency), explicitly s
 git diff origin/<base>...HEAD --stat
 ```
 
-Quick sanity check:
+Quick sanity check (high-level visual scan only — systematic check follows in Step 6.5):
 - Any files that shouldn't be committed? (env files, build artifacts, large binaries)
-- Any debug code left in? (console.log, debugger, TODO hacks)
 - Does the diff match what you intended to ship?
+
+## Step 6.5: Pre-PR hygiene gate
+
+Run the diff described in `~/.claude/skills/you-got-skills/skills/shared/hygiene-checks.md` (the merge-base diff command is there). Apply the full BLOCKER/WARN checklist from that file.
+
+Any **BLOCKER** violation must be resolved before opening the PR. **WARN** violations are added to the PR description under "Known minor issues" — do not block on them, but make them visible to reviewers.
 
 ## Step 7: Version bump (if applicable)
 

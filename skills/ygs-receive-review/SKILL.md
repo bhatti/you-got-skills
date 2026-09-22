@@ -10,6 +10,21 @@ Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` —
 
 Code review is not a list of instructions to execute. It is a set of perspectives to evaluate. Your job is to implement what makes the code genuinely better, push back with reasoning on what doesn't, and ignore nothing.
 
+## Step 0: Verify before categorising
+
+**Before responding to any feedback item — before writing a single word of reply — verify it against the code.**
+
+For each finding:
+1. Run the relevant code path, grep the codebase, or re-read the cited file:line
+2. Categorise the finding:
+   - **(A) Correct + applicable** — the claim is factually accurate and the fix improves the code
+   - **(B) Correct but not applicable here** — the claim is generally valid but doesn't apply in this context (different invariant, documented decision, out-of-scope)
+   - **(C) Factually wrong** — the reviewer misread the code, the claim does not match what the code does
+
+Only implement Category A. Raise Category B with evidence. Push back Category C with a code citation.
+
+**Never acknowledge or implement before categorising.** The responses "You're right, I'll fix that" and "Great catch" are social signals, not technical ones. They demonstrate compliance, not understanding — and they result in implementing incorrect feedback.
+
 ## The Six-Step Pattern
 
 Work through all feedback before acting on any of it.
@@ -18,7 +33,7 @@ Work through all feedback before acting on any of it.
 
 **2. Understand** — For each finding: can you restate the concern in your own words without referencing the reviewer's exact phrasing? If not, ask for clarification before proceeding. Implementing something you don't understand produces code that doesn't fix what was intended.
 
-**3. Verify** — Check the claim in the code. Is the reviewer correct? Is the code actually doing what they describe? Many review comments contain a factual claim about the code — confirm it before acting on it. Reviewers misread code.
+**3. Verify** — Confirm the Step 0 categorisation for this specific item. You already ran the code path in Step 0 — this is confirmation, not a second pass. If anything changed (context shift, new information from a later comment), update the category before implementing.
 
 **4. Evaluate** — Does implementing this suggestion make the code genuinely better? Apply YAGNI: reviewer suggestions for "future flexibility", "make it more extensible", or "professional standards" should be questioned unless there is evidence the flexibility will be needed. Complexity added for hypothetical future use is debt.
 
@@ -43,6 +58,7 @@ Do not write these — they are social padding that demonstrate no understanding
 - "I hadn't thought of that!"
 - "That's a really good suggestion"
 - "Thanks for catching that"
+- "Let me implement that right now"
 
 State what you're fixing and why. That demonstrates understanding.
 

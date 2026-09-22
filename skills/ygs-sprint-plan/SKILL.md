@@ -47,6 +47,14 @@ For each backlog candidate:
 
 Flag items failing any check as NOT recommended — do not pull them in.
 
+## Step 4.5: Readiness gate
+
+Step 4 checks AC presence and open dependencies. This step adds two dimensions Step 4 does not check:
+- Story points set? (required for capacity math)
+- ACs testable? (Given/When/Then or a specific observable outcome — not "it works")
+
+Surface all three dimensions (AC presence from Step 4, plus story points and testability) in the scope table as ✅/❌ columns. If more than 2 candidates have gaps, suggest running `/ygs-sprint-ready` to auto-enrich before finalising. Do not silently pull in tickets with missing ACs — the gap must be visible in the scope proposal.
+
 ## Step 5: Propose sprint scope
 
 Priority order: carry-over → committed → high-priority no blockers → high-priority resolvable early → medium fitting capacity.

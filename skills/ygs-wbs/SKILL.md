@@ -9,9 +9,16 @@ A WBS hierarchically divides a complex project into smaller, manageable componen
 
 ## When NOT to use
 
-- No PRD or TRD exists — decomposing a verbal description produces tasks based on assumptions, not requirements; run `/ygs-refine-prd` first
 - The feature is smaller than 3 tasks — just create the tasks directly without the WBS process overhead
 - PRD has significant open questions unresolved — breaking down an ambiguous spec produces tasks that will be rewritten; resolve ambiguity first
+
+## Input modes
+
+**PRD/TRD document (primary):** Use the existing Step 1 workflow to find docs in `docs/prd/` and `docs/trd/`.
+
+**Tracker ticket (no PRD):** When no PRD or TRD exists, fetch the ticket from the configured tracker using `~/.claude/skills/you-got-skills/skills/shared/tracker.md`. Treat the ticket description + acceptance criteria + comments as the spec. Proceed with decomposition. Note: ticket-first WBS produces a shallower task tree than PRD-first — flag any AC or design gaps you find as you decompose. Suggest `/ygs-ac-writer` if ACs are missing before proceeding.
+
+If neither exists: do not decompose a verbal description. Run `/ygs-refine-prd` first.
 
 ## Step 1: Find source documents
 

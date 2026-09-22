@@ -109,6 +109,17 @@ If the issue needs fleshing out, run a questioning session:
 | `wontfix` (enhancement) | Write to `.out-of-scope/`, link from comment, close ([references/out-of-scope.md](references/out-of-scope.md)) |
 | `needs-triage` | Apply role, optional comment if partial progress |
 
+## After setting ready-for-agent
+
+When a ticket transitions to `ready-for-agent`, check its enrichment status and suggest next steps:
+
+- ACs missing or vague → suggest `/ygs-ac-writer <ticket-url>`
+- No implementation plan → suggest `/ygs-enrich-ticket <ticket-url>`
+- Both needed → suggest ac-writer first (ACs define scope), then enrich-ticket (plan references ACs)
+- Both present → ticket is fully groomed; no further action needed before agent pickup
+
+This prompt is a suggestion, not a gate — the maintainer decides. But an unenriched ready-for-agent ticket is the most common cause of agents delivering the wrong thing.
+
 ## Quick state override
 
 If maintainer says "move #42 to ready-for-agent", trust them. Confirm the action, then apply. Skip grilling. Ask whether they want an agent brief written.
