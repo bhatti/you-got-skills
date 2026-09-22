@@ -1,6 +1,6 @@
 # Acceptance Criteria Format
 
-Shared by: `ygs-ac-writer`, `ygs-sprint-ready`, `ygs-triage`
+Shared by: `ygs-enrich-ticket`, `ygs-sprint-ready`, `ygs-triage`
 
 ## AC Template
 

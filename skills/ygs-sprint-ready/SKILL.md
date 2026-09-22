@@ -17,7 +17,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md`.
 ## When NOT to use
 
 - Sprint is already in progress — use `/ygs-triage` to fix individual tickets mid-sprint
-- Tickets have no tracker data (no GitHub/JIRA configured) — use `/ygs-ac-writer` on each ticket directly
+- Tickets have no tracker data (no GitHub/JIRA configured) — use `/ygs-enrich-ticket` on each ticket directly
 
 ## Step 1: Fetch ticket list
 
@@ -75,14 +75,10 @@ Most common gaps: NEEDS_AC_WORK (N), NEEDS_IMPL_PLAN (N)
 
 ## Step 4: Auto-enrich (skip if `--dry-run`)
 
-For `NEEDS_AC_WORK` tickets:
-1. Run `/ygs-ac-writer --dry-run <ticket-url>` — show the preview to the user
-2. Confirm per ticket (or "enrich all NEEDS_AC_WORK" for batch confirmation)
-3. Run `/ygs-ac-writer <ticket-url>` without `--dry-run`
-
-For `NEEDS_IMPL_PLAN` tickets:
-1. Run `/ygs-enrich-ticket <ticket-url>`
-2. Report confidence score and outcome
+For `NEEDS_AC_WORK` and `NEEDS_IMPL_PLAN` tickets:
+1. Run `/ygs-enrich-ticket --dry-run <ticket-url>` — show the gap table and what would be written
+2. Confirm per ticket (or "enrich all" for batch confirmation)
+3. Run `/ygs-enrich-ticket <ticket-url>` — writes ACs if missing, then impl plan
 
 For `BLOCKED` and `NEEDS_STORY_POINTS` tickets: flag for human — these cannot be auto-enriched.
 

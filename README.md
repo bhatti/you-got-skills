@@ -57,7 +57,7 @@ too foggy for a PRD?  →  /ygs-wayfinder
                                ↓ (all paths)
       /ygs-estimate   /ygs-wbs   /ygs-spike   /ygs-prototype
                                ↓
-       /ygs-ac-writer  →  /ygs-enrich-ticket  →  /ygs-sprint-ready
+                    /ygs-enrich-ticket  →  /ygs-sprint-ready
                                ↓
                        /ygs-sprint-plan
                                ↓
@@ -89,9 +89,8 @@ CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-c
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-ac-writer` | Write testable given/when/then acceptance criteria for a ticket — gap-analyses the current state first, researches the codebase, confirms before writing back |
-| `/ygs-enrich-ticket` | Add an AI-generated implementation plan to a ticket — grids each ticket against the codebase with confidence scoring; supports batch mode |
-| `/ygs-sprint-ready` | Pre-planning ticket validator — checks 6 readiness fields per ticket, auto-enriches with ac-writer + enrich-ticket, flags what needs human action |
+| `/ygs-enrich-ticket` | Enrich a ticket with missing ACs and/or an implementation plan — gap-analyses first, researches codebase, writes ACs then a confidence-scored impl plan; supports batch mode |
+| `/ygs-sprint-ready` | Pre-planning ticket validator — checks 6 readiness fields per ticket, auto-enriches via enrich-ticket, flags what needs human action |
 
 ### Team Intelligence
 
@@ -168,7 +167,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-review-ready` | Pre-PR gate: hygiene + tests + quick review in one pass/fail signal — lighter than ygs-ship, runs from hooks or CI |
-| `/ygs-ship` | Ship workflow: run tests, exercise feature, pre-PR hygiene gate, version bump, changelog, create PR |
+| `/ygs-ship` | Ship workflow: calls review-ready as a gate, then exercises the feature, bumps version, updates changelog, creates PR |
 
 ### Operations & Learning
 
@@ -235,7 +234,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 
 | Module | Purpose |
 |--------|---------|
-| `shared/ac-format.md` | Given/when/then AC template, DoD checklist fields, out-of-scope block format, gap analysis table schema — referenced by ac-writer, sprint-ready, triage |
+| `shared/ac-format.md` | Given/when/then AC template, DoD checklist fields, out-of-scope block format, gap analysis table schema — referenced by enrich-ticket, sprint-ready, triage |
 | `shared/confidence-rubric.md` | 0–100 implementation plan confidence scoring (repo evidence + ticket fit − blast radius) with HIGH/MEDIUM/LOW decision thresholds — referenced by enrich-ticket |
 | `shared/hygiene-checks.md` | Pre-PR mechanical checklist: BLOCKER violations (debug artifacts, hardcoded credentials, logic mixed with cleanup) and WARN violations (stale TODOs, commented-out code) — referenced by review-ready, ship |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
@@ -277,8 +276,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-estimate                → T-shirt sizing + story points + capacity planning
 /ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks (PRD or ticket-first)
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
-/ygs-ac-writer               → Write testable ACs for a ticket before sprint planning
-/ygs-enrich-ticket           → Add codebase-grounded implementation plan to a ticket
+/ygs-enrich-ticket           → Write ACs and/or codebase-grounded impl plan for a ticket
 /ygs-sprint-ready            → Validate ticket readiness field-by-field before planning
 /ygs-worktree                → Isolate feature work in a linked worktree
 /ygs-implement               → Build with discipline (invariants pre-flight in step 1.5)

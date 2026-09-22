@@ -113,9 +113,7 @@ If the issue needs fleshing out, run a questioning session:
 
 When a ticket transitions to `ready-for-agent`, check its enrichment status and suggest next steps:
 
-- ACs missing or vague → suggest `/ygs-ac-writer <ticket-url>`
-- No implementation plan → suggest `/ygs-enrich-ticket <ticket-url>`
-- Both needed → suggest ac-writer first (ACs define scope), then enrich-ticket (plan references ACs)
+- ACs missing, vague, or no implementation plan → suggest `/ygs-enrich-ticket <ticket-url>`
 - Both present → ticket is fully groomed; no further action needed before agent pickup
 
 This prompt is a suggestion, not a gate — the maintainer decides. But an unenriched ready-for-agent ticket is the most common cause of agents delivering the wrong thing.

@@ -11,7 +11,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md` —
 
 Read `~/.claude/skills/you-got-skills/skills/shared/verification-gate.md`.
 
-All claims in this skill — "tests pass", "feature works", "no regressions" — require fresh command output in this response. Running a command and not showing its output is not verification. Stating that tests "should" pass is not verification.
+All claims in this skill — "tests pass", "feature works", "no regressions" — require fresh command output in this response.
 
 ## Step 0: Worktree check
 
@@ -19,7 +19,7 @@ All claims in this skill — "tests pass", "feature works", "no regressions" —
 git rev-parse --git-dir
 ```
 
-If the output is not `.git` (e.g. it contains `worktrees`), you're in a linked worktree. After the PR is merged, run `/ygs-worktree` cleanup to remove it: `git worktree remove .worktrees/<branch-name> && git worktree prune`.
+If output contains `worktrees`: after PR merges, run `/ygs-worktree` cleanup.
 
 ## Step 1: Verify clean state
 
@@ -36,7 +36,7 @@ If working tree is dirty, ask user to commit or stash first.
 [ -f .deploy-freeze ] && cat .deploy-freeze
 ```
 
-If `.deploy-freeze` exists: report **BLOCKED** with freeze reason. Suggest `/ygs-sre-review --unfreeze` to lift.
+If `.deploy-freeze` exists: report **BLOCKED** with freeze reason.
 
 ## Step 3: Detect base branch
 
@@ -44,71 +44,57 @@ If `.deploy-freeze` exists: report **BLOCKED** with freeze reason. Suggest `/ygs
 git remote show origin | grep "HEAD branch" | sed 's/.*: //'
 ```
 
-## Step 4: Run tests
+## Step 4: Gate — hygiene, tests, review
 
-Use the polyglot test runner from `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`.
+Invoke `/ygs-review-ready --base <base>` (detected in Step 3).
 
-If tests fail: **BLOCKED** — fix tests before shipping.
+- **FAIL** → report **BLOCKED**. Fix before proceeding.
+- **WARN** → continue. Add WARN items to the PR description under "Known minor issues."
+- **PASS** → proceed.
 
-Before proceeding, verify against `~/.claude/skills/you-got-skills/skills/shared/definition-of-done.md`. Tests passing satisfies the Correctness section. Also check the Ship-readiness section: security implications reviewed, observability in place for any new critical paths, rollback path exists.
+After passing, verify against `~/.claude/skills/you-got-skills/skills/shared/definition-of-done.md`: security implications reviewed, observability in place for new critical paths, rollback path exists.
 
 ## Step 5: Exercise the feature
 
-Tests passing is necessary but not sufficient. Before shipping, verify the actual behavior:
-- If it's a server: start it, hit the endpoint, confirm the response
-- If it's a CLI: run the command with representative input
-- If it's a library: run the example or a quick smoke test
-- If it's a UI change: start the dev server and check it in a browser
+Tests passing is necessary but not sufficient. Verify actual behavior:
+- Server: start it, hit the endpoint, confirm the response
+- CLI: run with representative input
+- Library: run the example or a smoke test
+- UI: start the dev server and check in a browser
 
-If you can't exercise it (no dev environment, external dependency), explicitly state what you couldn't verify. Don't ship blind.
+If you can't exercise it, state explicitly what you couldn't verify and why.
 
-## Step 6: Review diff against base
+## Step 6: Diff sanity
 
 ```bash
 git diff origin/<base>...HEAD --stat
 ```
 
-Quick sanity check (high-level visual scan only — systematic check follows in Step 6.5):
-- Any files that shouldn't be committed? (env files, build artifacts, large binaries)
-- Does the diff match what you intended to ship?
-
-## Step 6.5: Pre-PR hygiene gate
-
-Run the diff described in `~/.claude/skills/you-got-skills/skills/shared/hygiene-checks.md` (the merge-base diff command is there). Apply the full BLOCKER/WARN checklist from that file.
-
-Any **BLOCKER** violation must be resolved before opening the PR. **WARN** violations are added to the PR description under "Known minor issues" — do not block on them, but make them visible to reviewers.
+Any files that shouldn't be committed? (env files, build artifacts, large binaries) — hygiene is already checked in Step 4, this is a quick unexpected-file scan only.
 
 ## Step 7: Version bump (if applicable)
 
-If the project has a VERSION file, package.json version, or Cargo.toml version:
 - Patch: bug fixes
 - Minor: new features (backwards compatible)
 - Major: breaking changes
 
-Ask user which bump is appropriate if unclear.
+Ask user if unclear.
 
 ## Step 8: Update changelog (if applicable)
 
-If a CHANGELOG.md exists, add an entry under the new version with a summary of changes.
+If CHANGELOG.md exists, add an entry under the new version.
 
 ## Step 9: Create PR
-
-If `gh` is available and changes are on a feature branch:
 
 ```bash
 gh pr create --title "<concise title>" --body "<summary of changes>"
 ```
 
-If not on a feature branch or `gh` unavailable, report what would be done.
+Include WARN items from Step 4 in the PR body if any.
 
 ## Step 10: Completion
 
-Report **DONE** with:
-- Tests status
-- Version bumped (if applicable)
-- PR URL (if created)
-
-Or **BLOCKED** if tests fail or issues found.
+Report **DONE** with tests status, version bumped (if any), PR URL. Or **BLOCKED** if Step 4 failed.
 
 ---
 
@@ -118,6 +104,6 @@ Or **BLOCKED** if tests fail or issues found.
 |----------------|---------|
 | "Tests pass, so it works" | Tests verify what was tested. Exercise the actual feature (Step 5) to find what tests missed. |
 | "It's a small change, no need for the full workflow" | Small changes break prod. The workflow exists precisely for "it's just a small change" situations. |
-| "I'll add the changelog entry later" | "Later" is never. Write it now while the impact is fresh and you still remember what changed. |
-| "I'll skip the diff review, I know what's in there" | Debug code, env files, and build artifacts have shipped this way. Always review the diff. |
+| "I'll add the changelog entry later" | "Later" is never. Write it now while the impact is fresh. |
+| "I'll skip the diff review, I know what's in there" | Env files and build artifacts have shipped this way. Always review. |
 | "The freeze check isn't relevant for my change" | Deploy freezes exist because the system is fragile right now. Every change is relevant. |
