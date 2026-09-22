@@ -63,6 +63,7 @@ intent unclear?  →  /ygs-interview
 ```
 
 Cross-cutting (use any time): `/ygs-investigate`, `/ygs-triage`, `/ygs-observe`, `/ygs-parallel`
+CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-contract-test`, `/ygs-fuzz-test`
 
 ## Skills
 
@@ -141,6 +142,10 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 |-------|---------|
 | `/ygs-qa` | QA testing with health scoring and issue taxonomy |
 | `/ygs-uat` | User acceptance testing from customer perspective |
+| `/ygs-test-impact` | Test impact analysis: map changed files to affected tests via naming conventions and import graphs, partition into balanced shards, report coverage gaps |
+| `/ygs-build-optimize` | CI pipeline optimization: detect platform, profile step timings, suggest concrete config changes for parallelization, caching, sharding, sparse checkout |
+| `/ygs-contract-test` | API contract testing: record interactions via api-mock-service, validate producer/consumer contracts, run 11-strategy mutation testing, export JUnit results |
+| `/ygs-fuzz-test` | API fuzz testing: 7 field-level + 4 sequence-level mutation strategies, 8-class CWE security injection testing, delta-debugging failure shrinking |
 
 ### Operations & Learning
 
@@ -261,6 +266,10 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-deprecate               → Retire features and APIs safely
 /ygs-learn                   → Capture atomic learnings as they happen
 /ygs-retro                   → Learn and improve
+/ygs-test-impact             → Map changed files to affected tests, partition into shards
+/ygs-build-optimize          → CI pipeline optimization: caching, sharding, sparse checkout
+/ygs-contract-test           → API contract testing via api-mock-service + mutation testing
+/ygs-fuzz-test               → API fuzz testing: mutations, injection, failure shrinking
 /ygs-codebase-audit          → Post-merge archaeology (hotspots, drift, silos, test gaps)
 /ygs-pr-audit                → Merged PR gap analysis (spec, design, skills, practices)
 ```
