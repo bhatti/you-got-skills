@@ -57,6 +57,8 @@ Read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md` — seve
 
 Read `~/.claude/skills/you-got-skills/skills/shared/pr-audit-context.md` — PR data format, bot detection rules, issue-linking conventions, and skill-to-bot mapping. Use these definitions consistently across all specialists.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md` — blast radius, scope classification, risk dimension definitions. Use for the design-gaps Step 8 blast radius assessment and Metrics Dashboard blast radius rows.
+
 ### 1b. Check for repo-specific skill overrides
 
 Follow the **Repo-local skill consolidation** protocol from `shared/review-scaffold.md`.
@@ -376,6 +378,10 @@ Identify and report these cross-cutting patterns:
 | Rubber-stamp rate (high-blast-radius PRs, all approvers left 0 substantive comments) | X% | <10% healthy / 10-25% warning / >25% problem | | High-blast-radius PRs where every approver left zero substantive comments. Distinct from no-review: someone approved, but documented nothing they validated. |
 | Bot-authored PR review depth (% with ≥1 substantive human comment) | X% | 100% target — every bot PR needs documented human validation | | % of AI/bot-authored PRs that had at least one substantive human comment. AI-generated code needs documented human validation before merge. |
 | Revert/follow-up rate | X% | <5% healthy / 5-15% warning / >15% unstable | | % of PRs that reference a previous PR as a fix or follow-up. High = shipping incomplete/broken work and patching in follow-on commits. |
+| Blast radius distribution | low=N med=N high=N | >50% low healthy / >30% high = risk | | Count of merged PRs per blast-radius level (low: ≤50 LOC+1 dir; medium: 51-300 LOC or 2 dirs; high: >300 LOC or 3+ dirs or sensitive paths). See `shared/merge-queue-metrics.md`. |
+| Cross-scope PR rate | X% | <20% healthy / 20-40% warning / >40% coupling risk | | % of merged PRs touching 2+ CODEOWNERS entries or unrelated top-level directories. High = poor module boundaries or monolith coupling. |
+| High-blast rubber-stamp rate | X% | 0% target / >0% = CRITICAL finding | | High-blast-radius PRs where ALL approvers left 0 substantive comments / total high-blast PRs. Distinct from overall rubber-stamp rate — scoped to highest-risk changes. |
+| Sensitive path review coverage | X% | 100% target / <80% = HIGH gap | | % of PRs touching auth/security/billing/infra paths that had a dedicated security review (skill invocation or security-tagged reviewer). |
 | Verbosity accumulation rate | X% | <10% healthy / 10-25% warning / >25% problem | | % of PRs where reviewers flagged verbosity signals (search comments for: "trivial", "delegates to", "wrapper", "redundant", "simplify") OR LOC delta >300 with no new tests. High = codebase is accumulating structural bloat across the sprint. |
 | Complexity creep (large-fn PRs) | N | 0 ideal | | Count of PRs that introduced functions visibly >50 lines (proxy for CC>10) with no decomposition comment or follow-up ticket. Cross-reference with `shared/sloppiness-metrics.md` CC thresholds. |
 | PRs analyzed | N | — | — | Sample size for all metrics above. |

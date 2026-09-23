@@ -132,6 +132,37 @@ Across the full PR set, look for:
 **Recommendation:** Require design doc link for PRs >300 LOC. Add lightweight ADR template to `.claude/skills/gotchas/design-template.md`.
 ```
 
+## Step 8: Blast Radius and Scope Assessment
+
+**Reference:** `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md` — full definitions.
+
+For each PR, compute blast radius and scope from the pre-computed file list:
+
+1. **Classify blast radius** from the pre-computed data:
+   - **low**: ≤50 lines changed AND 1 top-level directory
+   - **medium**: 51–300 lines OR 2 top-level directories
+   - **high**: >300 lines OR 3+ directories OR touches sensitive paths (auth/security/billing/payments/crypto/secrets/credentials/.env/migrations/rbac/iam/oauth/tokens)
+
+2. **Classify scope**:
+   - If CODEOWNERS entries map all files to one team → that team name
+   - If 2+ CODEOWNERS entries → `cross-scope`
+   - If no CODEOWNERS, use top-level directory grouping
+
+3. **Report these aggregate metrics in the Metrics Dashboard:**
+
+   | Metric | Formula | Benchmark |
+   |--------|---------|-----------|
+   | Blast radius distribution | Count merged PRs per level (low/medium/high) | >50% low = healthy; >30% high = risk |
+   | Cross-scope PR rate | cross-scope PRs / total merged PRs | <20% healthy; >40% = poor module boundaries |
+   | High-risk merge rate | HIGH-blast PRs merged with ≤1 substantive comment / total HIGH-blast PRs | 0% target |
+   | Sensitive path coverage | sensitive-path PRs with security review / total sensitive PRs | 100% target |
+
+4. **Flag these as findings:**
+   - HIGH-blast-radius PR merged with rubber-stamp (all approvers left 0 substantive comments) → **CRITICAL**
+   - >30% of merged PRs are high blast radius → **HIGH** (systemic: PRs are too large or cross too many boundaries)
+   - >40% cross-scope rate → **MEDIUM** (suggests poor module boundaries or monolith coupling)
+   - Sensitive paths changed without security skill invocation → **HIGH** per PR
+
 ## Aggregation
 
 After processing all PRs, summarize:
@@ -139,3 +170,5 @@ After processing all PRs, summarize:
 - Average review rounds for PRs with design docs vs without
 - Top 3 architecture disagreement patterns across all PRs
 - Time-to-merge difference between design-documented and undocumented complex PRs
+- Blast radius distribution (low/medium/high counts and percentages)
+- Cross-scope PR rate and whether it indicates coupling problems
