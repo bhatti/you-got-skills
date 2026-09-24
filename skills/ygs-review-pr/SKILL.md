@@ -10,6 +10,26 @@ For shared review protocol (severity classification, finding format, verdict), r
 
 For tracker credential gates and platform detection, read `~/.claude/skills/you-got-skills/skills/shared/tracker.md`.
 
+## Reviewer stance
+
+Review as a **principal engineer / architect** who must approve this change before it ships. You are checking:
+
+- **Correctness**: does the code do what it claims, including under failure, concurrency, and edge cases?
+- **Design alignment**: does this fit the existing architecture, conventions, and abstractions — or does it introduce an inconsistent pattern?
+- **Requirements**: does the implementation actually solve the stated problem, not just a symptom?
+- **Production readiness**: would a senior engineer be comfortable waking up to this code on-call?
+- **Simplicity**: is this the simplest correct solution, or is there unnecessary abstraction or complexity?
+
+Output findings as **feedback, suggestions, and questions** — the kind of comments a principal engineer would leave on a PR. Every finding must:
+- Include a `file:line` reference
+- State **what** is wrong and **why it matters**
+- Suggest a fix that explains **why** the fix is needed, not just what to change
+- Be **verified** against the actual code before reporting — no false alarms, no hallucinations
+
+Solve problems comprehensively. If the approach is fundamentally off, say so before listing individual findings.
+
+---
+
 ## Step 1: Detect platform
 
 Determine which platform hosts this PR:
@@ -94,12 +114,13 @@ Before reviewing, establish context:
 3. If a linked issue/ticket is referenced in the description, note it — use it to distinguish intentional trade-off from mistake
 4. Apply module-local review rules per the protocol in `shared/review-scaffold.md` (tree-walk per changed file, closest-wins precedence, root `.ygs/review-rules.md` as baseline)
 5. Read the PR description fully: what problem is being solved? What approach was chosen?
+6. Read the surrounding code in each changed file to understand existing conventions, abstractions, and patterns before judging any finding
 
-## Step 5: Four-domain review
+## Step 5: Five-domain review
 
 Apply the quality checklist at **medium** depth — changed code only: `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
 
-Run all four domains in parallel. Use the finding format from `shared/review-scaffold.md` (Severity: MUST/SHOULD/MAY, Confidence: HIGH/MEDIUM/LOW, file:line reference, issue, fix).
+Run all five domains in parallel. Use the finding format from `shared/review-scaffold.md` (Severity: MUST/SHOULD/MAY, Confidence: HIGH/MEDIUM/LOW, file:line reference, issue, fix explaining WHY).
 
 ### Domain 1 — Correctness
 
@@ -112,9 +133,14 @@ Run all four domains in parallel. Use the finding format from `shared/review-sca
 - Data loss: destructive writes without confirmation, missing transactions
 - Scalability: N+1 patterns, unbounded allocations, O(n²) in hot paths
 - **Cyclomatic complexity:** new functions with CC > 10 (SHOULD), CC > 15 (MUST) — count `if/else if/for/while/case/catch/&&/||` in any new function > 30 lines
-- **Cyclic dependencies:** new circular import introduced? (check import chain for back-edges)
+- **Cyclic dependencies / circular imports:** new circular import introduced? (check import chain for back-edges) — flag as MUST
 - **Modular boundaries:** dependencies flow correct direction; no business logic in handler/adapter layers
 - **Sloppiness:** 2+ verbosity anti-patterns in diff (trivial delegators, wrappers-of-wrappers, duplicated guards) — flag as SHOULD (see `shared/sloppiness-metrics.md`)
+- **Deep modules:** flag shallow pass-through wrappers that add no logic (small public API with rich impl = good; thin wrapper over one call = bad)
+- **Log gating:** all debug/verbose log calls must be gated behind a log-level check or debug flag — ungated debug logs in hot paths cause silent perf degradation
+- **No log interpolation:** log messages must not use string interpolation or template literals inline — use structured fields or format-arg patterns; interpolation prevents log aggregation and causes allocation on every call
+- **DRY / reuse existing abstractions:** check if an equivalent utility, helper, or abstraction already exists in the codebase before accepting a new one — duplicates fragment logic and create drift; do not flag three similar lines as a DRY violation if extracting them would add an abstraction with no second caller
+- **Simplicity:** could this have been done with fewer moving parts? Flag when a simpler design achieves the same goal with less code or fewer abstractions
 
 ### Domain 2 — Security
 
@@ -134,6 +160,9 @@ Run all four domains in parallel. Use the finding format from `shared/review-sca
 - Versioning: is a new version required? Is the old version deprecated correctly?
 - Contract drift: does the implementation match the declared interface/schema/proto?
 - Implicit coupling: callers that depend on undocumented behavior that is now changed
+- **Blast radius:** how many callers, services, or consumers are affected by this change? Is the migration path documented?
+- **Existing log/error messages:** do not change existing log or error message text — downstream systems may have regex or alerts keyed on them; flag any such change as MUST with a question
+- **DRY / duplication:** is this a reimplementation of logic that already exists elsewhere in the public surface? Flag and point to the existing implementation
 
 ### Domain 4 — SRE concerns
 
@@ -145,6 +174,21 @@ Run all four domains in parallel. Use the finding format from `shared/review-sca
 - Operational runbook gaps: new failure modes without documented recovery steps
 - Graceful degradation: does the system degrade gracefully or fail hard?
 - Deployment risk: schema migrations, flag rollouts, backward compatibility during rolling deploys
+- **Scale at extremes:** would this code hold up at millions of requests per second or with very large data sets? Flag allocations, locks, or serial operations that become bottlenecks at scale
+- **Memory bloat at scale:** unbounded collections, per-request allocations that should be pooled, caches without eviction — flag anything that grows proportionally with request count or user count
+- **Partial/full failure handling:** what happens when an external call fails halfway through a multi-step operation? Is the system left in a consistent state, or is there a window of inconsistency?
+- **Concurrency:** new shared mutable state without synchronization, lock contention held across I/O, connection pool exhaustion patterns
+
+### Domain 5 — Testing
+
+- Every new non-trivial code path has at least one test (happy path, error path, boundary condition)
+- **Prefer actual method calls:** tests should call the same methods production calls and assert on observable side effects — not assert on mock call counts for internally-owned code; mocks belong only at system boundaries (external HTTP, DB, filesystem, clock)
+- **No test-only production params:** production code must not carry flags, parameters, or injection points added solely for test convenience — if something is hard to test, that is a design signal
+- **No flaky tests:** `sleep` / `Thread.sleep` / `time.sleep` in tests is a MUST-level finding; use condition variables, event-based sync, or deterministic sequencing instead
+- **Don't touch unrelated code:** a PR that modifies comments, formatting, or logic outside the stated change is scope creep — flag it
+- **Concise comments:** test comments and code comments should state the WHY (non-obvious constraint or invariant), not restate WHAT the code does
+- **Don't use grep to validate tests:** when assessing whether a test exists or passes, run the test suite — do not use grep as evidence of coverage; grep finds declarations, not execution
+- **Test simplicity:** tests should be easy to read, not require complex setup, and fail clearly when the behavior they cover breaks
 
 ## Step 6: Approach-level assessment
 
@@ -154,6 +198,10 @@ Before listing individual findings, answer:
 - Does the change address the root cause, or paper over a symptom?
 - Would a materially simpler design achieve the same goal?
 - Does the implementation conflict with how the system actually works (check surrounding code)?
+- **Was this change necessary?** Could the problem have been solved with a configuration change, a smaller edit, or no code at all?
+- **Does it align with existing conventions?** Naming, module structure, error handling patterns, logging style — check the surrounding code before judging
+- **Does it follow the principle of least surprise?** A new reader should be able to predict behavior from names and structure without reading every line
+- **Are existing abstractions reused?** Check `shared/`, `utils/`, and related modules before accepting a new helper as necessary
 
 If the approach is fundamentally wrong, that is the first and most important finding — individual code issues are irrelevant if the direction is bad.
 
@@ -165,6 +213,8 @@ Before reporting any finding, verify it against the actual source:
 - Test your mental model against edge cases: would the code really fail this way?
 - If uncertain, mark confidence as LOW and state what you could not verify
 - Never report a finding you have not verified against the actual file
+- **Double-check every finding for false positives** — a wrong finding wastes reviewer time and erodes trust; if you are not sure, ask as a question rather than stating it as a defect
+- **No hallucinations:** do not invent behavior that is not present in the diff or the surrounding code
 
 Remove any false positives. A wrong finding wastes reviewer time and erodes trust.
 
@@ -198,9 +248,9 @@ Write the findings to `findings.json` in the working directory with this exact s
       "title": "<short one-line title>",
       "file": "<path/to/file or empty string>",
       "line": <line number or null>,
-      "domain": "correctness | security | api | sre",
+      "domain": "correctness | security | api | sre | testing",
       "description": "<what is wrong and why it matters>",
-      "fix": "<concrete suggested fix>"
+      "fix": "<concrete suggested fix — must explain WHY the fix is needed, not just what to change>"
     }
   ],
   "summary": "<one sentence overall assessment>"
@@ -214,7 +264,7 @@ Verdict mapping:
 
 ## Step 10: Report
 
-Print the findings report in the format from `shared/review-scaffold.md`:
+Print the findings report in the format from `shared/review-scaffold.md`. Frame findings as **feedback, suggestions, and questions** — the kind a principal engineer would leave on a PR:
 
 ```
 ## PR Review: <title>
@@ -229,8 +279,8 @@ Print the findings report in the format from `shared/review-scaffold.md`:
 
 [C1] <title> — <file>:<line>
 Confidence: HIGH | MEDIUM | LOW
-<description>
-Fix: <suggested fix>
+<description — what is wrong and why it matters>
+Fix: <suggested fix — explains WHY, not just what>
 
 ...
 

@@ -9,7 +9,27 @@ argument-hint: "<pr-url-or-number>"
 For shared review protocol (severity classification, finding format, verdict mapping), read:
 `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`
 
-This skill runs a 7-dimension specialist review in parallel, then synthesizes findings. For a standard 4-domain review, use `ygs-review-pr` instead.
+This skill runs a 7-dimension specialist review in parallel, then synthesizes findings. For a standard 5-domain review, use `ygs-review-pr` instead.
+
+---
+
+## Reviewer stance
+
+Review as a **principal engineer / architect** who must approve this change before it ships. You are not just checking for bugs — you are checking whether the change:
+
+- Solves the right problem at the root, not a symptom
+- Fits the existing architecture, conventions, and abstractions
+- Is the simplest correct solution — not over-engineered, not under-specified
+- Is production-grade: handles failure, concurrency, and scale
+- Follows the principle of least surprise — a new reader can predict behavior from names and structure
+
+Output findings as **feedback, suggestions, and questions** suitable for a PR comment. Every finding must:
+- Include a `file:line` reference
+- State **what** is wrong and **why it matters**
+- Suggest a fix that explains **why** the fix is needed
+- Be **verified** against the actual code — no false alarms, no hallucinations
+
+Solve problems comprehensively. An approach-level flaw is more important than any line-level finding.
 
 ---
 
@@ -67,12 +87,19 @@ For each active dimension, collect findings tagged `[DIM]` (e.g., `[SECURITY]`, 
 
 1. Merge all findings across active dimensions
 2. Deduplicate: if two dimensions flag the same file+line for the same reason, keep the higher-severity finding, note the secondary dimension in parentheses
-3. Apply the principal quality bar from `shared/review-scaffold.md` — verify performance-at-scale, concurrency, architecture cohesion, and data contract checks are addressed
+3. Apply the principal quality bar — verify the following are addressed:
+   - **Performance at scale:** would the change hold up at millions of requests/sec or with large data? Flag anything that becomes a bottleneck or causes memory bloat at scale
+   - **Concurrency:** new shared mutable state, lock contention across I/O, race conditions, connection pool exhaustion
+   - **Architecture cohesion:** does the change fit the existing design, or does it introduce an inconsistent pattern? Check surrounding code before judging
+   - **Data contract integrity:** API surfaces, wire formats, and error messages backward-compatible; blast radius documented
+   - **Approach-level assessment:** is this the right solution, or a well-executed wrong direction? Was the change even necessary? Could it be simpler?
+   - **Existing abstractions:** are there utilities, helpers, or patterns already in the codebase that this duplicates? Flag DRY violations; do not flag three similar lines as a violation if no second caller exists to justify the abstraction
+   - **Principle of least surprise:** would a new reader be surprised by this code's behavior, naming, or structure?
 4. Rank: MUST → SHOULD → MAY, then by file path within each tier
 5. Write `reports/review.md` with a structured summary:
    - One-paragraph overall assessment (approach-level verdict first)
    - Table: dimension → finding count by severity
-   - Full findings list, ranked
+   - Full findings list, ranked as **feedback, suggestions, and questions**
 
 ---
 
@@ -80,7 +107,7 @@ For each active dimension, collect findings tagged `[DIM]` (e.g., `[SECURITY]`, 
 
 Before reporting any finding, verify it against the actual source (not just the diff hunk). Read surrounding context. Mark confidence: HIGH (provable) / MEDIUM (judgment call with evidence) / LOW (uncertain — explain why).
 
-Never report a finding you have not verified. No false positives.
+Never report a finding you have not verified. **No false positives. No hallucinations.** Double-check every finding — a wrong finding wastes reviewer time and erodes trust. When uncertain, frame it as a question rather than a stated defect.
 
 ---
 
