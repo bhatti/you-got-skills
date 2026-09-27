@@ -34,6 +34,39 @@ signals. Referenced by MQ scripts (`scripts/mq/scope_router.py`, `scripts/mq/ris
 
 ---
 
+## PR Categories
+
+Domain category derived from **file paths** (authoritative when diffstat available), then **labels**, then **title/description** keywords. First match wins. Source of truth for all skills and scripts — do not inline these definitions elsewhere.
+
+| Category | Blast Modifier | Key Path Signals | Key Labels | Title Keywords |
+|----------|---------------|-----------------|------------|----------------|
+| `security` | +2 | auth, crypto, secret, credential, cert, tls, ssl | security, crypto, cve | \bsecurity\b, \bcve\b, \bvuln |
+| `authn_authz` | +2 | authn, authz, oauth, iam, rbac, saml, sso, token, session | auth, authz, rbac | \bauth[nz]?\b, \bpermission\b, \baccess.control\b |
+| `sre` | +1 | terraform, infra, k8s, kubernetes, helm, deploy, ansible, packer | terraform, infra, sre, ops | \bterraform\b, \binfra\b, \bk8s\b, \bdeploy\b |
+| `data` | +1 | migration, schema, database, db/, sql, redis, kafka, etl | migration, database, schema | \bmigration\b, \bschema\b, \bdatabase\b |
+| `api` | +0 | api/, route, handler, controller, endpoint, grpc, proto | api, grpc | \bapi\b, \bendpoint\b, \broute\b |
+| `ui` | +0 | frontend, web/, ui/, component, .tsx, .vue, .svelte, .css, .scss | frontend, ui, ux | \bui\b, \bfrontend\b, \bcomponent\b |
+| `config` | +0 | config, .yaml, .yml, .toml, .env, settings | config, configuration | \bconfig\b, \bsettings\b |
+| `backend` | +0 | src/, pkg/, lib/, service, core/ | (none — catch-all) | (none) |
+| `unknown` | +0 | no signal matched | | |
+
+**Blast modifier semantics:** add the modifier to the blast_radius dimension score (0–10 scale) before computing the composite risk score. A PR with blast_radius=medium (score=5) and category=security (+2) gets blast dimension score=7.
+
+**Hotspot detection:** if ≥3 `bug`-type PRs in the current queue share the same `category`, that category is a **hotspot** — flag it prominently. Hotspots indicate an area with elevated defect density that warrants extra scrutiny.
+
+**PR type classification** (labels first, then title keywords):
+- `bug`: label contains `bug`, `fix`, `hotfix`, `defect` — OR title matches `\b(fix|bug|hotfix|patch|defect|regression|crash)\b`
+- `feature`: label contains `feature`, `feat`, `story`, `enhancement` — OR title matches `\b(feat|feature|story|enhancement|implement|add)\b`
+- `unknown`: no signal matched
+
+**Category confidence:**
+- `file_path` — derived from actual changed file paths (diffstat); most reliable
+- `label` — derived from PR labels
+- `title` — derived from PR title/description text; least reliable
+- `unknown` — no data available (e.g., diffstat API failed)
+
+---
+
 ## Risk Dimensions
 
 Each dimension scored 0–10. Higher = more risk.
