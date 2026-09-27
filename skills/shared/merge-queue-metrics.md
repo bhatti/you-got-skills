@@ -40,6 +40,7 @@ Domain category derived from **file paths** (authoritative when diffstat availab
 
 | Category | Blast Modifier | Key Path Signals | Key Labels | Title Keywords |
 |----------|---------------|-----------------|------------|----------------|
+| `test` | blast capped at **low** | /__tests__/, /test/, /tests/, .test.ts, .spec.ts, _test.go, test_*.py | test, sdet, qa | \[SDET\], \bSDET\b, \btest suite\b |
 | `security` | +2 | auth, crypto, secret, credential, cert, tls, ssl | security, crypto, cve | \bsecurity\b, \bcve\b, \bvuln |
 | `authn_authz` | +2 | authn, authz, oauth, iam, rbac, saml, sso, token, session | auth, authz, rbac | \bauth[nz]?\b, \bpermission\b, \baccess.control\b |
 | `sre` | +1 | terraform, infra, k8s, kubernetes, helm, deploy, ansible, packer | terraform, infra, sre, ops | \bterraform\b, \binfra\b, \bk8s\b, \bdeploy\b |
@@ -51,6 +52,13 @@ Domain category derived from **file paths** (authoritative when diffstat availab
 | `unknown` | +0 | no signal matched | | |
 
 **Blast modifier semantics:** add the modifier to the blast_radius dimension score (0–10 scale) before computing the composite risk score. A PR with blast_radius=medium (score=5) and category=security (+2) gets blast dimension score=7.
+
+**Blast caps for special PR types** (applied by `collect_ready.py` before analysis — use `blast_radius` field directly as ground truth):
+- `is_test_pr=true` → blast_radius capped at **low** (test-only PRs have zero production impact regardless of file count)
+- `is_docs_pr=true` → blast_radius capped at **low** (docs/assets PRs do not change production behaviour)
+- `is_wip_pr=true` → blast_radius capped at **medium** (WIP/draft PRs are not yet ready for high-risk merge lanes)
+
+These caps are data-driven: `is_test_pr` is set when ≥80% of changed files match test-file path patterns, OR the title/branch contains SDET/QA patterns. `is_docs_pr` is set when all changed files are docs/markdown/assets. Do NOT re-derive from title keywords — trust the pre-computed fields.
 
 **Hotspot detection:** if ≥3 `bug`-type PRs in the current queue share the same `category`, that category is a **hotspot** — flag it prominently. Hotspots indicate an area with elevated defect density that warrants extra scrutiny.
 

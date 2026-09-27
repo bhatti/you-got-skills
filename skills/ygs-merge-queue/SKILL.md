@@ -1,7 +1,7 @@
 ---
 name: ygs-merge-queue
 description: "Read-only merge queue analysis: group open PRs by scope lane, score blast-radius and risk, flag PRs needing human review. Works for a single repo (GitHub or Bitbucket). No PR mutations."
-argument-hint: "[--repo <org/repo>] [--target-branch <branch>] [--label <filter>]"
+argument-hint: "[--repo <org/repo>] [--target-branch <branch>] [--target <branch>] [--label <filter>]"
 ---
 
 # Merge Queue Analysis
@@ -38,6 +38,8 @@ Note the `repo` field in `ready_prs.json` — show it in the report for context.
 ## Step 2: Score each PR
 
 **`blast_radius`, `category`, and `pr_type` are pre-computed from actual file paths and labels — do NOT re-derive them. Use them as ground truth.**
+
+**Blast caps are pre-applied**: `is_test_pr`, `is_docs_pr`, `is_wip_pr` flags are set by the collector and blast_radius is already capped (test/docs → low, wip → medium). Do not add category modifiers for test PRs. The `Type` column shows 🚧 for WIP and 📝 for docs PRs as visual indicators.
 
 Apply the canonical 6-dimension risk model from `shared/merge-queue-metrics.md#risk-dimensions`. Risk tiers: LOW 0–15, MEDIUM 16–30, HIGH 31+.
 
