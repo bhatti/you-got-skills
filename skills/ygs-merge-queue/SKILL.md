@@ -20,8 +20,10 @@ Read `~/.claude/skills/you-got-skills/skills/shared/tracker.md`.
 ```bash
 cat /workspace/ready_prs.json    # {pr_count, repo, target_branch_filter, prs: [{pr_number, title,
                                   #   author, scope, blast_radius, pr_type, age_hours, branch,
-                                  #   target_branch, ci_status, has_approval, url, labels}]}
-cat /workspace/lane_groups.json  # {lanes: [{lane_id, prs: [...]}]}
+                                  #   target_branch, ci_status (none=unavailable for BB),
+                                  #   has_approval, approval_count, reviewer_count,
+                                  #   issue_ref ({key,url} or null), url, labels}]}
+cat /workspace/lane_groups.json  # {lanes: [{lane_id, prs: [...], category_counts, hotspots}]}
 ```
 
 If either file is missing or empty, report: "No open PRs found for `{repo}`. Either the repo has no open PRs or the collector failed." and exit `{"status":"DONE","total_prs":0}`.
@@ -73,25 +75,48 @@ a proxy: if two branches in the same lane share a descriptive path prefix
 | 2+ PRs share a branch path prefix within the same lane | HIGH |
 | Branch names are non-descriptive (e.g. `fix/123`) — cannot determine | NONE (conservative) |
 
-## Step 4: Build per-lane summary table
+## Step 4: Build hierarchical branch → risk-tier → per-PR report
 
-For each lane output a section:
+**CI note**: If all `ci_status` values are `"none"`, add this note once at the top of the lanes section:
+> ℹ️ **CI status: N/A** — Bitbucket REST API does not return pipeline status in the bulk PR list endpoint.
+
+**Report structure** — hierarchical: branch → risk tier → per-PR table:
 
 ```
-### Lane: {lane_id}  ({pr_count} PRs — highest risk: 🟢/🟡/🔴)
+### Branch: stage (N PRs — 🔴 N high, 🟡 N medium, 🟢 N low)
+
+#### 🔴 High Risk (N PRs)
+Hotspots: {categories with ≥3 bug PRs in this tier, or "none"}
 Conflict risk: NONE / ⚠️ HIGH
-Hotspots: {comma-separated categories with ≥3 bug PRs, or "none"}
 
-| PR | Type | Category | Author | Age | Blast | CI | Approval | Flags |
-|----|------|----------|--------|-----|-------|----|----------|-------|
-| #42 Fix billing calc | 🐛 bug | api       | alice | 2h | 🟡 medium | ✅ | ✅ | |
-| #38 Auth refactor   | ✨ feat | ⚠️ authn_authz | bob | 72h | 🔴 high | ⏳ | ❌ | ⚠️ sensitive |
-| #45 Update docs     | ❓ | unknown  | carol | 5h | 🟢 low | ✅ | ✅ | |
+| PR | Title | Category | Type | Blast | CI | Age | Reviewers | Issues |
+|----|-------|----------|------|-------|----|-----|-----------|--------|
+| [#42](url) | Fix billing calc | api | 🐛 | 🟡 medium | ✅ | 2h | 1/2 ✅ | [BILL-123](url) |
+| [#38](url) | Auth refactor | ⚠️ authn_authz | ✨ | 🔴 high | N/A | 3d | 0/3 ✅ | — |
+
+**PR details:**
+- [#42](url) [BILL-123](url): Fix billing calculation rounding error — api 🐛
+- [#38](url): Refactor auth token refresh flow — authn_authz ✨
 ```
+
+**Columns:**
+- **PR**: `[#{num}](url)` link
+- **Title**: truncated to ~50 chars
+- **Category**: `⚠️` prefix for `security`, `authn_authz`; asterisk `*` suffix when `category_confidence` is `title` (heuristic)
+- **Type**: `pr_type` emoji — 🐛 bug, ✨ feature, ❓ unknown
+- **Blast**: `🔴/🟡/🟢 {level}`
+- **CI**: `✅` success, `❌` failed, `⏳` pending, `N/A` when unavailable (all-none), `—` otherwise
+- **Age**: `{N}h` for <24h, `{N}d` for ≥24h
+- **Reviewers**: `{approvals}/{total} ✅` — from `approval_count` / `reviewer_count`; `—` when no reviewers assigned
+- **Issues**: `[KEY](url)` from `issue_ref.key` + `issue_ref.url`; `—` when none
+
+**After each tier's table**, add `**PR details:**` list with full title + issue ref (no truncation).
+
+**Stacked PRs** get a separate section with an extra **Target** column showing the feature branch they target.
 
 `pr_type` emoji: 🐛 = bug, ✨ = feature, ❓ = unknown.
 Category ⚠️ prefix for: `security`, `authn_authz`, `sre`, `data`.
-Highest risk per lane = max of all PR blast_radius in that lane (high > medium > low).
+Highest risk per branch = max blast_radius across all tiers (high > medium > low).
 
 ## Step 5: Format final report and output JSON
 
