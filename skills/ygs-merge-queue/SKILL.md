@@ -120,6 +120,29 @@ Conflict risk: NONE / ⚠️ HIGH
 Category ⚠️ prefix for: `security`, `authn_authz`, `sre`, `data`.
 Highest risk per branch = max blast_radius across all tiers (high > medium > low).
 
+## Step 4b: Deployment Risk Position (conditional)
+
+**Only render this section when `DEPLOYMENT_PROFILE` env var is set** (present in job environment). When absent, skip entirely — existing report format is unchanged.
+
+Reference: `shared/merge-queue-metrics.md#deployment-risk-model`, `shared/merge-queue-metrics.md#deployment-maturity-dimensions`, `shared/merge-queue-metrics.md#blue-line--red-line`.
+
+When `DEPLOYMENT_PROFILE` is set, the `report.py` script computes and appends a **"### Deployment Risk Position"** section after the Valley of Calm analysis. The section includes:
+
+1. **Text gauge** — current position (🔵) vs calamity threshold (🔴):
+   ```
+   [🟢🟢🟢🟢🟢🔵░░🔴░░░░░░]  82% success | calamity at 18 PRs/batch
+   ```
+
+2. **Release cadence** — preset name or "custom", with PRs per release and stacked releases count.
+
+3. **Release train success** — raw probability and maturity-adjusted probability. Shows how deployment maturity reduces effective risk.
+
+4. **Rollback feasibility** — strategy (rollback vs roll-forward), MTTR multiplier, and reason.
+
+5. **Deployment maturity** — tier (foundational/intermediate/advanced), score out of 10.5, and per-dimension breakdown with bar charts showing capability levels.
+
+6. **Zone warnings** — if in yellow or red zone, actionable recommendations (reduce batch size, improve maturity dimensions, increase release frequency).
+
 ## Step 5: Format final report and output JSON
 
 Follow `shared/output-format.md` for Slack-compatible formatting.

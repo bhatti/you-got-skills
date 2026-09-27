@@ -62,10 +62,21 @@ These caps are data-driven: `is_test_pr` is set when ≥80% of changed files mat
 
 **Hotspot detection:** if ≥3 `bug`-type PRs in the current queue share the same `category`, that category is a **hotspot** — flag it prominently. Hotspots indicate an area with elevated defect density that warrants extra scrutiny.
 
-**PR type classification** (labels first, then title keywords):
-- `bug`: label contains `bug`, `fix`, `hotfix`, `defect` — OR title matches `\b(fix|bug|hotfix|patch|defect|regression|crash)\b`
+**PR type classification** (security title keywords first, then labels, then title keywords, then flags):
+- `security`: title/description matches `\b(vulnerability|cve|rce|ssrf|xss|injection|exploit|0-?day|zero.?day|security.?fix)\b` — always wins regardless of labels (a vuln fix labelled 'bug' is still a security fix for risk scoring)
+- `bug`: label contains `bug`, `fix`, `hotfix`, `defect` — OR title matches `\b(fix|bug|hotfix|hot.?fix|patch|defect|regression|crash|revert|rollback|roll.?back|roll.?forward|workaround|broken)\b`
 - `feature`: label contains `feature`, `feat`, `story`, `enhancement` — OR title matches `\b(feat|feature|story|enhancement|implement|add)\b`
+- `refactor`: label contains `refactor`, `cleanup`, `tech-debt` — OR title matches `\b(refactor|cleanup|detangle|extract|reorganize|restructure|simplify|split|rename|move)\b`
+- `chore`: label contains `chore`, `deps`, `dependency`, `maintenance` — OR title matches `\b(chore|deps?|dependency|upgrade|bump|update|version|migrate)\b`
+- `test`: `is_test_pr=true` flag (from file paths or title patterns)
+- `docs`: `is_docs_pr=true` flag (from file paths or title patterns)
 - `unknown`: no signal matched
+
+**Defect rate proxy** (connects to Joe Magerramov's model — see blog Part 1.3):
+- Defect PRs = `bug` + `security` type PRs
+- Defect rate proxy = defect PRs / total PRs (maps to per-commit defect probability)
+- Feature:Bug ratio = feature PRs / defect PRs (healthy ≥ 3:1, concerning < 1:1)
+- Batch success estimate = (1 - defect_rate)^batch_size
 
 **Category confidence:**
 - `file_path` — derived from actual changed file paths (diffstat); most reliable
@@ -114,6 +125,117 @@ Used by `collect_ready.py` and `group_by_scope.py` to evaluate queue eligibility
 | Scope labeled | `scope:X` label present | No — auto-computed if missing |
 | Risk assessed | `risk_score.json` exists | No — auto-computed if missing |
 | Batch eligible | risk < 40 AND changed_files < 50 | No — determines batching strategy only |
+
+---
+
+## Deployment Risk Model
+
+Extends Joe Magerramov's merge-batch formula to the full deployment pipeline. All formulas are canonical in `scripts/mq/simulate.py` — report.py imports them; do not duplicate.
+
+### Release Train Success
+
+Most orgs don't use CD — they batch PRs into daily/weekly release trains. The formula is the same as merge-batch success but applied at the release level:
+
+```
+release_success = (1 - defect_rate) ^ prs_per_release
+```
+
+CD is the special case where `prs_per_release = 1`. A weekly train of 50 PRs at 2% defect rate has only 36% chance of shipping clean.
+
+### Rollback Feasibility
+
+When a bug in release R1 is found after R2, R3, R4 are deployed, rolling back requires reverting all subsequent releases too:
+
+| Stacked Releases | Strategy | MTTR Multiplier | Reason |
+|-----------------|----------|----------------|--------|
+| ≤1 | Rollback | 1.0× | Single release — clean rollback is straightforward |
+| 2–3 | Rollback | 1.5× | Must revert intermediate releases — costly but feasible |
+| ≥4 | Roll-forward | 2.5× | Too many intermediate releases — rollback is impractical |
+
+### Deployment Profiles
+
+Single env var `DEPLOYMENT_PROFILE` — either a preset name or path to a JSON file.
+
+**Presets** (built into `simulate.py`):
+
+| Preset | Release Cadence | PRs/Release | Stacked Releases | Maturity Level |
+|--------|----------------|-------------|-----------------|----------------|
+| `cd` | Continuous | 1 | 1 | Advanced (high across all dimensions) |
+| `daily-train` | Daily batch | queue_size / 5 | 2 | Intermediate |
+| `weekly-train` | Weekly batch | queue_size | 3 | Foundational–Intermediate |
+| `manual` | Ad-hoc | queue_size | 5 | Foundational (minimal automation) |
+
+**Custom profile JSON schema:**
+```json
+{
+  "release_cadence": "weekly-train",
+  "prs_per_release": 50,
+  "releases_stacked": 3,
+  "maturity": {
+    "automated_testing": 0.8,
+    "canary_deployment": 0.0,
+    "automated_rollback": 0.0,
+    "observability": 0.5,
+    "wave_deployment": 0.0,
+    "feature_flags": 0.3,
+    "blue_green": 0.0
+  }
+}
+```
+
+---
+
+## Deployment Maturity Dimensions
+
+7 weighted dimensions, each scored 0.0 (absent) to 1.0 (fully implemented). Max weighted score = 9.5.
+
+| Dimension | Weight | What It Enables |
+|-----------|--------|-----------------|
+| `automated_testing` | 2.0 | CI on every PR catches defects pre-merge |
+| `canary_deployment` | 2.0 | Progressive rollout catches prod-only failures |
+| `automated_rollback` | 1.5 | Instant revert on anomaly detection |
+| `observability` | 1.5 | Alerting + metrics detect failures fast |
+| `wave_deployment` | 1.0 | Stage → preprod → prod progression |
+| `feature_flags` | 1.0 | Decouple deploy from release |
+| `blue_green` | 0.5 | Zero-downtime deploy infrastructure |
+
+**Maturity tiers:**
+
+| Tier | Score Range | Effective Risk Multiplier | Description |
+|------|------------|--------------------------|-------------|
+| Foundational | 0–3.9 | 0.71–1.0 | Minimal automation — defects hit production at full force |
+| Intermediate | 4–6.9 | 0.49–0.71 | Partial automation — some defects caught before users see them |
+| Advanced | 7–9.5 | 0.30–0.48 | Full pipeline — canary + rollback + observability catch most defects |
+
+**Risk multiplier formula:** `max(0.3, 1.0 - maturity_score / 13.585)` — maturity reduces effective deployment risk by up to 70%.
+
+---
+
+## Blue Line / Red Line
+
+The MQ report shows a text gauge with the current position (🔵 "blue line") vs the calamity threshold (🔴 "red line").
+
+**Calamity threshold formula:**
+```
+max_safe_batch = log(target_success) / log(1 - defect_rate)
+```
+
+Default `target_success = 0.70` — below this, more than 30% of releases contain a defect.
+
+**Gauge rendering:**
+```
+[🟢🟢🟢🟢🟢🔵░░🔴░░░░░░]  82% success | calamity at 18 PRs/batch
+```
+
+**Zone thresholds:**
+
+| Zone | Success Rate | Meaning |
+|------|-------------|---------|
+| 🟢 Green | ≥ 90% | Healthy — well within safe operating range |
+| 🟡 Yellow | 70–89% | Warning — approaching the cliff |
+| 🔴 Red | < 70% | Danger — past the calamity threshold; more than 30% of releases will contain defects |
+
+**Headroom:** `(max_safe_batch - current_batch) / max_safe_batch × 100` — how far current batch size is from the cliff as a percentage. At 2% defect rate, the red line is at ~18 PRs/batch.
 
 ---
 
