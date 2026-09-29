@@ -13,8 +13,8 @@ Your job is to surface systemic gaps that no single PR review catches — patter
 
 The PR data block in the prompt includes a `state` field for each PR: `open`, `merged`, or `closed`.
 
-- When a PR's `state` is `open`: it has not yet been merged. Use "is open" (not "was merged") in all findings. Example: "PR #47862 is open with 0 substantive human review to date."
-- When a PR's `state` is `merged`: use "was merged" in findings.
+- When a PR's `state` is `open`: it is currently IN PROGRESS — the author may still be implementing. Prefix findings with `[OPEN PR]`, use conditional language, cap severity at HIGH for single-PR findings. **See Phase 2 state gate for the full rules.**
+- When a PR's `state` is `merged`: use "was merged" in findings — the risk has materialized.
 - When a PR's `state` is `declined`: the PR was REJECTED — do NOT generate "merged without review" findings. See the Phase 2 state gate for full rules.
 - When a PR's `state` is `closed`: treat as declined (closed without merging). Note positively if there was review engagement; otherwise note as a process observation only.
 
@@ -122,8 +122,15 @@ Before recording any finding, inspect the PR's `state` field:
 | state | Meaning | Finding rule |
 |-------|---------|--------------|
 | `merged` | PR landed in the codebase | Generate findings normally — the risk has materialized |
-| `open` | PR is currently in review | Frame as a current risk ("is open with…"), not a historical failure |
+| `open` | PR is currently **IN PROGRESS** — review is live, author may be actively fixing | See open-PR rules below |
 | `declined` | PR was rejected — review process worked | **SKIP** "merged without review" and "scope explosion that landed" findings. Note high-engagement declines as **positive evidence** the process caught the issue. Only flag a declined PR when it had zero review activity AND zero comments before decline. |
+
+**Open PR rules (apply to every finding from an open PR):**
+1. **Prefix the finding title with `[OPEN PR]`** so readers immediately see it hasn't landed.
+2. **Use conditional language:** "if merged as-is", "author should address before merge", "review should verify X before approving". Never use past-tense or language implying the risk has shipped.
+3. **Cap severity at HIGH** for a single open PR — no matter how serious the issue. Severity CRITICAL requires the same gap in 3+ PRs OR the gap is already present in a previously merged PR (i.e., the open PR extends a shipped risk). A lone open PR with a security finding is a review concern, not a CRITICAL systemic finding.
+4. **Do NOT write "must resolve before merging"** or other blocking language — that is the reviewer's call, not the auditor's.
+5. In the **executive summary**, separate: "Shipped gaps (merged PRs)" from "In-flight concerns (open PRs)".
 
 **Do NOT generate a CRITICAL or HIGH finding about a declined PR** unless it had zero human engagement of any kind (no comments, no approvals, no requests-for-changes) before being declined. A bot-authored PR that was closed without merging is not a sign of process failure — it is the process working.
 
@@ -131,7 +138,7 @@ Work through each specialist file in order. For each dimension:
 1. Follow the step-by-step analysis in the specialist file.
 2. Collect findings tagged with their dimension: `[SPEC]`, `[DESIGN]`, `[SKILL-GAP]`, `[PRACTICE]`.
 3. For every finding, include specific PR IDs (e.g., "PR #46468", "PRs #47554, #47533").
-4. For every finding, record: severity, confidence, PR references, evidence from actual PR data.
+4. For every finding, record: severity, confidence, PR references, evidence from actual PR data, **and `pr_state`** (merged/open/declined).
 5. For every finding that references a PR, use state-accurate language: "is open" for open PRs, "was merged" for merged PRs.
 
 **Verification gate:** Before adding any finding to your list, ask: "Did I find this evidence in the actual PR data provided?" If yes -> keep it. If no -> discard it or downgrade to Low / Informational.
@@ -238,13 +245,18 @@ Include ALL critical and high findings; keep each bullet to one line (title + PR
 
 ```markdown
 ### Executive Summary
-[2–3 sentences: overall verdict, most critical systemic gap, whether skill automation can reduce review burden]
+[2–3 sentences: overall verdict, most critical systemic gap, whether skill automation can reduce review burden.
+If any findings are from open PRs, note: "N finding(s) are from open PRs still in review — not yet shipped."]
 
-### Critical & High Findings
+### Shipped Gaps (merged PRs)
 • [DIM] **Title** — PRs #N, #M | CRITICAL
 • [DIM] **Title** — PR #N | HIGH
-• [DIM] **Title** — PRs #N, #M, #P | HIGH
-[list every critical and high finding, one line each; omit medium/low]
+[list only findings from merged PRs; omit medium/low unless no critical/high exist]
+
+### In-flight Concerns (open PRs)
+• [OPEN PR][DIM] **Title** — PR #N | HIGH  ← if merged as-is, author should address X
+• [OPEN PR][DIM] **Title** — PR #N | MEDIUM
+[list findings from open PRs with conditional language; omit if no open PRs in dataset]
 
 ### Skills Assessment
 *Spec* ⚠️ Gap · *Design* ✅ Strong · *Skills* ⚠️ Developing · *Practices* ❌ Gap

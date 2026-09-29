@@ -32,12 +32,23 @@ The pre-computed PR data provides these fields per PR:
   ],
   "review_decision": "APPROVED",
   "review_rounds": 2,
-  "ci_status": "success",
+  "ci_status": "pass",
   "required_checks_passed": true
 }
 ```
 
 Not all fields are present for every PR. Handle missing fields gracefully — do not infer from absence.
+
+**Canonical `ci_status` values** (normalized from GH and Bitbucket by pr_metadata):
+- `"pass"` — all checks passed (GH: success; BB: SUCCESSFUL)
+- `"fail"` — one or more checks failed (GH: failure/error; BB: FAILED)
+- `"pending"` — checks still running
+- `"unknown"` — CI data unavailable (common for BB open PRs)
+
+**Canonical `state` values:**
+- `"merged"` — PR was merged into the target branch
+- `"open"` — PR is currently open / in review
+- `"declined"` — PR was declined or closed without merging
 
 ---
 

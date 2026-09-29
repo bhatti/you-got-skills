@@ -53,13 +53,13 @@ Readiness gate signals (applied on top of the risk score):
 | Signal | Green (🟢) | Yellow (🟡) | Red (🔴) |
 |--------|-----------|------------|---------|
 | blast_radius | low | medium | high |
-| ci_status | success / none | pending | failed |
+| ci_status | pass / unknown | pending | fail |
 | has_approval | true | — | false (age > 24h) |
 | age_hours | < 48h | 48–168h | > 168h (1 week) |
 | pr_type | feature/unknown | — | bug (prioritize review) |
 | category | api/ui/config/backend | data/sre | security/authn_authz (⚠️ always flag) |
 
-**Human review required** when: `blast_radius = high` OR `ci_status = failed` OR `category` in {security, authn_authz}.
+**Human review required** when: `blast_radius = high` OR `ci_status = fail` OR `category` in {security, authn_authz}.
 
 **Hotspot detection** (from `shared/merge-queue-metrics.md#pr-categories`): if `lane_groups.json` has `"hotspots": [...]` for a lane, flag prominently — this means ≥3 bug PRs share that category, indicating elevated defect density. If `category_confidence = "unknown"`, note the classification is based on limited data.
 
