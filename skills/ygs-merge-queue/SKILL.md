@@ -20,7 +20,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/tracker.md`.
 ```bash
 cat /workspace/ready_prs.json    # {pr_count, repo, target_branch_filter, prs: [{pr_number, title,
                                   #   author, scope, blast_radius, pr_type, age_hours, branch,
-                                  #   target_branch, ci_status (none=unavailable for BB),
+                                  #   target_branch, ci_status (unknown=unavailable for BB),
                                   #   has_approval, approval_count, reviewer_count,
                                   #   issue_ref ({key,url} or null), url, labels}]}
 cat /workspace/lane_groups.json  # {lanes: [{lane_id, prs: [...], category_counts, hotspots}]}
@@ -79,7 +79,7 @@ a proxy: if two branches in the same lane share a descriptive path prefix
 
 ## Step 4: Build hierarchical branch → risk-tier → per-PR report
 
-**CI note**: If all `ci_status` values are `"none"`, add this note once at the top of the lanes section:
+**CI note**: If all `ci_status` values are `"unknown"`, add this note once at the top of the lanes section:
 > ℹ️ **CI status: N/A** — Bitbucket REST API does not return pipeline status in the bulk PR list endpoint.
 
 **Report structure** — hierarchical: branch → risk tier → per-PR table:
@@ -107,7 +107,7 @@ Conflict risk: NONE / ⚠️ HIGH
 - **Category**: `⚠️` prefix for `security`, `authn_authz`; asterisk `*` suffix when `category_confidence` is `title` (heuristic)
 - **Type**: `pr_type` emoji — 🐛 bug, ✨ feature, 🔒 security, 🧪 test, 📝 docs, 🔧 refactor, ⚙️ chore
 - **Blast**: `🔴/🟡/🟢 {level}`
-- **CI**: `✅` success, `❌` failed, `⏳` pending, `N/A` when unavailable (all-none), `—` otherwise
+- **CI**: `✅` pass, `❌` fail, `⏳` pending, `N/A` when unavailable (all-unknown), `—` otherwise
 - **Age**: `{N}h` for <24h, `{N}d` for ≥24h
 - **Reviewers**: `{approvals}/{total} ✅` — from `approval_count` / `reviewer_count`; `—` when no reviewers assigned
 - **Issues**: `[KEY](url)` from `issue_ref.key` + `issue_ref.url`; `—` when none
@@ -166,7 +166,7 @@ Then per-lane tables from Step 4.
 
 **Recommendations** — one line per lane:
 - All low blast + CI passing → "Safe to batch merge"
-- Any high blast or ci_status=failed → "Block: human review required for PR #{n}"
+- Any high blast or ci_status=fail → "Block: human review required for PR #{n}"
 - Conflict detected → "Conflict risk: merge {lane_id} PRs one at a time"
 
 **Exit JSON (last line of output):**
