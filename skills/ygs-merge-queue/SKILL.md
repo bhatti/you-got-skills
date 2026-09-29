@@ -56,7 +56,7 @@ Readiness gate signals (applied on top of the risk score):
 | ci_status | pass / unknown | pending | fail |
 | has_approval | true | — | false (age > 24h) |
 | age_hours | < 48h | 48–168h | > 168h (1 week) |
-| pr_type | feature/unknown | — | bug (prioritize review) |
+| pr_type | feature | — | bug/security (prioritize review) |
 | category | api/ui/config/backend | data/sre | security/authn_authz (⚠️ always flag) |
 
 **Human review required** when: `blast_radius = high` OR `ci_status = fail` OR `category` in {security, authn_authz}.
@@ -105,7 +105,7 @@ Conflict risk: NONE / ⚠️ HIGH
 - **PR**: `[#{num}](url)` link
 - **Title**: truncated to ~50 chars
 - **Category**: `⚠️` prefix for `security`, `authn_authz`; asterisk `*` suffix when `category_confidence` is `title` (heuristic)
-- **Type**: `pr_type` emoji — 🐛 bug, ✨ feature, ❓ unknown
+- **Type**: `pr_type` emoji — 🐛 bug, ✨ feature, 🔒 security, 🧪 test, 📝 docs, 🔧 refactor, ⚙️ chore
 - **Blast**: `🔴/🟡/🟢 {level}`
 - **CI**: `✅` success, `❌` failed, `⏳` pending, `N/A` when unavailable (all-none), `—` otherwise
 - **Age**: `{N}h` for <24h, `{N}d` for ≥24h
@@ -116,7 +116,7 @@ Conflict risk: NONE / ⚠️ HIGH
 
 **Stacked PRs** get a separate section with an extra **Target** column showing the feature branch they target.
 
-`pr_type` emoji: 🐛 = bug, ✨ = feature, ❓ = unknown.
+`pr_type` emoji: 🐛 = bug, ✨ = feature, 🔒 = security, 🧪 = test, 📝 = docs, 🔧 = refactor, ⚙️ = chore.
 Category ⚠️ prefix for: `security`, `authn_authz`, `sre`, `data`.
 Highest risk per branch = max blast_radius across all tiers (high > medium > low).
 

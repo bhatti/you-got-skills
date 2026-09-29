@@ -14,6 +14,7 @@ The pre-computed PR data provides these fields per PR:
   "title": "Add user authentication endpoint",
   "author": "username",
   "merged_at": "2025-01-15T10:30:00Z",
+  "jira_summary": "[optional] Jira issue summary when title is a bare key like PROJ-123",
   "files_changed": 12,
   "additions": 350,
   "deletions": 45,
@@ -49,6 +50,17 @@ Not all fields are present for every PR. Handle missing fields gracefully — do
 - `"merged"` — PR was merged into the target branch
 - `"open"` — PR is currently open / in review
 - `"declined"` — PR was declined or closed without merging
+
+**Canonical `pr_type` values** (classified by `classify_pr_type` from title + jira_summary + labels):
+- `"feature"` — new functionality or unclassifiable change (default fallback; most generic)
+- `"bug"` — defect fix, revert, regression, crash
+- `"refactor"` — code cleanup, restructure, rename, extract
+- `"chore"` — dependency bump, version update, CI/build change
+- `"security"` — vulnerability fix, CVE, exploit mitigation
+- `"test"` — test additions or fixes (checked before bug; "[Flaky Test]" → test)
+- `"docs"` — documentation, README, changelog
+
+Note: `"unknown"` is no longer emitted. Jira-linked PRs use `jira_summary` for classification when the PR title is a bare Jira key (e.g. `"CRIBL-44875"`).
 
 ---
 
