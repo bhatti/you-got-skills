@@ -147,6 +147,12 @@ When `DEPLOYMENT_PROFILE` is set, the `report.py` script computes and appends a 
 
 Follow `shared/output-format.md` for Slack-compatible formatting.
 
+**Slack vs HTML output:** The `report.py` script generates two separate outputs:
+- **Slack summary** (~600 chars, condensed): date range, total PRs, risk signal, conflict lanes, stale count, work-type breakdown. Posted to Slack thread.
+- **Full report** (HTML artifact): complete lane tables, Valley of Calm analysis, risk heatmap. Attached as file in thread.
+
+Claude (this skill) writes the **full report** sections. The condensed Slack summary is computed automatically by `report.py` from lane data.
+
 **Report header:**
 ```
 ## Merge Queue Analysis — {repo}

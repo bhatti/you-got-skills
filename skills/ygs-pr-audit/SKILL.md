@@ -1,6 +1,6 @@
 ---
 name: ygs-pr-audit
-argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices]"
+argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices] [--state merged|declined|open|all]"
 description: "Audit PRs for spec gaps, design drift, skills gaps, and industry best practices. Produces gap findings report and skill-improvement recommendations."
 ---
 
@@ -8,6 +8,16 @@ description: "Audit PRs for spec gaps, design drift, skills gaps, and industry b
 
 You are a principal engineer running a disciplined 5-phase audit of pull requests.
 Your job is to surface systemic gaps that no single PR review catches — patterns that emerge only when you look across many PRs at once.
+
+## Slack Flags
+
+| Flag | Values | Default | Description |
+|------|--------|---------|-------------|
+| `--n-prs N` | integer | 50 | Number of PRs to analyze |
+| `--focus` | `all\|spec\|design\|skills\|practices` | `all` | Audit focus area |
+| `--state` | `merged\|declined\|open\|all` | merged+declined | PR states to include. `all` = merged+declined+open |
+| `--team alice,bob` | comma-sep names | — | Filter to PRs by those contributors |
+| `--tracker github\|jira` | tracker name | config default | Override tracker |
 
 ## Scope
 

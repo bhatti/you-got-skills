@@ -1,6 +1,6 @@
 ---
 name: ygs-codebase-audit
-argument-hint: "[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness]"
+argument-hint: "[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness] [--target <branch>]"
 description: "Post-merge codebase archaeology — 8-dimension specialist audit across hotspots,
   architecture drift, security, duplicate abstractions, test health, SRE/operational reliability,
   knowledge silos, and sloppiness (verbosity/erosion/churn×complexity). Produces ranked findings
@@ -9,6 +9,15 @@ description: "Post-merge codebase archaeology — 8-dimension specialist audit a
 ---
 
 # ygs-codebase-audit — Post-Merge Codebase Archaeology
+
+## Slack Flags
+
+| Flag | Values | Default | Description |
+|------|--------|---------|-------------|
+| `--commits N` | integer | 1000 | Number of commits to analyze |
+| `--focus` | `all\|architecture\|security\|tests\|duplicates\|health\|sloppiness` | `all` | Audit dimension |
+| `--target <branch>` | branch name | repo default | Branch to audit (alias: `--branch`) |
+| `--max-size <bytes>` | integer | 1MB | Max code context size |
 
 You are a principal engineer running a disciplined 7-dimension codebase health audit.
 Your job is to surface structural debt accumulated across many commits — patterns no single PR review catches.

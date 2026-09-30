@@ -223,6 +223,33 @@ At **light** depth: grep-confirm top 2 patterns only.
 
 ---
 
+---
+
+## 9. Metrics Dashboard Standard
+
+All AI reports (pr-audit, mq/merge-queue, gate-review/scope, code-audit) use a **single canonical 5-column format**:
+
+```
+| Metric | Value | Benchmark | Signal | Description |
+|--------|-------|-----------|--------|-------------|
+```
+
+**Rules:**
+- `Signal` is always one of: 🟢 (healthy), 🟡 (warning), 🔴 (concern), or `—` (no benchmark defined)
+- Use `build_metrics_dashboard(prs, extra_rows=None)` from `scripts/common/pr_classify.py` — do NOT hand-roll per-report
+- Pass `extra_rows: list[tuple[str, str, str, str, str]]` for report-specific metrics
+- Only one Metrics Dashboard section per report — if Claude writes one in the analysis body, the script must NOT append a second
+
+**Where each report adds it:**
+- `ygs-pr-audit`: at end of Claude analysis (Claude includes it verbatim from pre-computed data)
+- `ygs-merge-queue`: in Valley of Calm section via `report.py`
+- `ygs-codebase-audit`: appended post-Claude with commit-window extra rows
+- `gate-review/scope`: included in `report.py` output when lane data available
+
+**Cross-ref:** `shared/merge-queue-metrics.md#metrics-dashboard-5-column--canonical-across-all-reports`
+
+---
+
 ## Checklist Application by Skill
 
 ### ygs-implement self-review (after tests pass, before marking done)
