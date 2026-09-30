@@ -192,27 +192,40 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 |-------|---------|
 | `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) across 8 dimensions — hotspots, temporal coupling, duplicate abstractions, architecture drift, security, test coverage gaps, commit health, knowledge silos, and **sloppiness** (verbosity ratio, erosion score, churn × complexity hotspots). Metrics dashboard includes benchmark-calibrated thresholds (established repos vs. AI-generated baselines). |
 | `/ygs-pr-audit` | Merged PR gap analysis: audit last N PRs (default 50) for spec gaps (missing acceptance criteria), design gaps (undocumented architecture decisions), skills gaps (findings human reviewers caught that bots missed), and industry practice gaps (oversized PRs, rubber-stamp reviews). Produces a findings report with metrics dashboard (spec coverage %, skill catch rate, human review burden) and a skill_improvements.json proposing concrete skill/doc updates. Includes a verification phase that re-examines every finding against cited PR evidence before reporting. |
+| `/ygs-merge-queue` | Read-only merge queue analysis: group open PRs by scope lane, score blast-radius and risk, flag PRs needing human review. Produces a condensed Slack summary (~600 chars) and a full HTML report artifact. Works for GitHub and Bitbucket repos. |
+| `/ygs-gate-review` | Deep single-PR gate review: problem/solution analysis, code quality assessment, risk dimensions (security, data, API, SRE), blast radius, and structured findings. Read-only — no PR mutations. Alias: `@bot scope <pr>` and `@bot gate-review <pr>` run the same workflow. |
 
-**ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness]`
+**ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness] [--target <branch>]`
 
 **Usage:**
 ```bash
 /ygs-codebase-audit                                          # analyze codebase in CWD
 /ygs-codebase-audit https://github.com/org/repo             # audit a specific repo
 /ygs-codebase-audit --commits 500 --focus architecture      # focused audit
+/ygs-codebase-audit --target feature/xyz                    # audit specific branch
 ```
 
-Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audit`
+Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audit [--target <branch>]`
 
-**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices]`
+**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices] [--state merged|declined|open|all]`
 
 **Usage:**
 ```bash
-/ygs-pr-audit                                                # audit PRs in CWD repo
+/ygs-pr-audit                                                # audit PRs in CWD repo (merged+declined)
 /ygs-pr-audit --n-prs 30 --focus skills                     # focused skills gap audit
+/ygs-pr-audit --state all                                    # include open PRs
 ```
 
-Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url>`
+Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url> [--state all]`
+
+**ygs-merge-queue / ygs-gate-review arguments:** `[<pr-url-or-number>]`
+
+**Usage:**
+```bash
+@bot mq [<repo-url>]                      # merge queue analysis for a repo
+@bot gate-review <pr-url-or-number>       # deep single-PR gate review
+@bot scope <pr-url-or-number>             # alias for gate-review
+```
 
 ### Generic Skill Invocation (via Formicary)
 

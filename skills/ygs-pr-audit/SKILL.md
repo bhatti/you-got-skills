@@ -450,6 +450,8 @@ Write to `reports/pr_audit_findings.json`:
     "human_review_burden": 0.0,
     "avg_pr_size_loc": 0,
     "large_pr_review_depth": 0.0,
+    "xl_pr_review_coverage_pct": 0.0,
+    "large_pr_human_comments_avg": 0.0,
     "security_review_invocation_rate": 0.0,
     "rubber_stamp_rate": 0.0,
     "revert_followup_rate": 0.0,

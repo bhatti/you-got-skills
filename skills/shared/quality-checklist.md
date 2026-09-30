@@ -2,7 +2,7 @@
 
 Canonical quality rules applied across **implement → review → audit → learn**. Skills apply these at different depths — implement/review/self-review go deep per function; audit sweeps at scale across commits/PRs.
 
-**Referenced by:** `ygs-implement`, `ygs-code-review`, `ygs-review-deep`, `ygs-review-pr`, `ygs-pr-audit`, `ygs-codebase-audit`, `ygs-learn`.  
+**Referenced by:** `ygs-implement`, `ygs-code-review`, `ygs-review-deep`, `ygs-review-pr`, `ygs-gate-review`, `ygs-pr-audit`, `ygs-codebase-audit`, `ygs-learn`.  
 **Do not duplicate rules here in individual skills** — reference this file instead.
 
 ---
@@ -240,10 +240,62 @@ All AI reports (pr-audit, mq/merge-queue, gate-review/scope, code-audit) use a *
 - Pass `extra_rows: list[tuple[str, str, str, str, str]]` for report-specific metrics
 - Only one Metrics Dashboard section per report — if Claude writes one in the analysis body, the script must NOT append a second
 
+**Pre-computed rows (from PR data):**
+| Row | Source | Report |
+|-----|--------|--------|
+| PR State Breakdown | `merged_at`, `state` fields | pr-audit, mq |
+| Avg PR Size | `total_loc` / `additions+deletions` | pr-audit, mq |
+| Size Distribution | `size_bucket` | pr-audit, mq |
+| Blast Radius Distribution | `blast_radius` field | pr-audit, mq |
+| CI Pass Rate | `ci_status` field | pr-audit, mq |
+| Review Coverage | `has_substantive_review` | pr-audit, mq |
+| Rubber-Stamp Rate | `rubber_stamp_approvers` | pr-audit |
+| Stale PRs (>7d) | `created_at` age | pr-audit, mq |
+| Hotspot Count | `is_hotspot` | pr-audit, mq |
+| Avg Age | `created_at` age | pr-audit, mq |
+
+**DORA/throughput rows (from `compute_throughput_metrics()`, ≥3 merged PRs required):**
+| Row | Benchmark | Notes |
+|-----|-----------|-------|
+| Deployment Frequency | ≥5/wk healthy | Merged PRs/week |
+| Change Failure Rate | ≤10% healthy | Bug+security PRs as % of merged |
+| Lead Time (P50) | ≤1d elite, ≤7d high | Median created→merged |
+| PR Survival Rate | ≥80% healthy | Merged/(merged+declined) |
+
+**Claude-assessed rows (via `extra_rows=` from `_read_all_claude_metrics()`):**
+| Row | Key | Benchmark |
+|-----|-----|-----------|
+| Spec Coverage | `spec_coverage_pct` | ≥80% |
+| CI Catch Rate | `ci_catch_rate` | pipeline health |
+| Review Skill Catch Rate | `code_review_skill_catch_rate` | >60% |
+| Bot Follow-Through | `bot_finding_follow_through_rate` | >90% |
+| Human Review Burden | `human_review_burden` | <40% |
+| Security Review Rate | `security_review_invocation_rate` | 100% target |
+| Rubber-Stamp Rate (Claude) | `rubber_stamp_rate` | ≤10% |
+| Revert/Follow-up Rate | `revert_followup_rate` | <5% |
+| Verbosity Rate | `verbosity_accumulation_rate` | <10% |
+| Complexity Creep | `complexity_creep_pr_count` | 0 ideal |
+| Large PR Review Depth | `large_pr_review_depth` | >5 comments/PR |
+| XL PR Review Coverage | `xl_pr_review_coverage_pct` | 100% target |
+
+**Code-audit Claude-assessed rows (via `extra_rows=` from `_read_all_audit_metrics()`):**
+| Row | Key | Benchmark |
+|-----|-----|-----------|
+| Fix:Commit Ratio | `fix_ratio` | <15% |
+| Avg Files/Commit | `avg_files_per_commit` | <5 |
+| Single-Author Hotspots | `single_author_hotspots` | 0 ideal |
+| Temporal Coupling | `temporal_coupling_pairs` | 0 ideal |
+| Test Gap Files | `test_gap_files` | 0 ideal |
+| Disabled/Skipped Tests | `disabled_skipped_tests` | 0 ideal |
+| Verbosity Ratio | `verbosity_ratio` | <0.30 |
+| Erosion Score | `erosion_score` | <0.55 |
+| High-Mass Functions | `high_mass_functions` | 0 ideal |
+| Churn×Complexity Hotspots | `churn_complexity_hotspots` | 0 ideal |
+
 **Where each report adds it:**
-- `ygs-pr-audit`: at end of Claude analysis (Claude includes it verbatim from pre-computed data)
+- `ygs-pr-audit`: pre-computed rows auto-added by script; Claude-assessed rows appended after Claude writes findings
 - `ygs-merge-queue`: in Valley of Calm section via `report.py`
-- `ygs-codebase-audit`: appended post-Claude with commit-window extra rows
+- `ygs-codebase-audit`: appended post-Claude via `_read_all_audit_metrics()` + `build_metrics_dashboard([], extra_rows=...)`
 - `gate-review/scope`: included in `report.py` output when lane data available
 
 **Cross-ref:** `shared/merge-queue-metrics.md#metrics-dashboard-5-column--canonical-across-all-reports`

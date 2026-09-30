@@ -60,7 +60,7 @@ Not all fields are present for every PR. Handle missing fields gracefully — do
 - `"test"` — test additions or fixes (checked before bug; "[Flaky Test]" → test)
 - `"docs"` — documentation, README, changelog
 
-Note: `"unknown"` is no longer emitted. Jira-linked PRs use `jira_summary` for classification when the PR title is a bare Jira key (e.g. `"CRIBL-44875"`).
+Note: `"unknown"` is no longer emitted. Jira-linked PRs use `jira_summary` for classification when the PR title is a bare Jira key (e.g. `"PROJ-12345"`).
 
 ---
 

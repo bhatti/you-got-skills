@@ -301,17 +301,41 @@ All reports (pr-audit, mq, gate-review/scope, code-audit) use this exact format.
 
 ---
 
+## DORA and Throughput Metrics
+
+These metrics are computed by `compute_throughput_metrics(prs)` in `scripts/common/pr_classify.py` when ≥3 merged PRs are available. They appear as DORA rows in `build_metrics_dashboard()`.
+
+| Metric | Key | Benchmark | Computability | Notes |
+|--------|-----|-----------|---------------|-------|
+| Deployment Frequency | `deployment_frequency` | ≥5/wk elite | ✅ from `merged_at` | Merged PRs per week |
+| Lead Time (P50) | `lead_time_p50_days` | ≤1d elite, ≤7d high | ✅ from `created_at`→`merged_at` | Median time from PR open to merge |
+| Change Failure Rate | `change_failure_rate_pct` | ≤10% healthy | ✅ from `pr_type` | Bug+security PRs as % of total merged |
+| PR Survival Rate | `pr_survival_rate_pct` | ≥80% healthy | ✅ from `state` | Merged/(merged+declined) |
+| Review Lag | (not computed) | — | ❌ requires `reviews[].submittedAt` not fetched | Would need per-PR review API call |
+| MTTR | (not computed) | — | ❌ no incident data | No incident/outage datasource |
+
+**DORA tier mapping (Lead Time):**
+- Elite: <1 day
+- High: <1 week
+- Medium: <1 month
+- Low: >1 month
+
+**CFR Proxy:** Uses PR type to proxy change failure rate. `pr_type=bug` or `pr_type=security` = failure. This underestimates CFR since bugs found in production (hotfixes) may be labeled differently.
+
+---
+
 ## Slack Output Format
 
 The MQ report (`report.py`) posts two separate outputs:
 
-**Slack summary** (~600 chars, condensed) — posted as thread message:
+**Slack summary (~800 chars, condensed)** — posted as thread message:
 ```
 *Merge Queue* — YYYY-MM-DD → YYYY-MM-DD
-{N} open PRs · ✅/⚠️/🔴 {risk_signal} · {conflict_lanes} conflict lane(s)
-⚠️ {needs_review} PR(s) need human review before merge   (only if > 0)
-🕐 {stale_count} PR(s) stale (>14d)                      (only if > 0)
-Types: feature:{n} · bug:{n} · refactor:{n}
+*Queue Health*: {N} open PRs · ✅/🔴 {risk_signal} · 🔴 {high_blast} high-blast · 🔥 {hotspots} hotspot paths
+*Review*: Review: {rev_pct}% ✅/🔴 · CI: {ci_pass}/{ci_known} ({ci_pct}%) ✅/🔴 · 🔴 {stale_7d} stale (>7d)
+*Risk*: ⚠️ {needs_review} need human review · 🔀 {conflict_lanes} conflict lane(s) · 🕐 {stale_14d} stale (>14d)
+*Work*: feature:{n} · bug:{n} · test:{n} · refactor:{n}
+*Throughput*: {avg_age}d avg age · CFR proxy: {cfr}% ✅/🔴
 Full report in thread ↑
 ```
 

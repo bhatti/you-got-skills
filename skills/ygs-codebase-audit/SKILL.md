@@ -274,7 +274,7 @@ Write to `reports/audit_findings.json`:
     "single_author_hotspots": 0,
     "temporal_coupling_pairs": 0,
     "test_gap_files": 0,
-    "skip_markers": 0,
+    "disabled_skipped_tests": 0,
     "verbosity_ratio": 0.0,
     "erosion_score": 0.0,
     "high_mass_functions": 0,
