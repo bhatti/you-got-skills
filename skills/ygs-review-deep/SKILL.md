@@ -61,6 +61,7 @@ Follow the diff protocol from `shared/review-scaffold.md`. Then classify each ch
 | Testing | `specialists/testing.md` | Any test file added or changed; any logic without test changes |
 | Observability | `specialists/observability.md` | Logging, metrics, tracing, error handling, new code paths |
 | Maintainability | `specialists/maintainability.md` | All changes (always ACTIVE — naming and dead code apply everywhere) |
+| Conventions | `specialists/conventions.md` | All changes (always ACTIVE — naming, async style, AI failure modes apply everywhere) |
 
 Mark a dimension SKIP only if the diff clearly has no bearing on it (e.g., a config comment change skips Logic, Performance, Security).
 
@@ -78,6 +79,7 @@ Read the relevant specialist reference files:
 - `~/.claude/skills/you-got-skills/skills/ygs-review-deep/specialists/testing.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-review-deep/specialists/observability.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-review-deep/specialists/maintainability.md`
+- `~/.claude/skills/you-got-skills/skills/ygs-review-deep/specialists/conventions.md`
 
 For each active dimension, collect findings tagged `[DIM]` (e.g., `[SECURITY]`, `[PERF]`).
 
@@ -86,7 +88,13 @@ For each active dimension, collect findings tagged `[DIM]` (e.g., `[SECURITY]`, 
 ## Phase 3: Synthesize
 
 1. Merge all findings across active dimensions
-2. Deduplicate: if two dimensions flag the same file+line for the same reason, keep the higher-severity finding, note the secondary dimension in parentheses
+2. **Adversarial filter** (apply before ranking — drop any finding that fails a rule):
+   - **Rule 1 — Pre-existing:** if the flagged code was present in the base branch before this PR, drop it; this PR didn't introduce it
+   - **Rule 2 — Unverifiable:** every finding must cite file:line with a quoted code fragment; if you cannot produce the quote from the actual file, drop it
+   - **Rule 3 — Confidence gate:** drop LOW-confidence findings unless they are MUST severity
+   - **Rule 4 — Linter-catchable:** drop style-only findings (whitespace, quote style, import order) that a linter/formatter would catch automatically
+   - **Rule 5 — Semantic dedup:** if two specialists flag the same root cause (even at different locations), keep the highest-severity finding; note secondary dimension in parentheses
+   - **Rule 6 — Severity re-check:** after dedup, re-assess whether a MUST finding survives in context of the full picture, or is more accurately SHOULD
 3. Apply the principal quality bar — verify the following are addressed:
    - **Performance at scale:** would the change hold up at millions of requests/sec or with large data? Flag anything that becomes a bottleneck or causes memory bloat at scale
    - **Concurrency:** new shared mutable state, lock contention across I/O, race conditions, connection pool exhaustion

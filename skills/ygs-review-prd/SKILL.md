@@ -32,6 +32,13 @@ Evaluate the PRD on:
 7. **Feasibility** — Are there technical or resource blockers?
 8. **Dependencies** — Are external dependencies identified?
 9. **Gaps** — Missing user stories? Unasked questions?
+10. **Non-functional requirements** — Load `~/.claude/skills/you-got-skills/skills/shared/nfr-checklist.md`. A PRD is incomplete if any of the following is absent AND not explicitly scoped out with justification:
+    - Performance target (response time or throughput with a concrete number)
+    - Reliability/SLO (availability percentage or error budget)
+    - Security model (who can call this, what data is sensitive)
+    - Scalability limit (expected max load before next capacity review)
+    - Observability requirement (which operations must be monitored and alerted on)
+    Missing NFRs at PRD stage produce vague acceptance criteria, untestable TRDs, and incidents that "nobody saw coming."
 
 ## Step 3: Report
 

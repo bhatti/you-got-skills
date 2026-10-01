@@ -208,6 +208,7 @@ Every 5 files changed, verify build/tests still pass using `~/.claude/skills/you
 - Use deterministic time controls (fake clocks) instead of real timers where timing matters
 - Keep tests simple and direct; avoid over-engineering test infrastructure
 - Check for: unused variables, empty test bodies, dead code — none should ship
+- **AI self-audit:** before finishing tests, check your own work against `~/.claude/skills/you-got-skills/skills/shared/ai-failure-modes.md` — verify each assertion would actually fail if the behavior it covers broke; hollow tests that always pass are worse than no tests (they give false confidence)
 
 ## Step 8: Simplify (after tests pass)
 
@@ -248,6 +249,7 @@ Before moving to done, self-check your own work:
 - **Observability:** every new failure path has a structured log at the correct level; no ungated debug logs; no PII in logs
 - **SRE basics:** every external call has an explicit timeout; retry logic uses exponential backoff
 - **Security basics:** no hardcoded secrets; input validated at boundaries; auth checks present on new endpoints
+- **AI failure modes:** review your own diff against `~/.claude/skills/you-got-skills/skills/shared/ai-failure-modes.md` — sequential async, swallowed errors, type escape hatches, incomplete variant coverage, hollow tests
 
 - Confirm changes follow existing architecture — proportional to the problem, not over/under-engineered
 - Check all ways this code can fail: partial failure, concurrent access, large inputs, high throughput

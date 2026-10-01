@@ -116,6 +116,13 @@ Before reviewing, establish context:
 5. Read the PR description fully: what problem is being solved? What approach was chosen?
 6. Read the surrounding code in each changed file to understand existing conventions, abstractions, and patterns before judging any finding
 
+## Hard suppression rules
+
+Never report these as findings — they produce systematic false positives:
+
+- **Defensive null/nil guards:** never suggest removing null checks (`?.`, nil guards, empty-collection fallbacks such as `?? []`, `|| []`) unless you can prove the value is guaranteed non-nil by the type system or an invariant — removing a correct guard causes crashes; the cost of a wrong suggestion here is an incident
+- **Symmetric API pairs:** never flag one half of a create/delete, get/set, open/close, register/unregister pair as dead code — the pair is the design; the unused half will be called by the counterpart operation
+
 ## Step 5: Five-domain review
 
 Apply the quality checklist at **medium** depth — changed code only: `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
@@ -141,6 +148,7 @@ Run all five domains in parallel. Use the finding format from `shared/review-sca
 - **No log interpolation:** log messages must not use string interpolation or template literals inline — use structured fields or format-arg patterns; interpolation prevents log aggregation and causes allocation on every call
 - **DRY / reuse existing abstractions:** check if an equivalent utility, helper, or abstraction already exists in the codebase before accepting a new one — duplicates fragment logic and create drift; do not flag three similar lines as a DRY violation if extracting them would add an abstraction with no second caller
 - **Simplicity:** could this have been done with fewer moving parts? Flag when a simpler design achieves the same goal with less code or fewer abstractions
+- **AI failure modes:** load and apply `~/.claude/skills/you-got-skills/skills/shared/ai-failure-modes.md` — check for all 8 patterns in the diff
 
 ### Domain 2 — Security
 
@@ -165,6 +173,8 @@ Run all five domains in parallel. Use the finding format from `shared/review-sca
 - **DRY / duplication:** is this a reimplementation of logic that already exists elsewhere in the public surface? Flag and point to the existing implementation
 
 ### Domain 4 — SRE concerns
+
+Load `~/.claude/skills/you-got-skills/skills/shared/nfr-checklist.md` and check whether the PR introduces or regresses any of the Reliability, Observability, or Data categories.
 
 - Missing timeouts on network calls, DB queries, or external dependencies
 - No retry logic, or retry storms (exponential backoff missing)
@@ -204,6 +214,7 @@ Before listing individual findings, answer:
 - **Are existing abstractions reused?** Check `shared/`, `utils/`, and related modules before accepting a new helper as necessary
 
 If the approach is fundamentally wrong, that is the first and most important finding — individual code issues are irrelevant if the direction is bad.
+- **Stability risk:** for each changed file, check `git log --oneline -20 -- <file>` to see recent churn. Flag if a file with no changes in 6+ months is being modified by a large diff without a clear justification in the PR description — stable, well-tested code being disrupted unexpectedly is an approach-level concern.
 
 ## Step 7: Verify all findings
 

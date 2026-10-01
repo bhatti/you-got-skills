@@ -68,6 +68,13 @@ For each proposed module/component:
 
 ## Step 5: Operational review
 
+0. **NFR quantitative backing** — Load `~/.claude/skills/you-got-skills/skills/shared/nfr-checklist.md`. Each NFR category must appear in the architecture document with a concrete number or an explicit scope-out with justification. Flag as MUST if any of the following appear without numbers:
+   - "Will scale" with no RPS, user-count, or data-volume figure
+   - "Highly available" with no availability target (e.g., 99.9%)
+   - "Secure" with no named authentication model or threat model
+   - "Observable" with no named metrics, trace points, or alerting thresholds
+   Vague NFRs in an architecture document mean the design cannot be validated against requirements in production.
+
 1. **Failure modes** — For each component: what breaks, blast radius, recovery path
 2. **Stateful components** — Migration path, backwards-compatible schema, data durability
 3. **Dependencies** — External services have timeout/retry/circuit-breaker?

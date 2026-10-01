@@ -46,6 +46,16 @@ For each architectural choice, classify as:
 - Capacity: where does it break under 10x load?
 - Rollback: can this be reversed without data loss?
 
+### NFR traceability
+
+Load `~/.claude/skills/you-got-skills/skills/shared/nfr-checklist.md`. For each NFR category in the linked PRD:
+
+- Is there a named component, module, or design decision in the TRD that satisfies it?
+- If the PRD NFR was vague ("must be fast"), does the TRD make it concrete and measurable?
+- Are NFRs absent from the PRD but required by the design called out explicitly as TRD-level additions?
+
+A TRD that cannot map each PRD NFR to a design decision is architecturally incomplete — it may describe a working system that does not satisfy its requirements.
+
 ## Step 4: Risk assessment
 
 - Single points of failure?

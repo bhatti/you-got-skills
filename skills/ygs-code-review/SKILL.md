@@ -46,6 +46,7 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 6. **Enum completeness** — New enum values traced through ALL consumers
 7. **Partial failure** — What if operation half-succeeds? Inconsistent state possible?
 8. **Scalability** — Unbounded allocations, N+1 patterns, behavior under millions of requests or large data
+9. **AI failure modes** — Load `~/.claude/skills/you-got-skills/skills/shared/ai-failure-modes.md` and apply all 8 patterns to the diff
 
 ## Step 5: Pass 2 — Design & maintainability
 
@@ -54,7 +55,7 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 3. **Testing quality** — Tests verify public contract via real method calls? Assertions are data-driven (no hunches)?
 4. **Immutability & state** — Mutable state minimized? Invalid states representable? State machine appropriate?
    Reference: `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` for the full checklist.
-5. **Type safety** — Sum types / enums for variants? Parse-don't-validate at boundaries?
+5. **Type safety** — Sum types / enums for variants? Parse-don't-validate at boundaries? No use of the language's type escape hatch (`any`, `interface{}`, dynamic typing) where a proper type is feasible?
 6. **Naming** — Clear, consistent, intention-revealing; no underscores for private methods
 7. **Complexity** — Could it be simpler? Unnecessary abstractions? Proportional to the problem?
 8. **Duplication** — Does existing code already do this?
