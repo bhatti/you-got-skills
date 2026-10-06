@@ -471,14 +471,17 @@ Write to `reports/skill_improvements.json`:
       "skill_name": "<skill name, e.g. ygs-security-review>",
       "action": "update|create",
       "file_path": "<path to skill file>",
-      "reason": "<gap that motivated the change>",
-      "changes": "<what to add or modify>"
+      "description": "<one-line summary of the change for PR body>",
+      "reason": "<gap that motivated the change — cite 3+ PR numbers here>",
+      "content_to_add": "<for action=update ONLY: the NEW section/rule to add — never repeat existing content>",
+      "full_content": "<for action=create ONLY: the complete new file content>"
     }
   ],
   "new_docs": [
     {
       "path": "<path to new doc, e.g. .claude/skills/gotchas/spec-template.md>",
-      "content": "<proposed content summary>",
+      "description": "<one-line summary for PR body>",
+      "content": "<complete file content>",
       "reason": "<gap that motivated the doc>"
     }
   ],
@@ -493,6 +496,15 @@ Write to `reports/skill_improvements.json`:
   ]
 }
 ```
+
+**CRITICAL rules for `content_to_add` and `full_content`:**
+
+1. **GENERALIZE all content.** Write rules for future developers, not incident reports about specific PRs. PR numbers belong in `reason`, NEVER in the rule/skill text.
+   - BAD: "PR #49628 had a missing null check in the auth handler"
+   - GOOD: "Always validate nullable fields before dereferencing, especially in authentication paths"
+2. For `action=update`: put ONLY the new section/rule in `content_to_add`. Read the existing file first — never duplicate what is already there. Set `full_content` to null.
+3. For `action=create`: put the complete new file in `full_content`. Set `content_to_add` to null.
+4. Every rule must be actionable by any developer on any future PR — no references to specific PR numbers, author names, or one-time incidents in the content.
 
 ---
 
