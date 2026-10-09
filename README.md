@@ -237,9 +237,26 @@ Any skill can be run against any repo from Slack using the `skill` command:
 @bot skill ygs-security-review --repo https://github.com/org/repo --branch release-2.0
 @bot skill ygs-investigate -- investigate flaky test JIRA-123
 @bot skill ygs-qa myapp -- run E2E tests
+@bot skill ygs-qa myapp --branch main --dind -- spin up containers and run tests
 ```
 
-Positional shorthand: first word after skill = repo, first number = PR/issue ID. Flags: `--repo`, `--branch`, `--tracker`, `--model`, `--service`, `-- <instructions>`. Repo names are expanded using org config. See [ai-dev-tools](https://github.com/bhatti/ai-dev-tools) for details.
+Positional shorthand: first word after skill = repo, first number = PR/issue ID. Flags: `--repo`, `--branch`, `--tracker`, `--model`, `--service`, `--dind`, `-- <instructions>`. Repo names are expanded using org config. See [ai-dev-tools](https://github.com/bhatti/ai-dev-tools) for details.
+
+**Flags reference:**
+
+| Flag | Description |
+|------|-------------|
+| `--repo <url\|name>` | Repo URL or short name (expanded via org config) |
+| `--branch <name>` | Branch to check out (default: main/dev from org config) |
+| `--tracker github\|jira` | Force tracker type |
+| `--model <id\|shortname>` | Override Claude model (haiku, sonnet, opus, or full model ID) |
+| `--turns <n>` | Max Claude turns (default: MAX_TURNS_ADHOC) |
+| `--service <image:tag>` | Start a sidecar container; skill accesses it at `localhost:$SERVICE_PORT` |
+| `--service-port <port>` | Port for the service sidecar (default: 9000) |
+| `--service-cmd <cmd>` | Override sidecar entrypoint command |
+| `--service-args <args>` | Extra args appended to the sidecar command |
+| `--dind` | Enable Docker-in-Docker: start a Docker daemon sidecar, set `DOCKER_HOST=tcp://localhost:2375`. Use for skills that build or run containers (e.g. qa-regression, integration tests). |
+| `-- <text>` | Additional instructions passed verbatim to the skill |
 
 ## Shared Modules
 
