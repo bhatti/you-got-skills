@@ -83,6 +83,9 @@ Read each specialist reference file:
 Also read the shared sloppiness reference (loaded by the sloppiness specialist — no need to re-read):
 - `~/.claude/skills/you-got-skills/skills/shared/sloppiness-metrics.md`
 
+Also read for design-level analysis:
+- `~/.claude/skills/you-got-skills/skills/shared/design-principles.md` — SOLID checklist, package cohesion rules, stability metric formulas (I, A, D), hotspot coupling analysis. The architecture specialist uses this.
+
 ### 1d. Read pre-computed git statistics
 The runner has already computed git statistics and placed them in the **Repository Analysis Data** block in the prompt. Use that data as your primary quantitative source. For any statistic not in the pre-computed data, run git commands directly.
 
@@ -234,6 +237,9 @@ Mention if any dimension came back clean.]
 | Erosion score | X.XX | <0.40 healthy · 0.40-0.55 warning · >0.55 high (AI avg: 0.68) | 🟢/🟡/🔴 | `Σ(CC(f)>10) mass(f) / Σ mass(f)` where `mass(f) = CC(f) × √SLOC(f)`. Measures what fraction of the codebase lives in dense, hard-to-test functions. AI code averages 0.68; established repos 0.31. |
 | High-mass functions (CC>10) | N | 0 ideal | 🟢/🟡/🔴 | Functions where cyclomatic complexity exceeds 10. Each branch needs a test; CC>15 is virtually untestable. |
 | Churn × CC hotspots | N | 0 ideal (high churn + CC>10) | 🟢/🟡/🔴 | Files in the "risky quadrant": both frequently changed AND containing high-CC functions. Highest defect probability in the codebase. |
+| Avg instability score (I) | 0.x | < 0.5 healthy · 0.5–0.7 warning · > 0.7 concern | 🟢/🟡/🔴 | Mean instability I = Ce/(Ca+Ce) across non-leaf, non-test modules. I > 0.7 for core/shared modules means high outbound coupling — changes propagate widely. See `shared/design-principles.md` Section 3 for detection commands. |
+| ADP cycle count | N | 0 | 🟢/🔴 | Number of confirmed circular dependency groups. Any cycle is a MUST-fix: they prevent independent module testing, create compilation order issues, and block incremental deployment. |
+| SRP violations (confirmed) | N | 0 ideal | 🟢/🟡/🔴 | Modules/classes with confirmed SRP violations: god objects, classes with unrelated public concerns, "and/manager/handler" names covering multiple domains. See `shared/design-principles.md` Section 1. |
 | Commits analyzed | N | — | — | Sample size for all metrics above. |
 
 ---
@@ -278,7 +284,10 @@ Write to `reports/audit_findings.json`:
     "verbosity_ratio": 0.0,
     "erosion_score": 0.0,
     "high_mass_functions": 0,
-    "churn_complexity_hotspots": 0
+    "churn_complexity_hotspots": 0,
+    "avg_instability_score": 0.0,
+    "adp_cycle_count": 0,
+    "solid_srp_violations": 0
   }
 }
 ```

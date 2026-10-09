@@ -406,6 +406,9 @@ Identify and report these cross-cutting patterns:
 | Sensitive path review coverage | X% | 100% target / <80% = HIGH gap | | % of PRs touching auth/security/billing/infra paths that had a dedicated security review (skill invocation or security-tagged reviewer). |
 | Verbosity accumulation rate | X% | <10% healthy / 10-25% warning / >25% problem | | % of PRs where reviewers flagged verbosity signals (search comments for: "trivial", "delegates to", "wrapper", "redundant", "simplify") OR LOC delta >300 with no new tests. High = codebase is accumulating structural bloat across the sprint. |
 | Complexity creep (large-fn PRs) | N | 0 ideal | | Count of PRs that introduced functions visibly >50 lines (proxy for CC>10) with no decomposition comment or follow-up ticket. Cross-reference with `shared/sloppiness-metrics.md` CC thresholds. |
+| SOLID violation rate | X/PR | < 0.5/PR healthy · 0.5–1.5 warning · > 1.5 gap | 🟢/🟡/🔴 | Average SOLID violations (SRP/DIP/ISP) per merged PR. Counts confirmed violations from `[DESIGN]` findings. Zero violations per PR is ideal — rising rate signals architectural drift. |
+| Hotspot coupling count | N | 0 ideal | 🟢/🟡/🔴 | Files that are both top-churn hotspots (top 20% by commit count) AND have estimated I > 0.5. These are the highest-risk files: frequently modified AND widely depended upon. See `shared/design-principles.md` Section 4. |
+| Avg readability score | X/10 | > 7 healthy · 5–7 warning · < 5 gap | 🟢/🟡/🔴 | Average readability score across PRs that included a readability assessment. Score 0–10 from 5 sub-dimensions (scannability, locality, abstraction consistency, progressive disclosure, predictability). Write N/A if readability was not scored this audit run. |
 | PRs analyzed | N | — | — | Sample size for all metrics above. |
 
 ---
@@ -456,7 +459,10 @@ Write to `reports/pr_audit_findings.json`:
     "rubber_stamp_rate": 0.0,
     "revert_followup_rate": 0.0,
     "verbosity_accumulation_rate": 0.0,
-    "complexity_creep_pr_count": 0
+    "complexity_creep_pr_count": 0,
+    "solid_violation_rate": 0.0,
+    "hotspot_coupling_count": 0,
+    "avg_readability_score": 0.0
   }
 }
 ```

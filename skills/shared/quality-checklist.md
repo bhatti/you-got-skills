@@ -302,6 +302,43 @@ All AI reports (pr-audit, mq/merge-queue, gate-review/scope, code-audit) use a *
 
 ---
 
+---
+
+## 10. Design Principles (SOLID, Package Cohesion, Stability)
+
+**Reference:** `~/.claude/skills/you-got-skills/skills/shared/design-principles.md` — SOLID checklist,
+package cohesion rules (CCP, CRP, REP), stability metrics (I, A, D formulas), hotspot coupling analysis,
+and readability dimension with scoring.
+
+**Reference:** `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md` — canonical
+8-row Design Quality Metrics table that all skills must emit in their report output.
+
+Summary of what each skill does with these:
+
+| Skill | Design principles applied | Metrics table emitted? |
+|-------|--------------------------|----------------------|
+| `ygs-gate-review` | SOLID + readability on diff | Yes — Step 2e, before findings.json |
+| `ygs-code-review` | SOLID + readability on diff | Yes — Step 7.5, before fix-first section |
+| `ygs-review-deep` | Architecture specialist + design-principles.md | Yes — Phase 3 synthesis |
+| `ygs-pr-audit` | Aggregate SOLID violation rates across N PRs | As 3 new Metrics Dashboard rows |
+| `ygs-codebase-audit` | Stability analysis (Ce/Ca/I) + SOLID via architecture specialist | As 3 new Metrics Dashboard rows |
+
+**New Metrics Dashboard rows added to code-audit (via `shared/quality-checklist.md`):**
+- `avg_instability_score` — mean I across non-leaf modules (benchmark: < 0.5)
+- `adp_cycle_count` — number of cyclic dependency groups (benchmark: 0)
+- `solid_srp_violations` — files with confirmed SRP violations (benchmark: 0 ideal)
+
+**New Metrics Dashboard rows added to pr-audit:**
+- `solid_violation_rate` — SOLID violations per PR (benchmark: < 0.5/PR)
+- `hotspot_coupling_count` — files that are both churn hotspots AND high-instability (benchmark: 0 ideal)
+- `avg_readability_score` — average readability score across reviewed PRs (benchmark: > 7)
+
+At **deep** depth: apply SOLID checklist per changed class/module; estimate I from import counts; score readability per changed function.
+At **aggregate** depth: count SOLID violation rates and instability scores across files/PRs.
+At **light** depth: flag only obvious SRP violations (god classes, "and" in class name) and confirmed ADP cycles.
+
+---
+
 ## Checklist Application by Skill
 
 ### ygs-implement self-review (after tests pass, before marking done)

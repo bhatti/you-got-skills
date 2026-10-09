@@ -70,12 +70,75 @@ npx madge --circular --extensions ts,js src/ 2>/dev/null | head -20
 - Existing entity and ID types used consistently — no ad-hoc construction or parsing where a canonical form already exists in the codebase
 - No stringly-typed parameters where a typed enum or newtype would serve
 
+## SOLID scan
+
+Read `~/.claude/skills/you-got-skills/skills/shared/design-principles.md` (Section 1) for the full SOLID
+checklist, violation signals, and severity table. Apply to each class/module touched in the diff:
+
+- **SRP**: does this change give a class/module more than one distinct reason to change?
+  Look for: unrelated public methods grouped together, constructor taking 5+ unrelated dependencies,
+  class name containing "and" or "manager" or "handler" that does everything.
+- **OCP**: does the new behaviour require editing an existing class instead of extending it?
+  Look for: new `if type == X` branches added to core logic, switch statements on type enums growing.
+- **LSP**: does a subclass weaken a precondition or strengthen a postcondition?
+  Look for: overridden method that raises `NotImplementedError` or ignores a required parameter.
+- **DIP**: does a high-level module import a concrete low-level type directly?
+  Look for: domain/service layer importing from `infra.*`, `db.*`, `storage.*`, `adapter.*` directly.
+- **ISP**: does an interface force implementors to stub unrelated methods?
+  Look for: interface with 8+ methods where diff's caller only calls 2–3 of them.
+
+## Package stability
+
+Read `~/.claude/skills/you-got-skills/skills/shared/design-principles.md` (Sections 2–3) for package
+cohesion rules (CCP, CRP, REP) and stability metric formulas (I, A, D).
+
+For each module changed in the diff, estimate:
+1. **Ce** — count distinct external modules it imports (grep `^from|^import` for Python; `import "` for Go)
+2. **Ca** — count distinct modules that import it (grep for the module name in sibling modules)
+3. **I** = Ce / (Ca + Ce)
+
+Flag:
+- I > 0.7 for a shared/core module → SHOULD (too many outbound deps, too fragile)
+- A stable module (I < 0.3) that is fully concrete (no interfaces) → SHOULD (SAP violation — zone of pain)
+- Any confirmed ADP cycle → MUST
+
+For **hotspot coupling**: cross-reference with churn data per `shared/design-principles.md` Section 4.
+If a changed file is both a top-churn file AND has I > 0.5, flag `[ARCH] Hotspot coupling` as SHOULD.
+
+```bash
+# Quick Ce estimate for a changed Python module
+MODULE_DIR="<path/to/changed/module>"
+grep -rn "^from\|^import" "${MODULE_DIR}/" --include="*.py" 2>/dev/null \
+  | awk '{print $2}' | cut -d'.' -f1 | sort -u \
+  | grep -v "__\|test" | wc -l
+
+# Quick Ca estimate
+MODULE=$(basename "${MODULE_DIR}")
+grep -rn "from ${MODULE}\b\|import ${MODULE}\b" \
+  --include="*.py" --include="*.go" --include="*.ts" . 2>/dev/null \
+  | grep -v "${MODULE_DIR}/" | awk -F: '{print $1}' | xargs -I{} dirname {} | sort -u | wc -l
+```
+
+## Design Quality Metrics table
+
+At end of this specialist pass, emit the **Design Quality Metrics table** from
+`~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md`.
+Fill in values for: SRP violations, DIP violations, cyclic deps (ADP), layer violations,
+avg instability (I), hotspot coupling, readability score (if scored in maintainability pass), ISP fat interfaces.
+
 ## Severity guidance
 
 | Severity | Example |
 |----------|---------|
-| MUST | New circular dependency, dependency direction inversion |
+| MUST | New circular dependency (ADP violation), dependency direction inversion |
 | MUST | Business logic in SDK/wrapper layer instead of framework |
+| MUST | DIP violation: domain layer importing concrete infrastructure type |
+| MUST | LSP violation: subclass raises NotImplementedError on inherited method |
+| SHOULD | SRP violation: class/module has 2+ distinct change reasons |
 | SHOULD | Abstraction with a single consumer, shallow pass-through module |
 | SHOULD | New pattern introduced without precedent or explanation |
+| SHOULD | I > 0.7 for a core/shared module (too many outbound deps) |
+| SHOULD | SAP violation: I < 0.3 (stable) + A ≈ 0 (fully concrete) — zone of pain |
+| SHOULD | ISP violation: fat interface forcing stubbed unrelated methods |
+| SHOULD | Hotspot coupling: high-churn file with I > 0.5 |
 | MAY | Minor naming inconsistency with surrounding code |

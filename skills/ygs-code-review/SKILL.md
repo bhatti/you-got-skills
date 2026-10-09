@@ -59,7 +59,10 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 6. **Naming** — Clear, consistent, intention-revealing; no underscores for private methods
 7. **Complexity** — Could it be simpler? Unnecessary abstractions? Proportional to the problem?
 8. **Duplication** — Does existing code already do this?
-9. **Interface design** — Deep modules (small interface, rich implementation)? CQS respected? Encapsulation intact?
+9. **Design principles** — Read `~/.claude/skills/you-got-skills/skills/shared/design-principles.md` and apply:
+   - SOLID: SRP (single reason to change?), OCP (extends not modifies?), DIP (no concrete deps in domain?), ISP (no fat interfaces?), LSP (subclass contracts intact?)
+   - Deep modules: small interface + rich implementation (high leverage)? CQS respected? Encapsulation intact?
+   - Readability: score changed functions on 5 sub-dimensions (scannability, locality, abstraction consistency, progressive disclosure, predictability); avg / 10
 10. **Performance** — N+1 queries, missing indexes, O(n²) in loops, unbounded allocations
 11. **Error handling** — Errors as values? Propagated with context? No interpolation in log messages?
 12. **Boundary handling** — Empty inputs, max limits, coercion at system boundaries
@@ -72,6 +75,26 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 Follow `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` for the full testing discipline checklist.
 
 ## Step 7: Proportionality check
+
+## Step 7.5: Design Quality Metrics table
+
+Read `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md` and emit the canonical
+8-row table using values gathered from Pass 2 item 9 and Pass 1 item 0 above:
+
+```markdown
+## Design Quality Metrics
+
+| Principle | Score | Benchmark | Signal | Notes |
+|-----------|-------|-----------|--------|-------|
+| SRP violations | N | 0 ideal | 🟢/🟡/🔴 | file:line or "none found" |
+| DIP violations | N | 0 ideal | 🟢/🟡/🔴 | concrete dep in domain, or "none found" |
+| Cyclic deps (ADP) | N | 0 | 🟢/🔴 | cycle pair or "none detected" |
+| Layer violations | N | 0 ideal | 🟢/🟡/🔴 | wrong-direction import or "none" |
+| Avg instability (I) | 0.x | < 0.5 (core) | 🟢/🟡/🔴 | module name or "N/A" |
+| Hotspot coupling | N files | 0 ideal | 🟢/🟡/🔴 | file name or "none" |
+| Readability score | N/10 | > 7 | 🟢/🟡/🔴 | weakest sub-dimension or "all good" |
+| ISP / fat interface | N | 0 ideal | 🟢/🟡/🔴 | interface name or "none found" |
+```
 
 - Is the change proportional to the problem?
 - Over-engineered for the use case? (abstraction without multiple consumers)

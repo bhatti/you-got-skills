@@ -56,7 +56,7 @@ Follow the diff protocol from `shared/review-scaffold.md`. Then classify each ch
 |-----------|----------------|---------------------|
 | Logic | `specialists/logic.md` | Any new logic, conditionals, error paths |
 | Security | `specialists/security.md` | Auth, data handling, external input, new endpoints |
-| Architecture | `specialists/architecture.md` | New modules, imports, abstractions, cross-module changes |
+| Architecture | `specialists/architecture.md` + `shared/design-principles.md` | New modules, imports, abstractions, cross-module changes; SOLID violations; package stability |
 | Performance | `specialists/performance.md` | Loops, DB queries, network calls, caches, hot paths |
 | Testing | `specialists/testing.md` | Any test file added or changed; any logic without test changes |
 | Observability | `specialists/observability.md` | Logging, metrics, tracing, error handling, new code paths |
@@ -107,6 +107,22 @@ For each active dimension, collect findings tagged `[DIM]` (e.g., `[SECURITY]`, 
 5. Write `reports/review.md` with a structured summary:
    - One-paragraph overall assessment (approach-level verdict first)
    - Table: dimension → finding count by severity
+   - **Design Quality Metrics table** — read `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md`
+     and emit the canonical 8-row table using values from the Architecture specialist pass (Step 2e above).
+     Place this table immediately after the dimension-count table, before the ranked findings list.
+     ```markdown
+     ## Design Quality Metrics
+     | Principle | Score | Benchmark | Signal | Notes |
+     |-----------|-------|-----------|--------|-------|
+     | SRP violations | N | 0 ideal | 🟢/🟡/🔴 | file:line or "none found" |
+     | DIP violations | N | 0 ideal | 🟢/🟡/🔴 | concrete dep in domain, or "none found" |
+     | Cyclic deps (ADP) | N | 0 | 🟢/🔴 | cycle pair or "none detected" |
+     | Layer violations | N | 0 ideal | 🟢/🟡/🔴 | wrong-direction import or "none" |
+     | Avg instability (I) | 0.x | < 0.5 (core) | 🟢/🟡/🔴 | module name or "N/A" |
+     | Hotspot coupling | N files | 0 ideal | 🟢/🟡/🔴 | file name or "none" |
+     | Readability score | N/10 | > 7 | 🟢/🟡/🔴 | weakest sub-dimension or "all good" |
+     | ISP / fat interface | N | 0 ideal | 🟢/🟡/🔴 | interface name or "none found" |
+     ```
    - Full findings list, ranked as **feedback, suggestions, and questions**
 
 ---

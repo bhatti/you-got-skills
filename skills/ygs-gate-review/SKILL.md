@@ -68,6 +68,34 @@ Apply the blast radius and risk model from `shared/merge-queue-metrics.md`:
 - **API surface changes**: any public API, endpoint, or contract changed?
 - **SRE concerns**: timeout values, retry logic, connection pooling, resource limits?
 
+### 2e. Design Principles Analysis
+
+Read `~/.claude/skills/you-got-skills/skills/shared/design-principles.md`.
+
+Apply to the diff:
+
+1. **SOLID** — check each principle against every class/module touched:
+   - SRP: does any changed module now have >1 distinct reason to change?
+   - OCP: does the new behaviour require editing existing classes? (new `if type==X` chain?)
+   - LSP: does any subclass weaken a precondition or strengthen a postcondition?
+   - DIP: does any high-level module now import a concrete low-level type?
+   - ISP: does any interface force unrelated implementors to stub methods?
+
+2. **Stability estimate** — for each changed module:
+   - Estimate Ce (outbound imports) and Ca (inbound imports) using grep
+   - Compute I = Ce / (Ca + Ce)
+   - Flag if I > 0.7 for a shared/core module or if stable module is fully concrete (SAP)
+
+3. **Hotspot check** — is the changed file a top-churn file?
+   ```bash
+   git log --oneline --name-only -50 -- <changed_file> 2>/dev/null | grep -v "^[0-9a-f]" | wc -l
+   ```
+   If > 20 touches AND I > 0.5 → flag hotspot coupling.
+
+4. **Readability score** — for each changed function, score 5 sub-dimensions (0–2 each):
+   scannability, locality of information, abstraction consistency, progressive disclosure, predictability.
+   Sum / 10 = readability score. Report average across changed functions.
+
 ### 2d. Category-specific deep dive
 
 Based on the primary file category (from file paths):
@@ -92,6 +120,22 @@ Based on the primary file category (from file paths):
 ## Key Risks
 <risks by category with diff evidence. "No risks" is only valid if you explicitly checked each category above>
 
+## Design Quality Metrics
+
+Read `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md` and emit the
+canonical 8-row table here. Fill in values from Step 2e analysis.
+
+| Principle | Score | Benchmark | Signal | Notes |
+|-----------|-------|-----------|--------|-------|
+| SRP violations | N | 0 ideal | 🟢/🟡/🔴 | file:line or "none found" |
+| DIP violations | N | 0 ideal | 🟢/🟡/🔴 | concrete dep in domain, or "none found" |
+| Cyclic deps (ADP) | N | 0 | 🟢/🔴 | cycle pair or "none detected" |
+| Layer violations | N | 0 ideal | 🟢/🟡/🔴 | wrong-direction import or "none" |
+| Avg instability (I) | 0.x | < 0.5 (core) | 🟢/🟡/🔴 | module name or "N/A" |
+| Hotspot coupling | N files | 0 ideal | 🟢/🟡/🔴 | file name or "none" |
+| Readability score | N/10 | > 7 | 🟢/🟡/🔴 | weakest sub-dimension or "all good" |
+| ISP / fat interface | N | 0 ideal | 🟢/🟡/🔴 | interface name or "none found" |
+
 ## Verdict
 APPROVE | REQUEST_CHANGES | COMMENT — <1 sentence rationale>
 ```
@@ -102,6 +146,16 @@ APPROVE | REQUEST_CHANGES | COMMENT — <1 sentence rationale>
 {
   "pr_url": "<pr_url_or_number>",
   "verdict": "APPROVE | REQUEST_CHANGES | COMMENT",
+  "design_metrics": {
+    "srp_violations": 0,
+    "dip_violations": 0,
+    "adp_cycles": 0,
+    "layer_violations": 0,
+    "avg_instability": 0.0,
+    "hotspot_coupling": false,
+    "readability_score": 0,
+    "isp_violations": 0
+  },
   "findings": [
     {
       "severity": "CRITICAL | HIGH | MEDIUM | LOW",
