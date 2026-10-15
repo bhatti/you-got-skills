@@ -155,7 +155,8 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-qa` | QA testing with health scoring and issue taxonomy |
+| `/ygs-qa` | QA testing with health scoring. Local diff by default; given a PR/issue it derives test cases from the acceptance criteria, runs API (curl) and UI (Playwright) checks against a URL, container or built ref, and in `--mode regression` compares baseline vs candidate |
+| `/ygs-flaky-test` | Flaky-test detect + prove + diagnose: smart reruns with Wilson-interval verdicts, order-pollution bisection, runtime/static cause signatures. Works for GitHub and Bitbucket/Jira tickets; never changes code |
 | `/ygs-uat` | User acceptance testing from customer perspective |
 | `/ygs-test-impact` | Test impact analysis: map changed files to affected tests via naming conventions and import graphs, partition into balanced shards, report coverage gaps |
 | `/ygs-build-optimize` | CI pipeline optimization: detect platform, profile step timings, suggest concrete config changes for parallelization, caching, sharding, sparse checkout |
@@ -238,7 +239,12 @@ Any skill can be run against any repo from Slack using the `skill` command:
 @bot skill ygs-investigate -- investigate flaky test JIRA-123
 @bot skill ygs-qa myapp -- run E2E tests
 @bot skill ygs-qa myapp --branch main --dind -- spin up containers and run tests
+@bot skill ygs-qa https://github.com/org/repo/pull/12 --url https://staging.example.com
+@bot skill ygs-qa https://bitbucket.org/ws/repo/pull-requests/12 --mode regression --baseline-url https://prod.example.com --url https://pr-12.example.com
+@bot skill ygs-flaky-test https://github.com/org/repo/issues/42
 ```
+
+A GitHub PR/issue URL or a Bitbucket PR URL as the first argument names the repository (no `--repo` needed). A bare Jira key (`ABC-123`) becomes the identifier; a test path or ticket text without a URL goes after `--` or with `--repo`. `ygs-qa --image/--compose` needs `--dind`.
 
 Positional shorthand: first word after skill = repo, first number = PR/issue ID. Flags: `--repo`, `--branch`, `--tracker`, `--model`, `--service`, `--dind`, `-- <instructions>`. Repo names are expanded using org config. See [ai-dev-tools](https://github.com/bhatti/ai-dev-tools) for details.
 
@@ -255,7 +261,7 @@ Positional shorthand: first word after skill = repo, first number = PR/issue ID.
 | `--service-port <port>` | Port for the service sidecar (default: 9000) |
 | `--service-cmd <cmd>` | Override sidecar entrypoint command |
 | `--service-args <args>` | Extra args appended to the sidecar command |
-| `--dind` | Enable Docker-in-Docker: start a Docker daemon sidecar, set `DOCKER_HOST=tcp://localhost:2375`. Use for skills that build or run containers (e.g. qa-regression, integration tests). |
+| `--dind` | Enable Docker-in-Docker: start a Docker daemon sidecar, set `DOCKER_HOST=tcp://localhost:2375`. Use for skills that build or run containers (e.g. `ygs-qa --image`, integration tests); the job is BLOCKED early when no daemon is reachable. |
 | `-- <text>` | Additional instructions passed verbatim to the skill |
 
 ## Shared Modules
@@ -275,6 +281,8 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/ears-patterns.md` | EARS requirement patterns reference (six temporal forms) |
 | `shared/functional-design.md` | Functional design principles and anti-patterns checklist |
 | `shared/init.md` | Step 1 bootstrap for team-intelligence skills: config load + credential verify |
+| `shared/evidence-rules.md` | Evidence bar for QA and flaky-test work: outcome vocabulary, zero-tests-is-never-pass, infra vs product failures, citation and redaction rules |
+| `shared/pr-context.md` | Fetch a PR + linked issues + acceptance criteria + diff for GitHub and Bitbucket/Jira, with untrusted-input rules — referenced by review-pr, qa, flaky-test |
 | `shared/output-format.md` | Slack-compatible bullet-row format enforced by standup/risk-scan |
 | `shared/ownership-principles.md` | Senior engineer mindset: trust nothing, verify everything, judgment over obedience |
 | `shared/refine-scaffold.md` | Common one-question-at-a-time protocol for all refine skills |

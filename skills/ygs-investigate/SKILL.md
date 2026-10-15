@@ -162,7 +162,7 @@ Or **BLOCKED** if root cause cannot be determined (explain what was tried and wh
 | "I can't build a feedback loop for this one" | Building the loop IS the skill. List what you tried and what would unblock before giving up. |
 | "The user's description is accurate" | They may be reporting a symptom, misidentifying the component, or describing expected behavior as broken. Verify the premise. |
 | "A quick patch now, proper fix later" | Patches without root cause analysis introduce second-order bugs. "Later" rarely comes. |
-| "It passed in CI once, so it's a flaky test" | Retry once. If it still fails, it's not flaky. |
+| "It passed in CI once, so it's a flaky test" | One result proves nothing either way. Run `/ygs-flaky-test` to measure it. |
 | "I need to understand all the code before building a loop" | Build the smallest possible loop first; understanding follows from running it. |
 
 ---
@@ -182,6 +182,6 @@ When the bug is a CI/pipeline failure rather than a code bug, apply the same pha
 - Focus on: unexpected exit codes, assertion failures with actual vs expected, timeout messages, OOM kills
 
 **Flaky test detection:**
-- If the same test passes on retry without code changes, it's flaky
+- Do not conclude from one retry: measure with `/ygs-flaky-test` (repeated runs, failure rate, likely causes)
 - Common flaky causes: timing dependencies, shared mutable test state, network calls in unit tests, filesystem ordering assumptions
 - Flag as flaky, don't chase as a real bug unless user confirms it's consistent

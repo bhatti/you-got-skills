@@ -261,7 +261,7 @@ echo "::add-task-context CLONE_TYPE::<sparse|full>"
 
 ### C2: Run analysis
 
-**Flaky test detection** — run N times, collect pass/fail:
+**Flaky test detection** — prefer `/ygs-flaky-test` (smart reruns, statistics, cause signatures). Fallback when it is unavailable: run N times, collect pass/fail:
 ```bash
 RUNS=10; PASS=0; FAIL=0; ERRORS=""
 for i in $(seq 1 $RUNS); do

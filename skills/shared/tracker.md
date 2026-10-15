@@ -57,7 +57,7 @@ fi
 ### `.ygs/tracker.yml` schema (canonical — example file references this)
 
 ```yaml
-tracker: github              # github | jira
+tracker: github              # github | jira | bitbucket (PR fetch recipes: shared/pr-context.md)
 
 github:
   org: myorg                 # defaults to current repo owner

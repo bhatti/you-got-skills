@@ -67,7 +67,7 @@ State the type before proceeding — the fix path differs per type.
    ```
 2. Look for timing patterns (`sleep`, fixed port, wall-clock dependency, non-deterministic map/set ordering)
 3. Look for shared mutable state between tests
-4. If confirmed flaky: skip the test at the framework level (e.g., `@pytest.mark.skip`, `#[ignore]`, `it.skip()`, `t.Skip()`), file a task to fix the root cause, and re-run CI to unblock
+4. Prove it with `/ygs-flaky-test` (reruns with statistics; one green rerun proves nothing). Skipping or quarantining the test is the owner's decision, not part of triage; file a task for the root cause instead of re-running CI as the fix
 
 ## Step 4: Fix (test failures and build errors only)
 
