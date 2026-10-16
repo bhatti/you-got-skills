@@ -56,7 +56,7 @@ Copy this verbatim into the report output section. Replace `<…>` with actual v
 
 | Skill | Score column meaning | Notes column |
 |-------|---------------------|-------------|
-| `ygs-gate-review` | Count of violations in diff | Cite file:line from diff |
+| `ygs-pr-risk` | Count of violations in diff | Cite file:line from diff |
 | `ygs-code-review` | Count of violations in diff | Cite file:line from diff |
 | `ygs-review-deep` | Count across all active dimensions | Dimension tag in parentheses |
 | `ygs-pr-audit` | Rate per PR across N PRs analyzed | "X of N PRs had this violation" |
@@ -84,7 +84,7 @@ canonical table.
 
 | Skill | Placement |
 |-------|-----------|
-| `ygs-gate-review` | After "Key Risks" section, before `findings.json` |
+| `ygs-pr-risk` | After "Key Risks" section, before `findings.json` |
 | `ygs-code-review` | After Step 7 (Proportionality check), before Step 8 (Fix-first) |
 | `ygs-review-deep` | Phase 3: after dimension-count table, before ranked findings |
 | `ygs-pr-audit` | In Metrics Dashboard section (rows added to existing dashboard) |

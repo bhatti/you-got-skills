@@ -3,7 +3,7 @@
 Single source of truth for SOLID, package cohesion, stability metrics, hotspot coupling, and readability.
 **Do not duplicate these definitions** in individual skills — reference this file instead.
 
-Referenced by: `ygs-gate-review`, `ygs-code-review`, `ygs-review-deep/specialists/architecture.md`,
+Referenced by: `ygs-pr-risk`, `ygs-code-review`, `ygs-review-deep/specialists/architecture.md`,
 `ygs-pr-audit`, `ygs-codebase-audit`, `shared/quality-checklist.md`.
 
 ---

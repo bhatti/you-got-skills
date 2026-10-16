@@ -2,7 +2,7 @@
 
 Canonical quality rules applied across **implement → review → audit → learn**. Skills apply these at different depths — implement/review/self-review go deep per function; audit sweeps at scale across commits/PRs.
 
-**Referenced by:** `ygs-implement`, `ygs-code-review`, `ygs-review-deep`, `ygs-review-pr`, `ygs-gate-review`, `ygs-pr-audit`, `ygs-codebase-audit`, `ygs-learn`.  
+**Referenced by:** `ygs-implement`, `ygs-code-review`, `ygs-review-deep`, `ygs-review-pr`, `ygs-pr-risk`, `ygs-pr-audit`, `ygs-codebase-audit`, `ygs-learn`.  
 **Do not duplicate rules here in individual skills** — reference this file instead.
 
 ---
@@ -227,7 +227,7 @@ At **light** depth: grep-confirm top 2 patterns only.
 
 ## 9. Metrics Dashboard Standard
 
-All AI reports (pr-audit, mq/merge-queue, gate-review/scope, code-audit) use a **single canonical 5-column format**:
+All AI reports (pr-audit, mq/merge-queue, pr-risk/scope, code-audit) use a **single canonical 5-column format**:
 
 ```
 | Metric | Value | Benchmark | Signal | Description |
@@ -296,7 +296,7 @@ All AI reports (pr-audit, mq/merge-queue, gate-review/scope, code-audit) use a *
 - `ygs-pr-audit`: pre-computed rows auto-added by script; Claude-assessed rows appended after Claude writes findings
 - `ygs-merge-queue`: in Valley of Calm section via `report.py`
 - `ygs-codebase-audit`: appended post-Claude via `_read_all_audit_metrics()` + `build_metrics_dashboard([], extra_rows=...)`
-- `gate-review/scope`: included in `report.py` output when lane data available
+- `pr-risk/scope`: included in `report.py` output when lane data available
 
 **Cross-ref:** `shared/merge-queue-metrics.md#metrics-dashboard-5-column--canonical-across-all-reports`
 
@@ -317,7 +317,7 @@ Summary of what each skill does with these:
 
 | Skill | Design principles applied | Metrics table emitted? |
 |-------|--------------------------|----------------------|
-| `ygs-gate-review` | SOLID + readability on diff | Yes — Step 2e, before findings.json |
+| `ygs-pr-risk` | SOLID + readability on diff | Yes — Step 2d, before findings.json |
 | `ygs-code-review` | SOLID + readability on diff | Yes — Step 7.5, before fix-first section |
 | `ygs-review-deep` | Architecture specialist + design-principles.md | Yes — Phase 3 synthesis |
 | `ygs-pr-audit` | Aggregate SOLID violation rates across N PRs | As 3 new Metrics Dashboard rows |

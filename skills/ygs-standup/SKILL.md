@@ -9,6 +9,7 @@ argument-hint: "[@person] [--date <YYYY-MM-DD>]"
 # Standup Brief
 
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md`.
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-metrics.md`.
 
 **Principle:** The meeting is not where you collect information — it's where you make decisions.
 

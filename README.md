@@ -194,7 +194,7 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 | `/ygs-codebase-audit` | Post-merge codebase archaeology: analyze last N commits (default 1000) across 8 dimensions — hotspots, temporal coupling, duplicate abstractions, architecture drift, security, test coverage gaps, commit health, knowledge silos, and **sloppiness** (verbosity ratio, erosion score, churn × complexity hotspots). Metrics dashboard includes benchmark-calibrated thresholds (established repos vs. AI-generated baselines). |
 | `/ygs-pr-audit` | Merged PR gap analysis: audit last N PRs (default 50) for spec gaps (missing acceptance criteria), design gaps (undocumented architecture decisions), skills gaps (findings human reviewers caught that bots missed), and industry practice gaps (oversized PRs, rubber-stamp reviews). Produces a findings report with metrics dashboard (spec coverage %, skill catch rate, human review burden) and a skill_improvements.json proposing concrete skill/doc updates. Includes a verification phase that re-examines every finding against cited PR evidence before reporting. |
 | `/ygs-merge-queue` | Read-only merge queue analysis: group open PRs by scope lane, score blast-radius and risk, flag PRs needing human review. Produces a condensed Slack summary (~600 chars) and a full HTML report artifact. Works for GitHub and Bitbucket repos. |
-| `/ygs-gate-review` | Deep single-PR gate review: problem/solution analysis, code quality assessment, risk dimensions (security, data, API, SRE), blast radius, and structured findings. Read-only — no PR mutations. Alias: `@bot scope <pr>` and `@bot gate-review <pr>` run the same workflow. |
+| `/ygs-pr-risk` | Single-PR risk review: problem/solution analysis, code quality assessment, risk dimensions (security, data, API, SRE), blast radius, and structured findings. Read-only — no PR mutations. `@bot pr-risk <pr>` (alias `@bot scope <pr>`) runs it; the report carries one metrics table (scope, risk, human vs bot comments, tasks, reviewers, commits, major/critical issues). |
 
 **ygs-codebase-audit arguments:** `[<repo-url>] [--commits 1000] [--focus all|architecture|security|tests|duplicates|health|sloppiness] [--target <branch>]`
 
@@ -219,13 +219,13 @@ Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audi
 
 Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url> [--state all]`
 
-**ygs-merge-queue / ygs-gate-review arguments:** `[<pr-url-or-number>]`
+**ygs-merge-queue / ygs-pr-risk arguments:** `[<pr-url-or-number>]`
 
 **Usage:**
 ```bash
 @bot mq [<repo-url>]                      # merge queue analysis for a repo
-@bot gate-review <pr-url-or-number>       # deep single-PR gate review
-@bot scope <pr-url-or-number>             # alias for gate-review
+@bot pr-risk <pr-url-or-number>           # deep single-PR risk review
+@bot scope <pr-url-or-number>             # alias for pr-risk
 ```
 
 ### Generic Skill Invocation (via Formicary)
@@ -283,6 +283,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/init.md` | Step 1 bootstrap for team-intelligence skills: config load + credential verify |
 | `shared/evidence-rules.md` | Evidence bar for QA and flaky-test work: outcome vocabulary, zero-tests-is-never-pass, infra vs product failures, citation and redaction rules |
 | `shared/pr-context.md` | Fetch a PR + linked issues + acceptance criteria + diff for GitHub and Bitbucket/Jira, with untrusted-input rules — referenced by review-pr, qa, flaky-test |
+| `shared/pr-metrics.md` | PR metrics defined once (comments human/bot, tasks, major/critical issues, reviewers incl. bots, commits) and the one-table rendering rule — referenced by pr-risk, pr-audit, merge-queue, review-pr, review-deep, pr-queue, standup |
 | `shared/output-format.md` | Slack-compatible bullet-row format enforced by standup/risk-scan |
 | `shared/ownership-principles.md` | Senior engineer mindset: trust nothing, verify everything, judgment over obedience |
 | `shared/refine-scaffold.md` | Common one-question-at-a-time protocol for all refine skills |

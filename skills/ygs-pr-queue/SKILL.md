@@ -10,6 +10,7 @@ The data is already provided below in the prompt under "Pre-Fetched PR Data".
 DO NOT make any API calls. DO NOT use any tools. Format ONLY the provided data.
 
 Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared row templates.
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-metrics.md`.
 
 ## Output Format — STRICTLY ENFORCED
 

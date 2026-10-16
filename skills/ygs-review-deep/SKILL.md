@@ -6,6 +6,8 @@ argument-hint: "<pr-url-or-number>"
 
 # Deep PR Review
 
+
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-metrics.md`.
 For shared review protocol (severity classification, finding format, verdict mapping), read:
 `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`
 

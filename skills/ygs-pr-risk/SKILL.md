@@ -1,44 +1,37 @@
 ---
-name: ygs-gate-review
-description: "Deep single-PR gate review: problem/solution analysis, code quality, risks, blast radius findings. Read-only — no PR mutations. Alias: @bot scope <pr>."
+name: ygs-pr-risk
+description: "Use when a single PR needs a read-only risk review before merge: what problem it solves, code quality, blast radius, security/API/SRE risks and design principles, with a verdict and findings.json. Never mutates the PR."
 argument-hint: "<pr-url-or-number>"
 ---
 
-# Gate Review — Deep Single-PR Analysis
+# PR Risk — Deep Single-PR Analysis
 
 Read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md`.
 Read `~/.claude/skills/you-got-skills/skills/shared/quality-checklist.md`.
 Read `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md`.
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-context.md`.
 
-**READ-ONLY**: never comments on, labels, or mutates the PR. Pure gate analysis.
+This skill never posts: ignore the "Posting a comment" section of the PR-context module.
 
-**Aliases**: `@bot gate-review <pr>` and `@bot scope <pr>` invoke this same workflow.
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-metrics.md`.
+
+**READ-ONLY**: never comments on, labels, or mutates the PR. Pure risk analysis.
+
+**Aliases**: `@bot pr-risk <pr>` and `@bot scope <pr>` invoke this same workflow.
 
 ---
 
 ## Step 1: Fetch PR diff and metadata
 
-For **GitHub** PRs, run:
-```bash
-gh pr view $PR_NUMBER --repo "$GH_ORG/$GH_REPO" --json title,body,author,createdAt,changedFiles,additions,deletions,labels,baseRefName
-gh pr diff $PR_NUMBER --repo "$GH_ORG/$GH_REPO"
-```
+Use the PR-context module above (GitHub and Bitbucket/Jira): `python3 -m scripts.common.pr_context "<pr>" --out pr-context.json --diff-dir .` gives the title, description, branches, changed files, diff and linked issues. If the repo is already cloned at `$CODEBASE_DIR`, also run `git log --oneline -20` to understand recent context.
 
-For **Bitbucket** PRs, run:
-```bash
-curl -sf "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO/pullrequests/$PR_NUMBER" \
-     -u "$BITBUCKET_USERNAME:$BITBUCKET_TOKEN"
-curl -sf "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO/pullrequests/$PR_NUMBER/diff" \
-     -u "$BITBUCKET_USERNAME:$BITBUCKET_TOKEN"
-```
-
-If the repo is already cloned at `$CODEBASE_DIR`, also run `git log --oneline -20` to understand recent context.
+The report's metrics table (scope, risk, comments by humans and bots, tasks, reviewers, commits) is built by the pipeline from `scope.json` and `pr_signals.json`; do not hand-write a second metrics table. Metric definitions and rendering rules: the PR metrics module above.
 
 ---
 
 ## Step 2: Deep Analysis
 
-Perform all four analysis dimensions. Every claim must cite specific file:line evidence from the diff.
+Perform all five analysis dimensions (2a-2e). Every claim must cite specific file:line evidence from the diff.
 
 ### 2a. Problem / Solution
 
@@ -68,7 +61,7 @@ Apply the blast radius and risk model from `shared/merge-queue-metrics.md`:
 - **API surface changes**: any public API, endpoint, or contract changed?
 - **SRE concerns**: timeout values, retry logic, connection pooling, resource limits?
 
-### 2e. Design Principles Analysis
+### 2d. Design Principles Analysis
 
 Read `~/.claude/skills/you-got-skills/skills/shared/design-principles.md`.
 
@@ -96,7 +89,7 @@ Apply to the diff:
    scannability, locality of information, abstraction consistency, progressive disclosure, predictability.
    Sum / 10 = readability score. Report average across changed functions.
 
-### 2d. Category-specific deep dive
+### 2e. Category-specific deep dive
 
 Based on the primary file category (from file paths):
 - **security/authn_authz**: verify no credential leaks, proper input validation, secure defaults
@@ -122,8 +115,9 @@ Based on the primary file category (from file paths):
 
 ## Design Quality Metrics
 
-Read `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md` and emit the
-canonical 8-row table here. Fill in values from Step 2e analysis.
+Read `~/.claude/skills/you-got-skills/skills/shared/design-metrics-table.md`.
+
+Emit the canonical 8-row table here. Fill in values from Step 2d analysis.
 
 | Principle | Score | Benchmark | Signal | Notes |
 |-----------|-------|-----------|--------|-------|

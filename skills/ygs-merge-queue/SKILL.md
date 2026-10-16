@@ -10,6 +10,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md`.
 Read `~/.claude/skills/you-got-skills/skills/shared/pr-audit-context.md`.
 Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md`.
 Read `~/.claude/skills/you-got-skills/skills/shared/tracker.md`.
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-metrics.md`.
 
 **READ-ONLY**: this skill never merges, labels, or comments on PRs. Pure analysis only.
 
