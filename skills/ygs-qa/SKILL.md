@@ -1,7 +1,7 @@
 ---
 name: ygs-qa
 description: Use when a change is ready for quality validation: verify a PR or issue against its acceptance criteria with API and UI checks, compare a candidate build against a baseline for regressions, or QA a local diff.
-argument-hint: "[<pr-url|issue-key>] [--mode verify|regression] [--url U] [--baseline-url U] [--image I] [--baseline-image I] [--compose F] [--start-cmd C --build-cmd C --baseline-ref R] [--api-only|--ui-only] [--allow-mutations] [--perf] [--local]"
+argument-hint: "[<pr-url|issue-key>] [--url U] [--image I] [--compose F] [--start-cmd C --build-cmd C] [--baseline-url U | --baseline-image I | --baseline-ref R] [--api-only|--ui-only] [--allow-mutations] [--perf] [--local]"
 ---
 
 # QA Testing
@@ -13,9 +13,11 @@ Read `~/.claude/skills/you-got-skills/skills/shared/evidence-rules.md`. Its rule
 
 | Invocation | Mode |
 |------------|------|
-| No PR/issue argument, or `--local` | **Local**: QA the current diff (Steps L1-L7) |
-| PR URL, issue key or issue URL | **Verify**: derive tests from the acceptance criteria, run them against `--url` or a started environment |
-| Same plus `--mode regression` | **Regression**: run the same tests on a baseline and the candidate, report the delta |
+| No PR/issue argument, or `--local` | **Local**: QA the current diff (Steps L1-L7). Baseline flags are ignored here, and the run says so |
+| PR URL, issue key or issue URL, **no baseline** | **Verify**: derive tests from the acceptance criteria, run them against the candidate (`--url` or a started environment) and judge only that |
+| PR/issue plus a baseline: `--baseline-url`, `--baseline-image` or `--baseline-ref` | **Regression**: verify the candidate as above, and run the same tests on the baseline, then report the delta |
+
+The baseline is optional and decides the mode; it is never inferred (to compare against the PR's target branch, pass `--baseline-ref <that branch>`).
 
 The tooling is in ai-dev-tools (`scripts/qa`, `scripts/common`, run with `python3 -m`). Without it, do the same steps by hand with `curl`, `jq`, Playwright and `docker run`; the outcome vocabulary and rules do not change. Work in a scratch directory (`qa-out/` holds working files; only `reports/` is the deliverable). The tooling runs the code under test without the platform's tracker, LLM and chat tokens; keep it that way.
 
@@ -24,11 +26,11 @@ The tooling is in ai-dev-tools (`scripts/qa`, `scripts/common`, run with `python
 ## Verify mode
 
 ### 1. Context
-Read `~/.claude/skills/you-got-skills/skills/shared/pr-context.md`. Then fetch and check out:
+Read `~/.claude/skills/you-got-skills/skills/shared/pr-context.md`. Then fetch (the module does not check anything out; do that per section 7 of the same module when the tests need the PR branch):
 ```bash
 mkdir -p qa-out && python3 -m scripts.common.pr_context "<ref>" --out qa-out/pr-context.json --diff-dir qa-out
 ```
-BLOCKED with the exact message if credentials or the PR are unavailable. `diff_truncated` or `diff_error`: review from `git diff origin/<destination>...HEAD` in the checkout instead (fetch the destination first, the clone is shallow) and list the gap under Not judged. For an issue ref (`kind: issue`) there is no diff: skip step 5 and write `qa-out/findings.json` as `{"not_judged": ["scope creep: no diff for an issue ref"]}`; a regression baseline must be given explicitly.
+BLOCKED with the exact message if credentials or the PR are unavailable. `diff_truncated` or `diff_error`: review from `git diff origin/<destination>...HEAD` in the checkout instead (fetch the destination first, the clone is shallow) and list the gap under Not judged. For an issue ref (`kind: issue`) there is no diff: skip step 5 and write `qa-out/findings.json` as `{"not_judged": ["scope creep: no diff for an issue ref"]}`; a baseline, if wanted, must be given explicitly.
 
 ### 2. Plan, before touching any environment
 Write `qa-out/plan.json` (and a readable `qa-out/plan.md`): every criterion gets a case, plus error and boundary cases; inferred criteria are labelled. Schema and worked example: `references/test-plan.md`. Then:
@@ -69,9 +71,9 @@ It writes `reports/report.md`, `report.html`, `result.json` (plus `evidence/`) a
 
 ---
 
-## Regression mode
+## Regression mode (a baseline was supplied)
 
-Same plan and same `run-all.sh`, two environments, **one at a time**. Full flow: `references/regression.md`. The baseline must be explicit (`--baseline-url`, `--baseline-image`, or `--baseline-ref`; for a PR the default is its destination branch), otherwise BLOCKED. Run the wrapper with `--side baseline`, then `--side candidate`; then `scripts.qa.delta` and `scripts.qa.report --mode regression --delta ...`.
+Same plan and same `run-all.sh`, two environments, **one at a time**. Full flow: `references/regression.md`. You are here only because a baseline was given (`--baseline-url`, `--baseline-image` or `--baseline-ref`); if it cannot be started, BLOCKED, never a silent fall back to verify mode. Run the wrapper with `--side baseline`, then `--side candidate`; then `scripts.qa.delta` and `scripts.qa.report --mode regression --delta ...`.
 
 REGRESSION means pass on baseline and fail on candidate. A case that could not run is INFRA/INCONCLUSIVE and makes the comparison INCOMPLETE; it is never a regression and never clean. A failure on both sides is PRE_EXISTING: report it, do not blame the PR.
 

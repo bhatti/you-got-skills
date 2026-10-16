@@ -19,6 +19,7 @@ Use exactly these per case. Never invent "mostly passed".
 1. **Zero executed cases is never pass or clean.** Report BLOCKED and say what prevented execution.
 2. **Blocked and skipped never count as passed.** Health scores exclude them and are labelled "partial coverage".
 3. **Infrastructure is not product.** Connection refused, HTTP 000, DNS failure, image pull failure, missing dependency and daemon-not-running are `blocked`, reported separately from `fail`. They are never a regression.
+   The same applies to the run's own prerequisites: prefer REST, `gh`, `curl` and the project's own commands; a vendor CLI whose profile may exist only on some machines (`acli`, `jira`) is an optional fallback used when it demonstrably works, never an assumption. If a tool, credential or daemon this run needs is missing or unconfigured, stop with BLOCKED naming it and how to supply it; never continue with partial data or report a clean result.
 4. **Every finding cites evidence:** `file:line`, or the exact command plus the observed output (trimmed). A finding with no citation is dropped.
 5. **Do not trust reports.** Check an author's or tool's claim against the diff and a fresh run.
 6. **Declare what was not judged.** End with a "Not judged" list (areas, platforms, criteria you could not verify) so omissions are visible.

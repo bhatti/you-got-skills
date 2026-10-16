@@ -39,11 +39,17 @@ What it does: starts the environment, polls readiness (no fixed sleeps), exports
 - Locally, start Docker, or fall back to tier 1.
 Do not retry a daemon that is not there. Report BLOCKED with that message.
 
-## Choosing the baseline (regression mode)
+## Baseline (optional: its presence selects regression mode)
+
+No baseline flag means verify mode: the candidate only, no comparison, nothing inferred. When one is given:
 
 1. An explicit `--baseline-url` / `--baseline-image` always wins.
-2. `--baseline-ref` otherwise; for a PR the default is its destination branch (`destination_branch` in `pr-context.json`).
-3. Never invent a version number. If none is derivable, BLOCKED.
+2. `--baseline-ref <ref>` otherwise (use the PR's destination branch, `destination_branch` in `pr-context.json`, to compare against the target branch).
+3. Never invent a version number. If the baseline cannot be started, BLOCKED; do not quietly fall back to verify mode.
+
+## Credentials of the app under test
+
+Only `QA_USERNAME`, `QA_PASSWORD` and `QA_AUTH_HEADER` (see above). In Formicary they are environment variables of the pod: the operator stores them in the `ai-dev-credentials` secret (`deploy-ai-workflows.sh --create-k8s-secret` with those variables set), and `QA_*` is forwarded to your shell. If they are not set, auth-protected cases are BLOCKED, not failed.
 
 ## Data and safety
 

@@ -14,7 +14,7 @@ Set `PLATFORM` to `github` or `bitbucket` for the rest of the run.
 
 ## 2. Credential gate
 
-The full gate is in `~/.claude/skills/you-got-skills/skills/shared/tracker.md`; the checks these skills need are: An empty result from a bad token looks exactly like a clean PR, so verify first and abort with the exact reason.
+The full gate is in `~/.claude/skills/you-got-skills/skills/shared/tracker.md`; the checks these skills need are below, each run only when its tokens are set. An empty result from a bad token looks exactly like a clean PR, so verify first and abort with the exact reason. (Tokens unset and a working `acli` profile: see the fallback note after the block.)
 
 ```bash
 # GitHub
@@ -26,6 +26,8 @@ curl -sf "https://api.bitbucket.org/2.0/user" -u "$BITBUCKET_USERNAME:$BITBUCKET
 curl -sf -u "$JIRA_EMAIL:$JIRA_API_TOKEN" "$JIRA_BASE_URL/rest/api/2/myself" >/dev/null \
   || { echo "ERROR: Jira credentials invalid (JIRA_BASE_URL / JIRA_EMAIL / JIRA_API_TOKEN)"; exit 1; }
 ```
+
+`acli` is an optional fallback, never a requirement: the module (step 3) reads Bitbucket PRs and Jira issues through `acli -p bitbucket` / `acli -p jira` only when the REST tokens above are absent (GitHub has no acli fallback: `gh` is the only path) and `acli bitbucket whoami` / `acli jira user me` succeeds. By hand, use it the same way: `acli -p bitbucket -o json bitbucket pr get <ws> <repo> <id>`, `... pr diff <ws> <repo> <id>`, `acli -p jira -o json jira issue get --json <KEY>`. If neither the tokens nor a working profile exist, BLOCKED naming the variables.
 
 ## 3. Fetch (preferred: the module)
 
@@ -47,7 +49,7 @@ gh pr diff "$PR" > /tmp/pr.diff
 gh issue view <n> --json title,body,labels
 ```
 
-Bitbucket Cloud: parse `bitbucket.org/{WORKSPACE}/{REPO}/pull-requests/{PR_ID}` from the URL, then use REST (do not depend on `acli`):
+Bitbucket Cloud: parse `bitbucket.org/{WORKSPACE}/{REPO}/pull-requests/{PR_ID}` from the URL, then use REST (the primary path):
 ```bash
 curl -sf -u "$BITBUCKET_USERNAME:$BITBUCKET_TOKEN" "https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO/pullrequests/$PR_ID" > /tmp/pr_meta.json
 curl -sf -u "$BITBUCKET_USERNAME:$BITBUCKET_TOKEN" "https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO/pullrequests/$PR_ID/diff" > /tmp/pr.diff

@@ -155,7 +155,7 @@ export SLACK_BOT_TOKEN=xoxb-...           # optional, see skills/shared/slack.md
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-qa` | QA testing with health scoring. Local diff by default; given a PR/issue it derives test cases from the acceptance criteria, runs API (curl) and UI (Playwright) checks against a URL, container or built ref, and in `--mode regression` compares baseline vs candidate |
+| `/ygs-qa` | QA testing with health scoring. Local diff by default; given a PR/issue it derives test cases from the acceptance criteria, runs API (curl) and UI (Playwright) checks against a URL, container or built ref, and, when a baseline is supplied (`--baseline-url`, `--baseline-image` or `--baseline-ref`), compares baseline vs candidate; without one it only verifies |
 | `/ygs-flaky-test` | Flaky-test detect + prove + diagnose: smart reruns with Wilson-interval verdicts, order-pollution bisection, runtime/static cause signatures. Works for GitHub and Bitbucket/Jira tickets; never changes code |
 | `/ygs-uat` | User acceptance testing from customer perspective |
 | `/ygs-test-impact` | Test impact analysis: map changed files to affected tests via naming conventions and import graphs, partition into balanced shards, report coverage gaps |
@@ -240,7 +240,7 @@ Any skill can be run against any repo from Slack using the `skill` command:
 @bot skill ygs-qa myapp -- run E2E tests
 @bot skill ygs-qa myapp --branch main --dind -- spin up containers and run tests
 @bot skill ygs-qa https://github.com/org/repo/pull/12 --url https://staging.example.com
-@bot skill ygs-qa https://bitbucket.org/ws/repo/pull-requests/12 --mode regression --baseline-url https://prod.example.com --url https://pr-12.example.com
+@bot skill ygs-qa https://bitbucket.org/ws/repo/pull-requests/12 --baseline-url https://prod.example.com --url https://pr-12.example.com
 @bot skill ygs-flaky-test https://github.com/org/repo/issues/42
 ```
 
@@ -255,7 +255,7 @@ Positional shorthand: first word after skill = repo, first number = PR/issue ID.
 | `--repo <url\|name>` | Repo URL or short name (expanded via org config) |
 | `--branch <name>` | Branch to check out (default: main/dev from org config) |
 | `--tracker github\|jira` | Force tracker type |
-| `--model <id\|shortname>` | Override Claude model (haiku, sonnet, opus, or full model ID) |
+| `--model <alias\|id>` | Override Claude model: an alias from ai-dev-tools `scripts/common/models.json` (`haiku`, `sonnet`, `opus`, `low`, `high`, `default`, ...) or a full model ID; a typo fails the job with the alias list |
 | `--turns <n>` | Max Claude turns (default: MAX_TURNS_ADHOC) |
 | `--service <image:tag>` | Start a sidecar container; skill accesses it at `localhost:$SERVICE_PORT` |
 | `--service-port <port>` | Port for the service sidecar (default: 9000) |
