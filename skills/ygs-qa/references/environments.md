@@ -26,7 +26,9 @@ python3 -m scripts.qa.env_manager run --kind docker --image shop:pr-123 --contai
 What it does: starts the environment, polls readiness (no fixed sleeps), exports `QA_BASE_URL`, `QA_SIDE` and `QA_OUT` (`qa-out/<side>`) to your command (plus `QA_ALLOW_MUTATIONS=1` with `--allow-mutations`), collects redacted logs to `qa-out/<side>/logs/env.log`, and tears down in a `finally`, including on SIGTERM, SIGINT and SIGHUP.
 
 - Exit 3 plus `qa-out/<side>/env-failure.json` means the environment never became ready (or could not start): **BLOCKED**, not a test failure. Pass that file to the report with `--env-failure`; a file that does not exist is ignored.
+- `--command-timeout S` (default 3600) bounds the wrapped command: it is killed (exit 124), results recorded so far are kept and the cases without a result show as not run. Teardown failures print `WARNING: could not remove …; remove it manually: <command>` and do not change the exit code.
 - A worktree app must listen on `$PORT` (or use `{port}` in the commands).
+- Readiness must prove the dependencies, not only that something answers: a stack that is half up (frontend answering, backend missing) turns every test into a misleading product failure. Point `--health-path` at an endpoint that fails until every component the tests need is up; if none exists, add a first case that checks it and block the run when it fails.
 - `--health-path /health` when `/` is not a good readiness probe. Any status below 500 counts as ready.
 - `--env K=V` passes configuration to the container or app. Values do not appear in process lists, but never put secrets in commands you will paste into a report.
 - Self-signed staging certificates: `QA_INSECURE_TLS=1`.
@@ -55,6 +57,7 @@ Only `QA_USERNAME`, `QA_PASSWORD` and `QA_AUTH_HEADER` (see above). In Formicary
 
 - Mutating cases need `--allow-mutations` and the user's statement that the target is safe. Do not guess from the URL; when unsure, run read-only cases and record the rest blocked.
 - Tests create their own data with unique names and clean up what they create. Never delete data you did not create.
+- Start every run from a clean state: fresh containers and volumes (compose is torn down with `-v`), no data from earlier runs. Leftover records from earlier clusters make counts and "all …" conditions unreliable.
 - Both sides must start from equivalent data, or differences are not comparable. Say when they were not.
 - Working in a developer's checkout: use a throwaway clone or `git worktree add`; never switch branches under uncommitted changes.
 

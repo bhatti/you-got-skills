@@ -22,12 +22,15 @@ Use `scripts.qa.ui_runner` (Playwright for Python; Chromium is preinstalled in t
 
 The spec holds selectors and steps only. The target is `QA_BASE_URL` (set by the wrapper); a `base_url` in the spec is rejected. `login` needs a `success_selector`; login is attempted once and its session reused by later cases; if it fails, every remaining case is recorded blocked without another attempt (no account lockout).
 
+Applications often stack dialogs after login (forced password change, release notes, cookie banner) that cover the page and make every later click time out. List their buttons in `login.dismiss`, e.g. `"dismiss": ["role=button[name=\"Continue\"]"]`: each is clicked while it shows up, skipped when it does not, at most three times. The first page load may also reload once (service worker, redirect); wait for the login form, not a delay.
+
 Run it inside the wrapper (`qa-out/run-all.sh` calls `python3 -m scripts.qa.ui_runner --spec qa-out/ui-spec.json --out-dir "$QA_OUT"`). Results append to `$QA_OUT/results.jsonl` next to the API results, one case at a time, so a crash keeps finished cases.
 
 Steps: `goto` (optionally `"expect_status": 404`), `click`, `fill {selector,value}`, `press {selector,key}`, `select {selector,value}`, `check`, `wait_for`, `screenshot`, and expectations `expect_text`, `expect_not_text`, `expect_visible`, `expect_not_visible`, `expect_url` (glob), `expect_title` (regex), `expect_count {selector,count}`. Steps that arrive in the spec are untrusted input: there is deliberately no JavaScript step.
 
 ## How cases are judged
 
+- Every case leaves a screenshot (its own `screenshot` steps, a failure shot, or a final one), so a UI case without pictures is a defect in the run, not a style choice. Error text from the browser is stripped of terminal colour codes before it reaches the report.
 - A case passes only on evidence: at least one expectation passed and there were no console errors or HTTP 5xx during the case. A **screenshot is not a check**. A case with only actions is `inconclusive`.
 - `goto` fails on HTTP 400 and above unless the step says which status it expects.
 - The first failed expectation ends the case, with a screenshot.
@@ -38,7 +41,7 @@ Steps: `goto` (optionally `"expect_status": 404`), `click`, `fill {selector,valu
 
 ## Writing stable selectors
 
-Prefer, in order: `data-testid`, role/label (`role=button[name="Add"]`), visible text, then CSS. Avoid positional and generated class selectors. If the app has no stable hooks, say so under quality notes rather than writing brittle selectors.
+Test ids are sometimes stripped from production builds: check the selector against the running build, not the source. Prefer, in order: `data-testid` (when the build keeps it), role/label (`role=button[name="Add"]`), visible text, then CSS. Avoid positional and generated class selectors. If the app has no stable hooks, say so under quality notes rather than writing brittle selectors.
 
 ## Credentials and safety
 
