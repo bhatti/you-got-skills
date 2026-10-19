@@ -41,6 +41,8 @@ What it does: starts the environment, polls readiness (no fixed sleeps), exports
 - Locally, start Docker, or fall back to tier 1.
 Do not retry a daemon that is not there. Report BLOCKED with that message.
 
+**CPU architecture.** The daemon (and any kind/k3d cluster inside it) runs on the node's architecture, often arm64 on developer laptops. Use the image's native platform: take it from `docker info --format '{{.Architecture}}'` (`aarch64` is `linux/arm64`, `x86_64` is `linux/amd64`) and never hardcode one. With the containerd image store, pulling a non-native platform leaves only that platform's content, so a plain `docker save` fails with `unable to create manifests file … content digest … not found`, and importing the archive into a native cluster fails with `mismatched image rootfs and manifest layers`. `env_manager` enforces this for `--kind docker`: an image without a build for the daemon's architecture is BLOCKED (`env-failure.json` names both architectures and points at `docker buildx imagetools inspect <image>`), and no `--platform` is ever passed to `docker pull` or `docker run`. Never work around it by forcing another platform or by emulation: report it and ask for a matching image or node.
+
 ## Baseline (optional: its presence selects regression mode)
 
 No baseline flag means verify mode: the candidate only, no comparison, nothing inferred. When one is given:
