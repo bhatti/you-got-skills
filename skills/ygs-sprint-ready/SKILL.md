@@ -1,123 +1,69 @@
 ---
 name: ygs-sprint-ready
-description: >
-  Use before sprint planning to validate that every candidate ticket is ready to
-  pull in. Evaluates tickets field-by-field, auto-enriches where possible, flags
-  what needs human action. Lighter than running a full sprint plan; pair with
-  ygs-sprint-plan after.
-argument-hint: "[--sprint <name> | --label <label> | <ticket-url>...] [--dry-run] [--format json]"
+description: Use when preparing sprint planning and you need to know which candidate tickets, GitHub issues or Jira issues, are ready to pull in.
+argument-hint: "[--sprint <name> | --label <label> | --milestone <name> | --jql <query> | <ticket-url|key>...] [--project P] [--repo owner/name] [--tracker github|jira] [--include-done] [--limit N] [--dry-run] [--apply] [--format json]"
 ---
 
 # Sprint Ready
 
 Read `~/.claude/skills/you-got-skills/skills/shared/ownership-principles.md`.
+Read `~/.claude/skills/you-got-skills/skills/shared/ticket-readiness.md`. It defines the criteria, grades, statuses and write rules used below.
+Read `~/.claude/skills/you-got-skills/skills/shared/tracker.md` and pass its credential gate before any tracker call.
+Read `~/.claude/skills/you-got-skills/skills/shared/evidence-rules.md`.
 
-**Principle:** A ticket that enters sprint planning without ACs or a Why statement will consume grooming time during the sprint, not before it. Fix it now — before the sprint starts.
+A ticket that reaches planning without acceptance criteria or a Why costs grooming time during the sprint instead of before it. Find the gaps now and teach the author how to close them.
+
+The tooling is in ai-dev-tools (`scripts/tickets`, run with `python3 -m` from its checkout, or with `PYTHONPATH` pointing at it; in a Formicary job it is already set). If the import fails, follow `ticket-readiness.md` by hand with the tracker REST API or `gh`; the grades, statuses and rules do not change.
 
 ## When NOT to use
 
-- Sprint is already in progress — use `/ygs-triage` to fix individual tickets mid-sprint
-- Tickets have no tracker data (no GitHub/JIRA configured) — use `/ygs-enrich-ticket` on each ticket directly
+- The sprint is already running and you need to fix one ticket: use `/ygs-triage` or `/ygs-enrich-ticket <ticket>`.
+- No tracker is configured: BLOCKED with the credential gate message.
 
-## Step 1: Fetch ticket list
+## Modes
 
-Using `~/.claude/skills/you-got-skills/skills/shared/tracker.md`:
+| Invocation | Behavior |
+|------------|----------|
+| `--dry-run` | Grade and report only. No enrichment, no writes (wins if `--apply` is given too) |
+| Interactive session | Report, then offer enrichment and confirm before each batch |
+| `--apply` | Enrich every auto-enrichable ticket without asking |
+| Headless (`YGS_HEADLESS=1`, or nobody can answer) without `--apply` | Same as `--dry-run`; say so in the report |
 
-- `--sprint <name>`: all open tickets in the named sprint or sprint backlog
-- `--label <label>`: all open tickets with the given label
-- `<ticket-url>...`: explicit list of ticket URLs
+## 1. Fetch
 
-Show the list. Confirm scope with user before proceeding.
-
-If `--dry-run`: evaluate tickets and show readiness table, but do not call any enrichment skills or write to tickets. Report **DONE** after showing the table.
-
-## Step 2: Evaluate readiness
-
-For each ticket, check 6 fields using `~/.claude/skills/you-got-skills/skills/shared/ac-format.md`:
-
-| Field | Check |
-|-------|-------|
-| Why statement | Body explains the user or business value — not "we need to do X" |
-| Story points | Points are set (any non-zero value) |
-| ACs written | At least 1 acceptance criterion in the body |
-| ACs testable | ACs use Given/When/Then or a specific observable outcome — not vague phrases like "it works" |
-| DoD specified | At least unit tests and backwards compatibility addressed |
-| Impl plan present | `<!-- ai-plan:start -->` marker found in ticket body |
-
-Assign a priority-ordered status to each ticket:
-
+```bash
+mkdir -p ready-out reports
+python3 -m scripts.tickets.fetch --sprint "<name>" --out ready-out/tickets.json      # or --label / --milestone / --jql / <refs>
 ```
-BLOCKED          — labelled blocked or has an unresolved blocking dependency
-NEEDS_AC_WORK    — ACs missing or not testable
-NEEDS_STORY_POINTS — no story points set
-NEEDS_IMPL_PLAN  — no implementation plan (all other fields OK)
-READY            — all 6 fields pass
+Pass `--repo owner/name` and `--tracker github|jira` to every tool call when they were given (in a Formicary job the environment already carries them). Besides `tickets.json` it writes one plain-text file per ticket, `ready-out/tickets/<id>.txt` (`<id>` is the ticket id with `#` written as `gh-`).
+A sprint or milestone name may contain spaces and Slack strips the quotes: take everything after `--sprint` (or `--milestone`, `--label`) up to the next `--flag` as the name and pass it quoted. GitHub has no sprints: `--milestone` is the sprint (or `--label`), and `#42` style refs need `--repo owner/name` or `GH_ORG` and `GH_REPO`. Jira: `--sprint` with `--project` (default `JIRA_PROJECT`). The tracker follows the usual rule: `--tracker` flag, then the URL, then `DEFAULT_TRACKER`. Done tickets are skipped unless `--include-done`.
+
+- Exit 2 or 3, or `count` 0: stop. Report the exact message; BLOCKED for access or credentials. Never fall back to treating unreadable fields as unset.
+- `truncated: true` means the scope held more tickets than `--limit`: re-run with a higher `--limit` before trusting the counts.
+- A ticket with `fetch_error` or `access_denied` is `UNREADABLE`: list it, do not grade it.
+- Show the list (key, title, status, owner) and the count. Interactively, confirm the scope first.
+
+## 2. Grade
+
+Read each ticket's plain-text file `ready-out/tickets/<id>.txt` (the complete description, environment and every comment, and a sub-task's parent), in chunks if it is large, until its last line: never grade from `signals` or a clipped view (`ticket-readiness.md`, "Read the whole ticket"). The `signals` are hints, not verdicts. Apply the criteria and the evidence rule and write `ready-out/grades.json`. More than about 8 tickets: dispatch workers of 5 tickets each (`~/.claude/skills/you-got-skills/skills/shared/subagent-dispatch.md`). Give each worker, self-contained: `ticket-readiness.md` (criteria, evidence rule and "Read the whole ticket"), the paths of its tickets' `ready-out/tickets/<id>.txt` files, and the instruction to read each completely and to return its part of `grades.json` in the schema of that file. If you cannot dispatch workers, grade the tickets yourself, one at a time, with the same rules. Merge the parts; a ticket still missing afterwards is `UNGRADED`, so re-dispatch it once. Do not grade story points, blocked, sub-task, in-flight or plan presence yourself: they come from the fetch data.
+
+## 3. Verdict and report
+
+```bash
+python3 -m scripts.tickets.readiness --tickets ready-out/tickets.json --grades ready-out/grades.json [--dry-run] --out-dir reports
 ```
+It reads `.ygs/readiness.yml` from the working directory or the checked-out repository (`$CODEBASE_DIR`) when present (`--config` only for another path; without the file the variant check is skipped). Exit 2 means an input is invalid (the message names the bad grade, duplicate id or file): fix `grades.json` and run it again; do not edit the report by hand. It writes `reports/report.md`, `report.html`, `result.json` and `slack.md` (the short summary the job posts to Slack; leave it as written) and prints the status line. Show `report.md` (layout: `~/.claude/skills/you-got-skills/skills/ygs-sprint-ready/references/report.md`). Do not edit statuses by hand.
 
-## Step 3: Produce readiness table
+## 4. Enrich (skip with `--dry-run` or when headless without `--apply`)
 
-```
-TICKET    TITLE                      STATUS              GAPS
-PROJ-38   Auth refactor              READY               —
-PROJ-41   Rate limiter               NEEDS_AC_WORK       ACs missing
-PROJ-52   Dashboard metrics          NEEDS_IMPL_PLAN     Impl plan absent
-PROJ-60   External API integration   BLOCKED             Blocked by PROJ-38
-```
+The tickets to enrich are the rows of `reports/result.json` with `auto_enrichable: true`; the tool already excluded finished, In Review and other no-enrich tickets, so do not re-derive it from status names. `BLOCKED`, `NEEDS_STORY_POINTS`, `HAS_VARIANT_HOLES`, `UNREADABLE` and `UNGRADED` are action items for a person.
 
-Cross-sprint summary at the bottom:
+1. Interactive: show the gaps and ask once ("enrich all N" or per ticket). `--apply`: no question.
+2. For each ticket, `Read ~/.claude/skills/you-got-skills/skills/ygs-enrich-ticket/SKILL.md` and follow its steps 2 and 3 using the fetch and grades you already have (do not fetch, grade or render a report again, and do not run its step 4: you own `ready-out/actions.json` and the final line). Previews go to `reports/<id>/`, where `<id>` is the ticket id with `#` written as `gh-`.
+3. Append every JSON result line `scripts.tickets.write` prints to the list in `ready-out/actions.json`. Exit 3 from `write` (`blocked_points`, `ineligible`) is an expected outcome: record it and go on.
 
-```
-READY: N  |  NEEDS_HUMAN: M  |  AUTO_ENRICHABLE (candidates): K
-Most common gaps: NEEDS_AC_WORK (N), NEEDS_IMPL_PLAN (N)
-```
+## 5. Re-evaluate and finish
 
-`AUTO_ENRICHABLE` = tickets this skill can fix without human input (NEEDS_AC_WORK or NEEDS_IMPL_PLAN status).
+Re-run step 3 with `--actions ready-out/actions.json` (skip when nothing was enriched) so enriched tickets show `ENRICHED`, `ENRICHED_PENDING_POINTS` or `IMPL_PLAN_LOW_CONFIDENCE`. Finish with the action items grouped by owner (engineers: questions and points; PM or tech lead: variant scope and blockers) and suggest `/ygs-sprint-plan` once READY covers the target capacity.
 
-## Step 4: Auto-enrich (skip if `--dry-run`)
-
-For `NEEDS_AC_WORK` and `NEEDS_IMPL_PLAN` tickets:
-1. Run `/ygs-enrich-ticket --dry-run <ticket-url>` — show the gap table and what would be written
-2. Confirm per ticket (or "enrich all" for batch confirmation)
-3. Run `/ygs-enrich-ticket <ticket-url>` — writes ACs if missing, then impl plan
-
-For `BLOCKED` and `NEEDS_STORY_POINTS` tickets: flag for human — these cannot be auto-enriched.
-
-## Step 5: Re-evaluate and action items
-
-After enrichment, re-check enriched tickets. Update the readiness table.
-
-Final action items section — three buckets:
-
-```
-AUTO-ENRICHED (agent fixed these):
-  PROJ-41 — ACs written ✅
-  PROJ-52 — Impl plan added ✅ (confidence: HIGH)
-
-NEEDS HUMAN (cannot auto-enrich):
-  PROJ-60 — BLOCKED: waiting on PROJ-38 to close
-  PROJ-63 — NEEDS_STORY_POINTS: no estimate possible without design decision
-
-READY TO PULL IN (N tickets):
-  PROJ-38, PROJ-41, PROJ-52
-```
-
-## Completion
-
-If `--format json`:
-```json
-{
-  "tickets": [
-    {"id": "PROJ-38", "status": "READY", "gaps": []},
-    {"id": "PROJ-41", "status": "NEEDS_AC_WORK", "gaps": ["no_acs"]}
-  ],
-  "summary": {"ready": 0, "needs_human": 0, "auto_enriched": 0}
-}
-```
-Replace `0` with actual counts.
-```
-
-Otherwise, report **DONE** with the readiness table and action items.
-
-If any tickets remain `NEEDS_HUMAN`: report **DONE_WITH_CONCERNS** — list what humans must fix before those tickets can be pulled in.
-
-Suggest: `/ygs-sprint-plan` to proceed with planning once READY count reaches target capacity.
+The last line of output is the status line printed by `scripts.tickets.readiness`. `--format json`: print `reports/result.json` before it. If you must stop before the tool can run, print `{"status":"ERROR","signal":"BLOCKED","summary":"<exact reason>"}`.

@@ -1,6 +1,6 @@
 # Tracker Abstraction
 
-DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (`acli`).
+DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (REST first; the Atlassian CLI is an optional fallback where a recipe says so).
 All team intelligence skills read this before making tracker calls.
 
 ---
@@ -253,6 +253,20 @@ curl -sf "$JIRA_BASE_URL/rest/agile/1.0/board/$BOARD_ID/sprint?state=active,futu
 ```
 
 ---
+
+## Ticket fields and write-back
+
+Used by `ygs-sprint-ready` and `ygs-enrich-ticket` (grades, statuses, write rules: `ticket-readiness.md`). Prefer `python3 -m scripts.tickets.fetch` and `scripts.tickets.write`; the recipes below are what they do, for use by hand.
+
+| | GitHub | Jira |
+|---|--------|------|
+| Read a ticket | `gh issue view N --json number,title,body,labels,milestone,state,assignees,comments` (`gh issue list` caps comments at 100: use `view`) | `GET /rest/api/3/issue/KEY` (REST first; `JIRA_AUTH` as above); comments come in pages: `GET .../comment?startAt=` until `total` |
+| Description format | Markdown body | Atlassian Document Format (JSON), not a string |
+| Story points | Label `sp:3`, `points: 5` or `estimate/8`; optionally a Projects number field (`GH_PROJECT_NUMBER`). None found: unset | Custom field whose name starts with "Story point" (the id differs per site: `GET /rest/api/3/field`, or `JIRA_STORY_POINT_FIELDS`). `null` in every such field: unset; field unreadable: unknown |
+| Sprint | Milestone (or an iteration title) | `sprint = "<name>"` JQL (paginate with `nextPageToken`) or the board API |
+| Write a section | Edit the body, keeping it and the marker block | `PUT /rest/api/3/issue/KEY` with the full ADF document plus the new section as one `panel` node (first node: the heading) |
+
+Rules: never write plain text over a Jira description; never overwrite the body of a GitHub issue without the existing text; re-read after writing to verify; if a write fails, post the text as a comment.
 
 ## Normalize output
 

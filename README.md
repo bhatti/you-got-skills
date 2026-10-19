@@ -89,8 +89,8 @@ CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-c
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-enrich-ticket` | Enrich a ticket with missing ACs and/or an implementation plan — gap-analyses first, researches codebase, writes ACs then a confidence-scored impl plan; supports batch mode |
-| `/ygs-sprint-ready` | Pre-planning ticket validator — checks 6 readiness fields per ticket, auto-enriches via enrich-ticket, flags what needs human action |
+| `/ygs-enrich-ticket` | Enrich a GitHub or Jira ticket with missing ACs and/or an implementation plan — converts partial specs without discarding them, researches the code base within bounds, writes idempotent generated sections only with `--apply`; batch mode |
+| `/ygs-sprint-ready` | Pre-planning ticket validator for GitHub and Jira — grades each ticket Pass/Partial/Missing with quoted evidence, computes the status and report with `scripts.tickets.readiness`, enriches what an agent can fix, lists what needs a person |
 
 ### Team Intelligence
 
@@ -270,7 +270,8 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 
 | Module | Purpose |
 |--------|---------|
-| `shared/ac-format.md` | Given/when/then AC template, DoD checklist fields, out-of-scope block format, gap analysis table schema — referenced by enrich-ticket, sprint-ready, triage |
+| `shared/ac-format.md` | Given/when/then AC template with `Test:` lines, DoD checklist fields, out-of-scope block format — referenced by enrich-ticket, sprint-ready, triage |
+| `shared/ticket-readiness.md` | Ticket grading (Pass/Partial/Missing + evidence rule), the single status table, optional `.ygs/readiness.yml`, idempotent write rules for Jira (ADF) and GitHub, report and JSON — referenced by sprint-ready, enrich-ticket |
 | `shared/confidence-rubric.md` | 0–100 implementation plan confidence scoring (repo evidence + ticket fit − blast radius) with HIGH/MEDIUM/LOW decision thresholds — referenced by enrich-ticket |
 | `shared/hygiene-checks.md` | Pre-PR mechanical checklist: BLOCKER violations (debug artifacts, hardcoded credentials, logic mixed with cleanup) and WARN violations (stale TODOs, commented-out code) — referenced by review-ready, ship |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
@@ -316,7 +317,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 /ygs-wbs                     → Hierarchical work breakdown into vertical-slice tasks (PRD or ticket-first)
 /ygs-spike                   → Time-boxed experiment to validate risky unknowns
 /ygs-enrich-ticket           → Write ACs and/or codebase-grounded impl plan for a ticket
-/ygs-sprint-ready            → Validate ticket readiness field-by-field before planning
+/ygs-sprint-ready            → Grade ticket readiness (GitHub or Jira) before planning; enrich what an agent can fix
 /ygs-worktree                → Isolate feature work in a linked worktree
 /ygs-implement               → Build with discipline (invariants pre-flight in step 1.5)
 /ygs-git                     → Commit with discipline (save-point pattern, atomic commits)

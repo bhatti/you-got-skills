@@ -53,7 +53,7 @@ Step 4 checks AC presence and open dependencies. This step adds two dimensions S
 - Story points set? (required for capacity math)
 - ACs testable? (Given/When/Then or a specific observable outcome — not "it works")
 
-Surface all three dimensions (AC presence from Step 4, plus story points and testability) in the scope table as ✅/❌ columns. If more than 2 candidates have gaps, suggest running `/ygs-sprint-ready` to auto-enrich before finalising. Do not silently pull in tickets with missing ACs — the gap must be visible in the scope proposal.
+Surface all three dimensions (AC presence from Step 4, plus story points and testability) in the scope table as ✅/❌ columns. If more than 2 candidates have gaps, suggest running `/ygs-sprint-ready` (statuses and rules: `~/.claude/skills/you-got-skills/skills/shared/ticket-readiness.md`) to grade and enrich before finalising. Tickets it reports as `NEEDS_STORY_POINTS`, `BLOCKED`, `UNREADABLE` or `HAS_VARIANT_HOLES` are not pulled in until a person resolves them. Do not silently pull in tickets with missing ACs — the gap must be visible in the scope proposal.
 
 ## Step 5: Propose sprint scope
 

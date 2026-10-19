@@ -1,6 +1,6 @@
 # Acceptance Criteria Format
 
-Shared by: `ygs-enrich-ticket`, `ygs-sprint-ready`, `ygs-triage`
+Shared by: `ygs-enrich-ticket`, `ygs-sprint-ready`, `ygs-triage`. Grading and statuses: `ticket-readiness.md`.
 
 ## AC Template
 
@@ -11,6 +11,8 @@ Then  <observable outcome — what the system does in response>
 ```
 
 Every AC must be verifiable by a test or a deterministic manual step. "It works" is not an AC.
+
+Add a `Test:` line to each AC: the exact command, or the exact steps ("open Settings, click Save"). `Then` states what a user, caller or log shows (UI text, HTTP status and body, a log line), never internal state. `Given` names a real context ("a project with 20 items"), not "the system is running".
 
 ## Minimums per ticket
 
@@ -39,20 +41,11 @@ Every ticket should declare what is explicitly excluded. Format:
 
 If nothing is excluded, write: `**Out of scope:** Nothing explicitly excluded.`
 
-## Gap analysis table schema
+## Gap analysis
 
-Use this table to evaluate the current state of a ticket before generating ACs:
+Ticket gaps are graded Pass / Partial / Missing with quoted evidence, and statuses are computed from the grades: `ticket-readiness.md` defines both and `scripts.tickets.readiness` renders the report. Do not keep a second table here.
 
-| Field | Present? | Quality | Notes |
-|-------|----------|---------|-------|
-| Why statement | ✅ / ❌ | Clear / Vague / Missing | |
-| Story points | ✅ / ❌ | — | |
-| Existing ACs | ✅ / ❌ | Testable / Vague / None | |
-| DoD specified | ✅ / ❌ | Complete / Partial / Missing | |
-| Out-of-scope block | ✅ / ❌ | — | |
-| Env/deployment scope | ✅ / ❌ | — | Relevant for multi-env deploys |
-
-Quality ratings:
-- **Clear / Testable / Complete** — no action needed
-- **Vague / Partial** — can be improved, flag but do not block
-- **Missing / None** — must be added before ticket is ready-for-agent
+Rules that stay with the format:
+- A Partial AC is converted, not replaced: keep the author's wording and intent.
+- A rewrite that adds a `Test:` line and an observable `Then` is the improvement; say which part of the original it came from.
+- Missing items must be added before a ticket is ready-for-agent; Partial items are flagged but do not block.

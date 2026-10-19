@@ -39,7 +39,7 @@ Build a decision timeline: `[date] person — decision/event` ordered oldest→n
 
 Read **everything supplied**: title, description, comments, attachments, linked issue summaries, and any tables or lists. Pull out:
 
-1. **File paths named explicitly** (e.g., `src/sluice/js/sse/ServerSentEventEmitter.ts`) → open these with `Read` or `cat` immediately; do not grep for them
+1. **File paths named explicitly** (e.g., `src/server/events/EventEmitter.ts`) → open these with `Read` or `cat` immediately; do not grep for them
 2. **Class / function names** (e.g., `publishServerEvents`, `useSSE`) → grep for these
 3. **Feature keywords** (e.g., `SSE`, `HTTP/2`, `worker_connected`) → grep for these
 4. **Blocker ticket IDs** (e.g., `PROJ-1234`) → note for Step 0d

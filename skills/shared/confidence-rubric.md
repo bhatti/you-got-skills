@@ -1,6 +1,6 @@
 # Implementation Confidence Rubric
 
-Shared by: `ygs-enrich-ticket`
+Shared by: `ygs-enrich-ticket`. Statuses and write rules: `ticket-readiness.md`.
 
 Used to score how confident the agent is that a generated implementation plan is accurate and useful before writing it to a ticket. Score 0–100.
 
@@ -26,7 +26,7 @@ How complete is the ticket as a spec?
 |-------------|--------|
 | Vague description, no clear scope | +0 |
 | Clear scope with named components or modules | +15 |
-| Spec + acceptance criteria both present | +25 |
+| Spec + acceptance criteria both present (score before writing ACs; ACs you generated yourself do not count) | +25 |
 
 ### Factor 3: Blast radius penalty (0 to −30 points)
 
@@ -44,9 +44,9 @@ How wide is the change?
 
 | Score | Confidence | Action |
 |-------|------------|--------|
-| ≥ 70 | HIGH | Write plan to ticket description |
-| 40–69 | MEDIUM | Write plan with caveat header: "Confidence: MEDIUM — verify file paths and approach before implementing." |
-| < 40 | LOW | Do NOT write. Flag the ticket for human review with a comment explaining what's missing. |
+| ≥ 70 | HIGH | Write the plan as the generated section (see `ticket-readiness.md`) |
+| 40–69 | MEDIUM | Write the plan with the caveat blockquote below as its first lines |
+| < 40 | LOW | Do NOT write to the description. Post one comment saying what is missing. The ticket becomes `IMPL_PLAN_LOW_CONFIDENCE` so it is not enriched again until a person acts. |
 
 ## Caveat header format (MEDIUM)
 
