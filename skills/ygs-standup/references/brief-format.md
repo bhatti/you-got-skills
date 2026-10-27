@@ -17,7 +17,8 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 📋 *Standup Brief — {date} {time}*
 
 *Board status*
-• <SprintName>: N total, N done, N in-progress/review, N not started — ends <date>. WIP: OK | HIGH.
+• <SprintName>: pending N pts (N) · in progress N pts (N) · review N pts (N) · done N pts (N) · total N pts (N) — ends <date>. WIP: OK | HIGH.
+• Not pointed: <url|KEY>, <url|KEY> (only when some issues have no points; they are named, and add nothing to the totals)
 
 *Call to Action*
 <2-3 sentences: plain English summary of what needs attention RIGHT NOW. Be specific about PR numbers, issue keys, and who can help. Patterns:>
@@ -26,7 +27,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 <"We're running high on WIP. Before picking up new work, check if there's something in-flight you can finish or unblock first.">
 
 *Per-person status*
-• *Alice:* Working on <url|KEY> (summary) — <url|PR #NNN> open 28h, no review yet.
+• *Alice:* Working on <url|KEY> (summary) — <url|PR #NNN> open 28h, no review yet. Points: pending N · in progress N · review N · done N.
 • *Bob:* No tracker activity since Monday (3 days). No standup channel message.
 • *Charlie:* Merged <url|KEY>. Two PRs in review.
 
@@ -40,7 +41,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 2. Review load: Bob has N pending items — redistribute?
 3. <url|PR #NNN> open Nd with no reviewers — close it, or does someone have 15 min?
 
-*Sprint health:* N/N issues done (N%), N in progress, N not started — N days remaining
+*Sprint health:* N of N pts done (N%), N pts in review, N pts in progress, N pts pending — N days remaining
 ```
 
 ## Rules
@@ -49,6 +50,7 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 - Always include Jira links: `<url|PROJ-NNN>` in every issue reference (Slack mrkdwn hyperlink)
 - Always include PR links: `<url|PR #NNN>` in every PR reference
 - If posting to stdout only: write `PROJ-NNN (url)` and `PR #NNN (url)`
+- Points come from the STORY POINTS block (computed by the tooling); never sum or estimate them. Lanes: pending (not started or blocked) / in progress / review / done. Sub-tasks are not counted. Unknown points are written "points unavailable", never 0.
 - Sprint health only when sprint boundary data is available
 - "No data" is valid output — never fabricate status from silence
 - Keep each person's entry to 2-3 sentences max
@@ -56,4 +58,4 @@ Read `~/.claude/skills/you-got-skills/skills/shared/output-format.md` for shared
 - Only include issues/PRs from the configured sprint board (board_id in tracker.yml)
 - **NO hedging language** — never use "likely", "probably", "might be", "seems to be", "appears to". State observations as facts or omit them entirely. If data is ambiguous, say "no data" or describe what the data shows, not what it implies.
 - **Slack signals are optional** — if `slack_messages` in signals.json is empty, omit all Slack references. Never write "No Slack activity detected" or ask people to post to the channel.
-- **Surface priority and labels** — for Blocker/Critical/High priority issues, include the priority in the issue description (e.g., "working on PROJ-123 (High priority)"). For release-tracking labels (e.g., "2609-release"), include them when present. Skip Medium/Low/empty to reduce noise.
+- **Surface priority and labels** — for Blocker/Critical/High priority issues, include the priority in the issue description (e.g., "working on PROJ-123 (High priority)"). For release-tracking labels (e.g., "2026-release"), include them when present. Skip Medium/Low/empty to reduce noise.

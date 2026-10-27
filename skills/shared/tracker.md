@@ -284,6 +284,9 @@ After gathering, normalize to a common shape before synthesis:
       "days_stale": 0,
       "blocked": false,
       "sprint": "Sprint 5",
+      "lane": "pending | in_progress | review | done",
+      "story_points": 5,
+      "points_known": true,
       "epic": "epic-name | null",
       "url": "https://..."
     }
@@ -306,7 +309,8 @@ After gathering, normalize to a common shape before synthesis:
     "total_issues": 14,
     "done": 8,
     "in_progress": 3,
-    "not_started": 3
+    "not_started": 3,
+    "points_by_lane": {"pending": 8, "in_progress": 5, "review": 3, "done": 13}
   }
 }
 ```

@@ -90,7 +90,7 @@ CI/CD (use with merge queue): `/ygs-test-impact`, `/ygs-build-optimize`, `/ygs-c
 | Skill | Purpose |
 |-------|---------|
 | `/ygs-enrich-ticket` | Enrich a GitHub or Jira ticket with missing ACs and/or an implementation plan — converts partial specs without discarding them, researches the code base within bounds, writes idempotent generated sections only with `--apply`; batch mode |
-| `/ygs-sprint-ready` | Pre-planning ticket validator for GitHub and Jira — grades each ticket Pass/Partial/Missing with quoted evidence, computes the status and report with `scripts.tickets.readiness`, enriches what an agent can fix, lists what needs a person |
+| `/ygs-sprint-ready` | Pre-planning ticket validator for GitHub and Jira — grades each ticket Pass/Partial/Missing with quoted evidence, computes the status and report with `scripts.tickets.readiness`, reports story points per lane, carry-over and hidden rollover, enriches what an agent can fix, lists what needs a person |
 
 ### Team Intelligence
 
@@ -100,7 +100,7 @@ Supports GitHub (`gh`) and JIRA/Bitbucket (`acli`) interchangeably. Slack option
 
 | Skill | Purpose |
 |-------|---------|
-| `/ygs-standup` | Daily standup brief: per-person status, silence signals, dependency risks, discussion questions |
+| `/ygs-standup` | Daily standup brief: per-person status and story points by lane (pending / in progress / review / done), silence signals, dependency risks, discussion questions |
 | `/ygs-risk-scan` | Ranked sprint risk report: stale work, review bottlenecks, dependency chains, capacity gaps |
 | `/ygs-sprint-plan` | Sprint planning: propose scope from backlog, flag blockers and dependency conflicts before they enter sprint |
 
@@ -270,8 +270,8 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 
 | Module | Purpose |
 |--------|---------|
-| `shared/ac-format.md` | Given/when/then AC template with `Test:` lines, DoD checklist fields, out-of-scope block format — referenced by enrich-ticket, sprint-ready, triage |
-| `shared/ticket-readiness.md` | Ticket grading (Pass/Partial/Missing + evidence rule), the single status table, optional `.ygs/readiness.yml`, idempotent write rules for Jira (ADF) and GitHub, report and JSON — referenced by sprint-ready, enrich-ticket |
+| `shared/ac-format.md` | Given/when/then AC template with `Test:` lines, DoD checklist fields, out-of-scope block format — referenced by enrich-ticket, sprint-ready |
+| `shared/ticket-readiness.md` | Ticket grading (Pass/Partial/Missing + evidence rule), the single status table, optional `.ygs/readiness.yml`, the lane model, sprint load and carry-over flags, questions with recommendations, idempotent write rules for Jira (ADF) and GitHub, report and JSON — referenced by sprint-ready, enrich-ticket |
 | `shared/confidence-rubric.md` | 0–100 implementation plan confidence scoring (repo evidence + ticket fit − blast radius) with HIGH/MEDIUM/LOW decision thresholds — referenced by enrich-ticket |
 | `shared/hygiene-checks.md` | Pre-PR mechanical checklist: BLOCKER violations (debug artifacts, hardcoded credentials, logic mixed with cleanup) and WARN violations (stale TODOs, commented-out code) — referenced by review-ready, ship |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |

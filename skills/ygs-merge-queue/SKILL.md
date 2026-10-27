@@ -92,10 +92,10 @@ a proxy: if two branches in the same lane share a descriptive path prefix
 Hotspots: {categories with ≥3 bug PRs in this tier, or "none"}
 Conflict risk: NONE / ⚠️ HIGH
 
-| PR | Title | Category | Type | Blast | CI | Age | Reviewers | Issues |
-|----|-------|----------|------|-------|----|-----|-----------|--------|
-| [#42](url) | Fix billing calc | api | 🐛 | 🟡 medium | ✅ | 2h | 1/2 ✅ | [BILL-123](url) |
-| [#38](url) | Auth refactor | ⚠️ authn_authz | ✨ | 🔴 high | N/A | 3d | 0/3 ✅ | — |
+| PR | Category | Type | Blast | CI | Age | Reviewers | Issues |
+|----|----------|------|-------|----|-----|-----------|--------|
+| [#42](url "Fix billing calc") | api | 🐛 | 🟡 medium | ✅ | 2h | 1/2 ✅ | [BILL-123](url "Billing rounding") |
+| [#38](url "Auth refactor") | ⚠️ authn_authz | ✨ | 🔴 high | N/A | 3d | 0/3 ✅ | — |
 
 **PR details:**
 - [#42](url) [BILL-123](url): Fix billing calculation rounding error — api 🐛
@@ -103,8 +103,7 @@ Conflict risk: NONE / ⚠️ HIGH
 ```
 
 **Columns:**
-- **PR**: `[#{num}](url)` link
-- **Title**: truncated to ~50 chars
+- **PR**: `[#{num}](url "title")` link; the PR title is its hover text (there is no Title column, so rows stay short)
 - **Category**: `⚠️` prefix for `security`, `authn_authz`; asterisk `*` suffix when `category_confidence` is `title` (heuristic)
 - **Type**: `pr_type` emoji — 🐛 bug, ✨ feature, 🔒 security, 🧪 test, 📝 docs, 🔧 refactor, ⚙️ chore
 - **Blast**: `🔴/🟡/🟢 {level}`

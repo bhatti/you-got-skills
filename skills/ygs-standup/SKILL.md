@@ -24,6 +24,7 @@ Using queries from `shared/tracker.md`:
 - Issues with no activity > 2 days (silence signal)
 - Open PRs: age, review status, no reviewer activity > 1 day
 - Blocked issues (label or status)
+- Story points per lane and per person (see "Story points" below); never add points yourself
 - ONLY include issues/PRs assigned to team members in `team:` list AND in the configured sprint (board_id)
 - NEVER show issues from other teams, boards, or unrelated assignees
 
@@ -36,6 +37,14 @@ Cross-signals (derive after both):
 - Issue B blocked on stale Issue A owned by someone else → dependency risk
 - PR open > 2 days with no review → identify bottleneck reviewer
 
+### Story points
+
+Every issue has one lane: **pending** (not started, or blocked), **in progress**, **review** (In Review, Code Complete, QA, ...) or **done**. The tracker's status category decides pending / in progress / done and the status name splits review out of in progress; a project with other names lists them once (`SPRINT_LANES` (JSON) for the standup; sprint-ready also reads `lanes:` in `.ygs/readiness.yml`). `scripts.standup.gather_*` (ai-dev-tools) tags each issue in `signals.json` with its lane and points, and the synthesis prompt carries the computed totals as a "STORY POINTS" block: quote those figures, never add or estimate points yourself.
+
+- Sub-tasks are left out of the totals (their points live on the parent); an issue without points is named, not counted as zero. Say "N issues have no points" when the figures undercount.
+- Points the tracker could not return are unknown, not zero: write "points unavailable" and show issue counts only.
+- Without the tooling, read the story-point field (`shared/tracker.md`), group by status category, and show the same four lanes. Do not mix statuses into "active".
+
 ## Step 3: Synthesize per-person
 
 For each team member (2-3 sentences, evidence-backed):
@@ -43,12 +52,14 @@ For each team member (2-3 sentences, evidence-backed):
 ```
 **Alice:** Closed PROJ-42 (auth fix). Working on PROJ-51 (rate limiter, High priority) — PR open
 28h, no review yet. [Slack: "waiting on infra cert renewal"]
+Points: pending 3 · in progress 5 · review 0 · done 2.
 ```
 
 - Every claim traces to a ticket, PR, or Slack message
 - No data → "No tracker activity in last 24h" (never fabricate)
 - Silence → "No updates since Monday (3 days)"
 - **NO hedging**: never write "likely", "probably", "might be" — if you can't confirm it from data, omit it
+- End each person's entry with their points by lane from the STORY POINTS block (always the four lanes, so a missing lane is visible)
 - Show priority (Blocker/Critical/High) and release labels when present — skip Medium/Low/empty
 
 ## Step 4: Call to Action (write AFTER steps 5-6, place BEFORE per-person status)
@@ -56,6 +67,7 @@ For each team member (2-3 sentences, evidence-backed):
 2-3 sentences of plain English that a busy manager reads first. Pattern:
 - "We have N PRs that need help getting across the finish line — [specifics]. If you can review or resolve tasks on any of these today, it'll clear the backlog."
 - "KEY is unassigned P2 — who's closest to this area and has capacity?"
+- "N pts are in review and only N pts are done with N days left — who can pick up reviews today?"
 - "We're running high on WIP. Before picking up new work, check if there's something in-flight you can finish or unblock first."
 - "PR #NNN has been open Nd with no reviewers. Should we close it, or does someone have 15 min to review? (N lines, N files)"
 
@@ -67,7 +79,7 @@ Use `<url|PROJ-NNN>` link format for ALL Jira and PR references (see `shared/out
 ```
 🔴 <url|PROJ-51> PR no reviewer — bob is only approver, unresponsive (Slack)
 🟡 <url|PROJ-38> stale 4 days — blocks <url|PROJ-44> (alice) and <url|PROJ-47> (charlie)
-🟡 <url|PROJ-41036> shows "In Review" but PR is still draft — update status to reflect reality
+🟡 <url|PROJ-41> shows "In Review" but PR is still draft — update status to reflect reality
 ```
 
 ## Step 6: Generate discussion questions
@@ -77,7 +89,7 @@ Use `<url|PROJ-NNN>` link format for ALL Jira and PR references (see `shared/out
 ```
 1. PROJ-38 stale 4d blocks two people — descope or reassign?
 2. Bob has 3 PRs queued — redistribute review load?
-3. PR #41781 open 59 days, no reviewers — close it or 15 min to review? (56 lines, 1 file)
+3. PR #412 open 59 days, no reviewers — close it or 15 min to review? (56 lines, 1 file)
 ```
 
 ## Step 7: Deliver

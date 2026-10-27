@@ -1,6 +1,6 @@
 # Acceptance Criteria Format
 
-Shared by: `ygs-enrich-ticket`, `ygs-sprint-ready`, `ygs-triage`. Grading and statuses: `ticket-readiness.md`.
+Shared by: `ygs-enrich-ticket`, `ygs-sprint-ready`. Grading and statuses: `ticket-readiness.md`.
 
 ## AC Template
 
@@ -12,13 +12,18 @@ Then  <observable outcome — what the system does in response>
 
 Every AC must be verifiable by a test or a deterministic manual step. "It works" is not an AC.
 
-Add a `Test:` line to each AC: the exact command, or the exact steps ("open Settings, click Save"). `Then` states what a user, caller or log shows (UI text, HTTP status and body, a log line), never internal state. `Given` names a real context ("a project with 20 items"), not "the system is running".
+Add a `Test:` line to each AC: the test file (the existing one to extend, or the new file's path) and the command, or the exact steps ("open Settings, click Save"). Take the file layout and command from the repository's own testing guide (`AGENTS.md`, `docs/testing.md`, the build file); do not invent a layout, and do not point new tests at a legacy pattern the guide retires. Push edge cases down to unit tests; integration tests only for user- or system-facing flows.
+
+`Then` states what a user or caller observes (UI text, HTTP status and body, CLI output, state a user can read back), never internal state. Do not make a log line the `Then` unless the log line is the product (an audit event, for example): tests assert return values, outcomes and persisted state, not what the code logged. `Given` names a real context ("a project with 20 items"), not "the system is running".
+
+The AC describes the public contract, so it keeps holding through a refactor that preserves that contract. Write for a cold reader (engineer, tester or an agent): no "as discussed", no "investigate and decide" (decide first and write the decision in), and do not restate rules the implementer already reads in the repository's contributor guide.
 
 ## Minimums per ticket
 
 - At least 3 ACs (happy path, alternate path, failure/edge case)
 - At least 1 AC covering a failure, boundary, or error path
 - At least 1 AC per EARS pattern referenced in the ticket body (When / While / If-Then)
+- If the ticket changes configuration, a schema or traffic between versions of two components: an AC for an older peer and one for an existing configuration after the upgrade. If the ticket does not say, make it a clarifying question rather than assuming compatibility
 
 ## DoD checklist fields
 
@@ -32,7 +37,7 @@ Add a `Test:` line to each AC: the exact command, or the exact steps ("open Sett
 
 ## Out-of-scope block
 
-Every ticket should declare what is explicitly excluded. Format:
+Every ticket should declare what is explicitly excluded, including neighbouring code that looks related and must not be touched. Format:
 
 ```
 **Out of scope:**

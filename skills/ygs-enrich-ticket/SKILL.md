@@ -27,7 +27,7 @@ Nothing is written without `--apply`. Interactive: show the preview and confirm.
 
 ## 1. Fetch and grade
 
-Called from `ygs-sprint-ready`, you already have the fetch and the grades: use them and skip to step 2. Alone (one ticket or a batch):
+Called from `ygs-sprint-ready`, you already have the fetch and the grades: use them and skip to step 2. Alone (one ticket or a batch), confirm the credentials first so a batch does not fail after the research is done (`python3 -m scripts.tickets.fetch --check`; if it fails, show its message and stop, and do not look for credentials anywhere else), then:
 
 ```bash
 mkdir -p ready-out/batch reports
@@ -41,8 +41,10 @@ Read each ticket's plain-text file (the complete description, environment and ev
 Skip when they are already testable. When the fetch shows story points unset, generate the preview anyway and still call `write` (a refusal is the same with or without `--apply`): it prints `blocked_points` and the exact line to record. Say the points are the next step.
 
 - **Missing:** write them from the ticket, its parent and the research below.
-- **Partial:** do not discard what exists. Quote each statement, keep the author's wording and intent, and convert it into a full AC. Interactive: ask the clarifying questions first when the answers change the ACs. Headless: put each unanswered question into the written section itself, as an "Assumed X; confirm" bullet under a final `**Assumptions to confirm**` line, so the ticket shows what was guessed.
-- Format, minimums (3 ACs, a failure case, a boundary case), DoD and the out-of-scope block: `ac-format.md`. Each AC: Given names a real context, Then is observable without reading the source, `Test:` is a runnable command or exact steps.
+- **Partial:** do not discard what exists. Quote each statement, keep the author's wording and intent, and convert it into a full AC. Questions follow `ticket-readiness.md` ("Partial is the common case"): at most 4, each with your recommended answer and why, and never one the code already settles (state that as an assumption). Interactive: ask them first when the answers change an AC materially, write each answer into the AC, Out of scope or DoD it affects (never append a Q&A section), and repeat until no open point remains. Headless, dry run, or the engineer cannot answer: write your recommended answer into the ACs and list each one under a final `**Decisions made for you — confirm**` line, so the ticket shows what was decided for them.
+- **Still needed?** First check the work has not landed, has no duplicate and the spec matches the code (`ticket-readiness.md`, "Is the work still needed?"). If it is done or the spec is wrong, say so in the report and write no ACs.
+- Format, minimums (3 ACs, a failure case, a boundary case, compatibility when versions or stored configuration change), DoD and the out-of-scope block: `ac-format.md`. Each AC: Given names a real context, Then is observable without reading the source (not a log line), `Test:` names the test file and the command, or exact steps.
+- If the ticket implements a task from a design breakdown, read that task file too; its status and checkboxes are often stale, so trust the code and note a file that disagrees.
 - Ground them with the bounded research in `~/.claude/skills/you-got-skills/skills/ygs-enrich-ticket/references/research.md` (design docs, source, existing tests).
 - If `.ygs/readiness.yml` defines variants, add an AC per in-scope variant and mark the others explicitly out of scope or as an open question; never invent coverage.
 

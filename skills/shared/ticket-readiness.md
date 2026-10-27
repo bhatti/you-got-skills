@@ -35,7 +35,17 @@ Before grading anything Missing or Partial, search the **whole** ticket: descrip
 
 ### Partial is the common case: clarify, do not rewrite
 
-Quote what exists, name what is undefined as 1-4 questions answerable in one line (trigger, observable result, empty or error behavior, scope of the change), and give one paste-ready `ac_starter` in the author's own words. Questions come from this ticket, never generic ("add ACs").
+Quote what exists, name what is undefined as **at most 4** questions, most consequential first, each answerable in one line, and give one paste-ready `ac_starter` in the author's own words. Questions come from this ticket, never generic ("add ACs"). Each carries **your recommended answer and the reason** ("Empty result: empty-state text or empty list? Recommend text, because the other lists show one."). Ask in this order: which approach, edge / empty / error behavior (including how an existing deployment's config behaves after an upgrade), where scope stops, what the tests must prove, and names users see (config keys, labels, messages, API fields).
+
+**Do not ask what the code already settles.** Before asking, check whether an existing pattern, helper or convention answers the point (read the one or two likely files); if so, follow it and list it as an assumption. Ask only what the repo cannot answer. When nobody can answer (headless, dry run), write your recommended answer into the ACs and list each under `decisions_made` so the report says "Decisions made for you — confirm".
+
+**Decide before the sprint, not during it.** A ticket whose only deliverable is "investigate X and decide" gives the engineer nothing to finish: grade ACs Partial and ask for the concrete output (a decision recorded in the ticket, a design-doc edit, a follow-up ticket). A ticket that points at a spec or design doc must say which wins where they disagree.
+
+**Compatibility is a spec question.** For anything that changes configuration, a schema or traffic between versions of two components, a ticket is only Pass on variants when it says how an older peer and an existing configuration behave after the upgrade. If it does not say, ask; never assume compatibility.
+
+### Is the work still needed?
+
+Before grading ACs for work that may already exist, read the **target branch**, not your checkout (`git fetch origin <base>`, `git log origin/<base> --oneline --grep=<KEY>`, then look at the files the ticket would touch). Look for the change having landed, another ticket covering the same thing (links, parent, a search on the title keywords) and drift between a spec or design doc and the code. If the work is done or the spec is wrong, say so in `still_needed` and do not write ACs for it. A design breakdown's task status and checkboxes are often stale: trust the code, and note a task file that disagrees with it.
 
 ## `grades.json`
 
@@ -45,13 +55,15 @@ Quote what exists, name what is undefined as 1-4 questions answerable in one lin
   "checks": {"why": "pass", "scope": "partial", "acs": "partial", "dod": "missing", "variants": "na"},
   "says": "short quote proving you read it",
   "evidence": {"acs": "searched: Requirements, Verification; bullets describe the how, no observable result"},
-  "questions": ["What does the filter match: name only, or also id?"],
+  "questions": [{"question": "What does the filter match: name only, or also id?", "recommend": "name only, case-insensitive", "because": "the other lists filter that way"}],
+  "decisions_made": ["Empty result shows text (unanswered; recommended)"],
+  "still_needed": {"landed": false, "duplicate_of": null, "spec_drift": null},
   "ac_starter": "Given ..., when ..., then ...; Test: ...",
   "variant_holes": [],
   "suggested_points": null
 }]}
 ```
-`variants` is `na` unless the project defines variants (`.ygs/readiness.yml`, key `variants`). `suggested_points` is advice for a human; nothing writes points. Sub-tasks need only `why`.
+A question may also be a plain string. `still_needed` keys are `landed` (a commit or PR id), `duplicate_of` (a ticket id) and `spec_drift` (one sentence); a set key puts the ticket on the engineers' action list. `variants` is `na` unless the project defines variants (`.ygs/readiness.yml`, key `variants`). `suggested_points` is advice for a human; nothing writes points. Sub-tasks need only `why`.
 
 ## Statuses (highest priority wins)
 
@@ -73,6 +85,25 @@ In-flight tickets (In Progress or In Review) are graded and tagged. Tickets fini
 
 `auto_enrichable` = `NEEDS_AC_WORK`, `NEEDS_AC_CLARIFICATION`, `NEEDS_IMPL_PLAN` and not no-enrich. `needs_human` = `UNREADABLE`, `UNGRADED`, `BLOCKED`, `NEEDS_STORY_POINTS`, `HAS_VARIANT_HOLES`, `SUBTASK_NEEDS_CONTEXT`, `IMPL_PLAN_LOW_CONFIDENCE`, `ENRICHED_PENDING_POINTS`.
 
+## Sprint load: points by lane, carry-over, rollover
+
+Computed once by the tools for a sprint or milestone scope (`result.json` `load`); use the numbers as given and never add points yourself. A ticket is in exactly one lane: **pending** (not started, or blocked), **in progress**, **review** (In Review, Code Complete, QA, ...) or **done**. The workflow's status category decides pending / in progress / done and the status name splits review out of in progress. Sub-tasks are left out of the totals (their points live on the parent); a ticket without points is named in its lane, also in done (unpointed finished work undercounts velocity). A sprint scope always reads finished tickets for the totals; they are only graded with `--include-done`.
+
+| Flag | Condition | Ask |
+|------|-----------|-----|
+| Unpointed | any ticket in a lane without points | Add points; for finished work add them now so velocity is true |
+| Off scale / too big | points outside the scale, or 21 and above | Re-point or split |
+| Over capacity | `--capacity N` and open (pending + in progress + review) points exceed N | Which tickets leave the sprint? |
+| Carry-over share | carried-over points are more than 30% of the sprint (a heuristic; `carry_over_share` sets it) | Is the sprint planned, or mostly last sprint's leftovers? |
+| Chronic carry-over | not done and in two or more earlier sprints | Split, re-scope or drop; name what blocked it each time |
+| Carried, not started | carry-over in pending | Why did it not start: blocked, unclear spec, deprioritized? |
+| Carried, in flight | carry-over in progress or review | Its points are the full estimate: re-point to the remaining work? |
+| Hidden rollover | unfinished in the active sprint of the same series, absent from a future target | Pull in, drop or hand off |
+
+Carry-over comes from the Jira Sprint field history (earlier sprint ids than the target); GitHub has no sprint history, so the report says carry-over is not computed. Rollover is only computed when the target is a future sprint; otherwise the report says "rollover not computed", never a guess. For a carry-over ticket that is pending or in progress, check whether the work already landed (see "Is the work still needed?") before asking anyone to spend another sprint on it.
+
+Other workflow names: list them once in `.ygs/readiness.yml` (`lanes:`) or `SPRINT_LANES`.
+
 ## Project config (optional): `.ygs/readiness.yml`
 
 ```yaml
@@ -80,6 +111,9 @@ points_scale: [1, 2, 3, 5, 8, 13]
 variants:                         # omit to skip the variant check entirely
   - {name: "single node", description: "one-process deployment"}
 no_enrich_statuses: ["In Review", "Done"]
+lanes:                            # only for statuses the defaults get wrong
+  review: ["QA Ready"]
+carry_over_share: 0.3
 ```
 
 ## Writing to tickets
@@ -100,7 +134,7 @@ no_enrich_statuses: ["In Review", "Done"]
 
 ## Report and JSON
 
-Verdict first: a scoreboard (status, count, tickets), then one card per ticket that needs work (type, status, in-flight, points, owner; checklist row; what the ticket says; what is missing; questions; AC starter), then READY, sub-tasks, cross-ticket patterns and action items by owner. No wide gap tables. `readiness` writes `reports/report.md`, `report.html`, `result.json` (`verdict` text, `summary` counts, one row per ticket) and `slack.md` (the short mrkdwn summary the job posts to Slack), adds a Previews section for any `reports/<id>/acs.md` / `plan.md` the enrich skill saved, and prints the status line:
+Verdict first: a scoreboard (status, count, tickets), then the sprint load (lane table, capacity line, carry-over, hidden rollover, decisions to take), then one card per ticket that needs work (type, status, in-flight, points, owner, "carried over N×"; checklist row; what the ticket says; what is missing; questions with recommendations; decisions made for you; AC starter), then READY, sub-tasks, cross-ticket patterns and action items by owner (team: carry-over decisions; tech lead: unfinished work missing from the sprint). No wide gap tables. `readiness` writes `reports/report.md`, `report.html`, `result.json` (`verdict` text, `summary` counts, one row per ticket) and `slack.md` (the short mrkdwn summary the job posts to Slack), adds a Previews section for any `reports/<id>/acs.md` / `plan.md` the enrich skill saved, and prints the status line:
 
 `{"status":"DONE","signal":"DONE_WITH_CONCERNS","total":14,"ready":9,"needs_human":3,"auto_enrichable":2,"summary":"..."}`
 

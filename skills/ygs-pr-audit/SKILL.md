@@ -149,7 +149,7 @@ Before recording any finding, inspect the PR's `state` field:
 Work through each specialist file in order. For each dimension:
 1. Follow the step-by-step analysis in the specialist file.
 2. Collect findings tagged with their dimension: `[SPEC]`, `[DESIGN]`, `[SKILL-GAP]`, `[PRACTICE]`.
-3. For every finding, include specific PR IDs (e.g., "PR #46468", "PRs #47554, #47533").
+3. For every finding, include specific PR IDs (e.g., "PR #1468", "PRs #1554, #1533").
 4. For every finding, record: severity, confidence, PR references, evidence from actual PR data, **and `pr_state`** (merged/open/declined).
 5. For every finding that references a PR, use state-accurate language: "is open" for open PRs, "was merged" for merged PRs.
 
@@ -468,6 +468,7 @@ Write to `reports/pr_audit_findings.json`:
   }
 }
 ```
+Every `metrics` key is required. Use `null` for a metric you could not assess (never an estimate, never `0`): the report shows it as "not assessed". Do not write your own Metrics Dashboard table: the pipeline builds the one dashboard (state, size, blast, CI, review coverage, rubber-stamp, stale, hotspots, defect rate, feature:bug, the four DORA rows) and adds these metrics to it.
 
 ### 4e. Write skill improvements JSON
 
@@ -508,7 +509,7 @@ Write to `reports/skill_improvements.json`:
 **CRITICAL rules for `content_to_add` and `full_content`:**
 
 1. **GENERALIZE all content.** Write rules for future developers, not incident reports about specific PRs. PR numbers belong in `reason`, NEVER in the rule/skill text.
-   - BAD: "PR #49628 had a missing null check in the auth handler"
+   - BAD: "PR #1628 had a missing null check in the auth handler"
    - GOOD: "Always validate nullable fields before dereferencing, especially in authentication paths"
 2. For `action=update`: put ONLY the new section/rule in `content_to_add`. Read the existing file first — never duplicate what is already there. Set `full_content` to null.
 3. For `action=create`: put the complete new file in `full_content`. Set `content_to_add` to null.

@@ -204,9 +204,15 @@ Write the findings to `findings.json` in the working directory with this exact s
       "fix": "<concrete suggested fix — must explain WHY the fix is needed, not just what to change>"
     }
   ],
+  "sloppiness": {
+    "verbosity_pct": null,
+    "high_cc_functions": null
+  },
   "summary": "<one sentence overall assessment>"
 }
 ```
+
+`sloppiness` is measured on the lines this PR adds (`shared/sloppiness-metrics.md`): `verbosity_pct` = % of added lines that are trivial delegators, wrapper-of-wrappers, duplicated guards, redundant casts or dead code; `high_cc_functions` = added or changed functions with cyclomatic complexity above 10. Use `null` for what you could not measure, never an estimate and never `0` for "unknown": the report shows it as "not assessed".
 
 Verdict mapping:
 - Any CRITICAL or HIGH findings → `REQUEST_CHANGES`

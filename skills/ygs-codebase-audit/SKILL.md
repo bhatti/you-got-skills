@@ -291,6 +291,7 @@ Write to `reports/audit_findings.json`:
   }
 }
 ```
+Every `metrics` key is required. Use `null` for a metric you could not measure with tool output (never an estimate, never `0`): the report shows it as "not assessed". The pipeline builds the one Metrics Dashboard (it also adds the PR-level rows and the DORA rows) from these values; the dashboard table you write in the report is replaced by it, so keep your descriptions in the findings, not in extra tables.
 
 ---
 

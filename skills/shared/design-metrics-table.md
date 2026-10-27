@@ -2,7 +2,7 @@
 
 Every skill that analyzes design quality **must** emit this table in its report output.
 The schema is fixed — all 8 rows, same column order, same signal thresholds.
-Write `N/A` for rows not applicable at a given scope (e.g., per-PR skills write N/A for aggregate rows).
+Write `N/A` for rows not applicable at a given scope (e.g., per-PR skills write N/A for aggregate rows). In `findings.json` a value you did not assess is `null`, never `0`: the report renders it as `—` / "not assessed" (a reported `0` is a clean result).
 
 **Column definitions** (matches the 5-column Metrics Dashboard from `shared/quality-checklist.md` §9):
 

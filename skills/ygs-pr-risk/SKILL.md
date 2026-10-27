@@ -150,6 +150,10 @@ APPROVE | REQUEST_CHANGES | COMMENT — <1 sentence rationale>
     "readability_score": 0,
     "isp_violations": 0
   },
+  "sloppiness": {
+    "verbosity_pct": null,
+    "high_cc_functions": null
+  },
   "findings": [
     {
       "severity": "CRITICAL | HIGH | MEDIUM | LOW",
@@ -166,6 +170,7 @@ APPROVE | REQUEST_CHANGES | COMMENT — <1 sentence rationale>
 }
 ```
 
+- `sloppiness` is measured on the lines this PR adds, per `shared/sloppiness-metrics.md`: `verbosity_pct` = % of added lines that are trivial delegators, wrapper-of-wrappers, duplicated guards, redundant casts or dead code (the catalogue there); `high_cc_functions` = added or changed functions with cyclomatic complexity above 10. Write `null` for a value you could not measure with the diff and tools at hand, never an estimate and never `0` for "unknown": the report shows `—` / "not assessed". The same applies to a `design_metrics` value you did not assess.
 - Use `REQUEST_CHANGES` when any CRITICAL or HIGH finding exists.
 - Use `COMMENT` for MEDIUM findings only (no blockers).
 - Use `APPROVE` only when no findings above LOW severity.

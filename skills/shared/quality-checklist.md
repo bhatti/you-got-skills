@@ -254,11 +254,13 @@ All AI reports (pr-audit, mq/merge-queue, pr-risk/scope, code-audit) use a **sin
 | Hotspot Count | `is_hotspot` | pr-audit, mq |
 | Avg Age | `created_at` age | pr-audit, mq |
 
-**DORA/throughput rows (from `compute_throughput_metrics()`, ≥3 merged PRs required):**
+**Defect and work mix (every batch, from `pr_type`):** Defect Rate (proxy) = bug+security PRs over the batch, ≤10% healthy; Escaped Defects (post-release) and Pre-release Fixes split those by estimated origin with a confidence (`shared/merge-queue-metrics.md`, "Change failure rate (proxy) and defect origin"); Feature:Bug Ratio, ≥3:1 healthy. Open-PR reports (open PRs, PR queue, merge queue) get these in place of a real change failure rate.
+
+**DORA/throughput rows (from `compute_throughput_metrics()`; always shown, `n/a` with the reason when fewer than 3 merged PRs with dates):**
 | Row | Benchmark | Notes |
 |-----|-----------|-------|
 | Deployment Frequency | ≥5/wk healthy | Merged PRs/week |
-| Change Failure Rate | ≤10% healthy | Bug+security PRs as % of merged |
+| Change Failure Rate | ≤10% healthy | Escaped (post-release) defect PRs as % of merged, with the count backed by evidence vs assumed; pre-release fixes do not count |
 | Lead Time (P50) | ≤1d elite, ≤7d high | Median created→merged |
 | PR Survival Rate | ≥80% healthy | Merged/(merged+declined) |
 
@@ -281,22 +283,21 @@ All AI reports (pr-audit, mq/merge-queue, pr-risk/scope, code-audit) use a **sin
 **Code-audit Claude-assessed rows (via `extra_rows=` from `_read_all_audit_metrics()`):**
 | Row | Key | Benchmark |
 |-----|-----|-----------|
-| Fix:Commit Ratio | `fix_ratio` | <15% |
+| Fix:Commit Ratio | `fix_ratio` | <25% healthy, >40% reactive |
 | Avg Files/Commit | `avg_files_per_commit` | <5 |
 | Single-Author Hotspots | `single_author_hotspots` | 0 ideal |
 | Temporal Coupling | `temporal_coupling_pairs` | 0 ideal |
 | Test Gap Files | `test_gap_files` | 0 ideal |
 | Disabled/Skipped Tests | `disabled_skipped_tests` | 0 ideal |
-| Verbosity Ratio | `verbosity_ratio` | <0.30 |
-| Erosion Score | `erosion_score` | <0.55 |
+| Verbosity Ratio | `verbosity_ratio` | <0.20 healthy, >0.30 high (`shared/sloppiness-metrics.md`) |
+| Erosion Score | `erosion_score` | <0.40 healthy, >0.55 high |
 | High-Mass Functions | `high_mass_functions` | 0 ideal |
 | Churn×Complexity Hotspots | `churn_complexity_hotspots` | 0 ideal |
 
-**Where each report adds it:**
-- `ygs-pr-audit`: pre-computed rows auto-added by script; Claude-assessed rows appended after Claude writes findings
-- `ygs-merge-queue`: in Valley of Calm section via `report.py`
-- `ygs-codebase-audit`: appended post-Claude via `_read_all_audit_metrics()` + `build_metrics_dashboard([], extra_rows=...)`
-- `pr-risk/scope`: included in `report.py` output when lane data available
+**Where each report adds it:** all multi-PR reports call `build_metrics_dashboard()`, which also drops the dashboard table a model wrote and keeps its rows (`extract_and_strip_metrics_tables`), so there is exactly one.
+- `ygs-pr-audit`, `ygs-codebase-audit`: pre-computed rows, plus the findings-JSON `metrics` values; a key the model left `null` is shown as "not assessed"
+- `ygs-merge-queue`, open PRs (`open-prs`), PR queue (`prs`): same rows from the queue's PRs; DORA rows `n/a` (no merged PRs)
+- `ygs-pr-risk` / `ygs-review-pr` (one PR): no dashboard; the single-PR table has scope, size, risk, age, commits, reviewers, comments, tasks, major issues, Verbosity (added lines) and High-CC functions (from `sloppiness` in `findings.json`), then the Design Quality Metrics table
 
 **Cross-ref:** `shared/merge-queue-metrics.md#metrics-dashboard-5-column--canonical-across-all-reports`
 
