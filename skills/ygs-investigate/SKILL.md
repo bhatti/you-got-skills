@@ -114,7 +114,7 @@ Start at the observable symptom (error message, wrong output, crash). For each f
 ## Phase 5: Fix + regression test
 
 1. Write regression test at the correct seam **before** the fix
-2. Watch it fail
+2. Watch it fail. If you had to force the red (mutate code, inject a delay), `diff` the file against a pristine copy to prove the mutation was reverted and landed where you meant (`shared/testing-discipline.md`, "Prove the test can fail")
 3. Apply minimal fix addressing root cause
 4. Watch it pass
 5. Re-run the Phase 1 feedback loop against original scenario

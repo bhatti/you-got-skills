@@ -54,6 +54,8 @@ The agent reads the description to decide whether to invoke the skill. It is NOT
 
 **Test:** Can an agent read the description and know exactly *when* to invoke this skill without reading the full SKILL.md? If no, rewrite the description.
 
+**Be concrete about the requests and inputs that should fire it.** Name the actual phrasings and situations ("review this diff", "is this PR ready", "a test passes on rerun"), and say when it applies even if the material is pasted inline instead of in a repo. Vague descriptions that only name the topic are the usual reason a skill never fires. Start with "Use when".
+
 ## Step 5: Content patterns
 
 Choose the pattern that fits the skill type:
@@ -100,6 +102,8 @@ Invoke the skill in a Claude Code session. Confirm:
 - The description triggers it at the right moment (not too broadly, not too narrowly)
 - The content guides the correct behavior
 - For discipline skills: test against a pressure scenario where an agent would be tempted to skip it
+
+Measure the trigger, not just one try: write five prompts that should fire the skill and five near-misses that should not (a neighbouring skill's job, a general question). Run each in a fresh session and count. A skill that fires on fewer than four of the five, or on any near-miss, needs a new description before it needs new content.
 
 If the skill requires too much effort to invoke correctly, the description needs to be tighter. If the skill triggers when it shouldn't, the description is too broad.
 

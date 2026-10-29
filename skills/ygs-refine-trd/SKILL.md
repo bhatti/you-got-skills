@@ -117,3 +117,5 @@ Write (or update) the TRD. Link back to source PRD.
 
 Report **DONE** with the file path.
 Suggest: `/ygs-review-trd` for critique, `/ygs-wbs` to break into tasks.
+
+**Stop the turn here.** Do not start the next skill, and do not treat silence or an earlier general "go ahead" as approval of this document. Approval arrives in a later turn from the user.

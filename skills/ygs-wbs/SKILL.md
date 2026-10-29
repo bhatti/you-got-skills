@@ -172,3 +172,5 @@ Report **DONE** with:
 - HITL bottlenecks identified (HITL tasks blocking AFK waves)
 
 Suggest: `/ygs-implement` to start working on tasks.
+
+**Stop the turn here.** Do not start the next skill, and do not treat silence or an earlier general "go ahead" as approval of this document. Approval arrives in a later turn from the user.

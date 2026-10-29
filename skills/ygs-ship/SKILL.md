@@ -49,7 +49,8 @@ git remote show origin | grep "HEAD branch" | sed 's/.*: //'
 Invoke `/ygs-review-ready --base <base>` (detected in Step 3).
 
 - **FAIL** → report **BLOCKED**. Fix before proceeding.
-- **WARN** → continue. Add WARN items to the PR description under "Known minor issues."
+- **WARN** → continue. Add WARN items to the PR description under "Known minor issues." Gate-integrity hits (`shared/gate-integrity.md`: skipped tests, loosened assertions, bypassed checks) are listed there with the reason for each, or the change is fixed.
+- A test run that executed zero tests is FAIL (`shared/test-runner.md`), whatever its exit code.
 - **PASS** → proceed.
 
 After passing, verify against `~/.claude/skills/you-got-skills/skills/shared/definition-of-done.md`: security implications reviewed, observability in place for new critical paths, rollback path exists.

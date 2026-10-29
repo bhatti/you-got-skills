@@ -46,7 +46,10 @@ State the type before proceeding — the fix path differs per type.
    ```bash
    git diff HEAD~1 -- <relevant-files>
    ```
-4. Reproduce locally using `shared/test-runner.md` before proposing a fix
+4. Reproduce locally using `shared/test-runner.md` before proposing a fix. A lane that went green by running zero tests (a changed filter, path or glob) is the failure, not a fix; and never "fix" CI by weakening it (`shared/gate-integrity.md`)
+
+### Race or flaky test
+Do not rerun until green. Reproduce under amplification (parallel, constrained CPU, shuffled order), force the suspected interleaving to make the failure deterministic, and write the regression test as N concurrent writers or readers, not a sleep. Details and the evidence a fix needs: `ygs-flaky-test`.
 
 ### Build error
 1. Extract the exact compiler/linker error with file:line

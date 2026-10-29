@@ -38,6 +38,7 @@ If a required tool is missing: report **BLOCKED** with install instructions. If 
 
 - If tests **pass**: proceed with the workflow
 - If tests **fail**: report **BLOCKED** — fix tests before continuing
+- If the run **executed zero tests**: that is a failed lane, not a pass. A suite can exit 0 having run nothing: "no tests ran", jest "No tests found", `go test` printing `[no test files]` for every package, pytest exit code 5, a `-k` / `--grep` / path filter that selects nothing. Read the runner's summary line and require a count greater than zero for the code that changed; when several lanes ran (unit, integration, UI), check each one's count
 - If no test runner detected: note the gap, proceed with manual verification
 
 ## Test quality gate

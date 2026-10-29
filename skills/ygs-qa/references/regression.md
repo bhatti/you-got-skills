@@ -34,6 +34,7 @@ Keep the same ports, data and credentials on both sides. The report is BLOCKED i
 | any | none | REMOVED | case only exists on the baseline |
 | blocked/infra on either side | | INFRA | not comparable; never a regression |
 | not-run/inconclusive | | INCONCLUSIVE | not comparable |
+| fail (timeout, connection error, 502-504 in the message) | pass | INCONCLUSIVE | a baseline that could not be reached says nothing about the product; never FIXED |
 
 Run status, in precedence: **BLOCKED** (a side executed no planned case) > **REGRESSION** > **NEW_FAILURES** (a candidate-only case fails) > **INCOMPLETE** (any INFRA, INCONCLUSIVE or REMOVED case) > **PRE_EXISTING** (failures on both sides) > **FIXED** > **CLEAN**. CLEAN means every case passes on both sides.
 
@@ -50,7 +51,7 @@ Run status, in precedence: **BLOCKED** (a side executed no planned case) > **REG
 
 ## Visual comparison
 
-`SMOKE*` rows are listed in the delta but never count toward the plan's verdict. Screenshots of the same case on both sides are linked from the delta table. Look at both; describe differences in terms of content and layout. Do not run pixel diffs or claim visual equality.
+`SMOKE*` rows are listed in the delta but never count toward the plan's verdict. Screenshots of the same case on both sides are linked from the delta table and shown inline under "Screenshots (baseline vs candidate)". Look at both; describe differences in terms of content and layout. Do not run pixel diffs or claim visual equality.
 
 ## Performance (optional, `--perf`)
 

@@ -130,6 +130,21 @@ Before reporting any finding, verify it against the actual code:
 
 Never report a finding you haven't verified against the actual source.
 
+**Quote the evidence.** Every finding carries the exact line(s) that motivate it, copied from the code, not paraphrased. If you cannot quote them, cap the confidence at LOW and move the item to a "Could not verify" appendix instead of the findings list. For a defect in framework-generated or declarative behavior (ORM metaclasses, migrations, decorators, config-driven routing), read the definition, not only a grep of the usage. When a finding is about one call site, grep its siblings and rate severity on the worst one.
+
+## False-positive suppressions
+
+Do not report these; they produce systematic noise:
+- "Add error handling" where the caller or framework already owns the error path
+- "Function too long" on an exhaustive switch, a config or route table, or a table-driven test
+- A null dereference already narrowed by a type guard or an earlier check in the same function
+- N+1 queries over a small, fixed-size loop
+- Hardcoded values in fixtures and test data; `random` used only for jitter or backoff
+- Anything the same diff already addresses elsewhere
+- Style preferences the repo's formatter or linter does not enforce ("I'd do it differently" is not a finding; name the call site or input that reaches the defect)
+
+**Zero findings is a valid result.** Say "no findings" with what was checked; do not pad. Escalate to CRITICAL regardless of other judgement: data loss, a bypassed trust boundary, uncapped spend.
+
 ## Verdict
 
 One of:

@@ -44,7 +44,9 @@ Skip if `--skip-ci`.
 Run the test suite using `~/.claude/skills/you-got-skills/skills/shared/test-runner.md`. Show the output.
 
 - Any test failure → Stage 2 FAIL
+- A run that executed zero tests (exit 0 with "no tests ran", "No tests found", `[no test files]` or a filter that selected nothing) → Stage 2 FAIL, as in the test runner's zero-run rule
 - No tests detected for changed paths → Stage 2 WARN (not FAIL)
+- Diff weakens its own proof (`shared/gate-integrity.md`: skipped tests, loosened assertions, bypassed checks) → Stage 2 WARN per hit, listed for the author to justify
 
 ## Stage 3: Quick review
 

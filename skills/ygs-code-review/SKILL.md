@@ -11,6 +11,7 @@ For detailed principles, read:
 - `references/code-quality.md` — Cognitive load, deep modules, tidying, testing
 - `~/.claude/skills/you-got-skills/skills/shared/functional-design.md` — immutability, FSM, invalid-state prevention, anti-patterns (referenced in Step 5)
 - `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` — testing rules (referenced in Step 6)
+- `~/.claude/skills/you-got-skills/skills/shared/gate-integrity.md` — does any hunk weaken its own proof (tests skipped, assertions loosened, checks bypassed)? Report hits as ASK
 
 ## Step 1: Get the diff
 
@@ -73,6 +74,8 @@ If the approach is fundamentally wrong, that's the finding — individual code i
 ## Step 6: Testing discipline check
 
 Follow `~/.claude/skills/you-got-skills/skills/shared/testing-discipline.md` for the full testing discipline checklist.
+
+For each new or changed test that guards the main behavior, prove it can fail: invert one condition in the code under test, run the test, restore and `diff` against the copy ("Prove the test can fail" in that file). A test that survives the mutation is a finding that names the missing case.
 
 ## Step 7: Proportionality check
 

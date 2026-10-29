@@ -41,7 +41,12 @@ ls tasks/done/*.md 2>/dev/null | tail -5
 
 ## Step 4: Write the handoff doc
 
-Write to `tasks/handoff-<YYYY-MM-DD>.md` (or user-specified path):
+Write to `tasks/handoff-<YYYY-MM-DD>.md` (or user-specified path). The file may be committed or shared, so:
+- **Redact** keys, tokens, passwords, cookies, personal data and internal hostnames; write `<REDACTED>`. Name the secret's *location* ("the `API_TOKEN` env var"), never its value.
+- **Reference, do not copy:** point to specs, ADRs, tickets and PRs by path or URL instead of restating them.
+- Tailor the content to the next session's stated focus when the user gave one.
+
+Template:
 
 ```markdown
 # Session Handoff — <date>
@@ -65,6 +70,10 @@ For each open task:
 ## Suggested next session start
 
 `/<skill>` — <why this is the right next step>
+
+## Suggested skills
+
+- `/<skill>` — <when the next session will need it>
 ```
 
 ## Completion

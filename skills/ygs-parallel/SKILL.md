@@ -34,7 +34,7 @@ Example (not independent):
 
 ## Step 2: Write isolated briefs
 
-For each task, write a self-contained brief. Use `~/.claude/skills/you-got-skills/skills/shared/subagent-dispatch.md` for the brief structure.
+For each task, write a self-contained brief for a fresh context window (pointers, not pasted content). Use `~/.claude/skills/you-got-skills/skills/shared/subagent-dispatch.md` for the brief structure.
 
 Each brief must include:
 - Specific file paths or domains to examine

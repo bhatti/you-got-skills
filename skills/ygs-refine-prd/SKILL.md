@@ -90,3 +90,5 @@ Write (or update) the PRD. Fill all sections. Mark unresolved items in Open Ques
 
 Report **DONE** with the file path.
 Suggest: `/ygs-review-prd` for independent critique, `/ygs-refine-trd` for technical design.
+
+**Stop the turn here.** Do not start the next skill, and do not treat silence or an earlier general "go ahead" as approval of this document. Approval arrives in a later turn from the user.

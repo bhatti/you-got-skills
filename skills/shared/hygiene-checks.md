@@ -24,6 +24,10 @@ Any BLOCKER must be resolved before opening a PR.
 | Whitespace-only hunks | Diff hunk where every changed line is whitespace only | Only acceptable in dedicated formatting commits |
 | `TODO(debug)` markers | `TODO(debug)`, `FIXME(debug)`, `HACK:` | Debug scaffolding not cleaned up |
 
+## Gate integrity (ASK, never auto-fixed)
+
+Run the scan in `~/.claude/skills/you-got-skills/skills/shared/gate-integrity.md` on the same diff: skipped or deleted tests, weakened assertions, relaxed thresholds, new suppressions, pipeline bypasses and swallowed failures. Each hit is reported with its `file:line` and left for the author to justify; a scan that could not run is "not checked", not clean.
+
 ## WARN violations
 
 WARN items are surfaced in the PR description as "Known minor issues" — they do not block the PR.

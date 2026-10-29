@@ -77,6 +77,10 @@ The output lists runtime and static signatures with `file:line` (fixed sleeps, f
 - Signatures are **hypotheses**. Pick the strongest, state what observation would disprove it, and test that (stress, pin the input, seed, bisect). Record the result in the report.
 - Stop after 3 failed hypotheses. If no cause is found, say exactly that and list what was checked. Do not guess a cause.
 - For timing flakes follow `~/.claude/skills/you-got-skills/skills/shared/condition-based-waiting.md` (open it when you get there). Prefer recommendations that remove the cause: wait on the condition, inject the clock, bind port 0, per-test temp dirs and state, stub external services. A larger timeout or a retry needs evidence that the operation is legitimately slow.
+- A fix to the test alone must come with a number: the failure rate before and after under the same amplification (`P(fail)` over N runs at the same load). A drop to zero from a handful of runs is not evidence; a fix that only widens a bound or adds a retry is a loosened gate, not a fix.
+- **Force the cause:** for a race or ordering hypothesis, inject the delay or interleaving that should trigger it and show the test failing every time, then passing after the change. A hypothesis that cannot be forced stays a hypothesis.
+- **Place the cause relative to the PR:** run the test N times on the base and N times on the branch under the same load. Fails on both: not caused by the PR. Fails only on the branch: the diff is the suspect.
+- For timing flakes record min, p50, p95 and max of the operation under the same load, next to the bound the test uses.
 - Look at the test itself: a mirror assertion (expected value computed like the code) or an assertion that cannot fail makes the test useless. Say so when you see it.
 
 ## Step 7: Report

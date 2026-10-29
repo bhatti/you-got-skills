@@ -52,7 +52,7 @@ For each ACTIVE dimension where a repo-local file exists (e.g., `.claude/skills/
 
 ## Phase 1: Get diff and route dimensions
 
-Follow the diff protocol from `shared/review-scaffold.md`. Then classify each changed file across 7 dimensions:
+Follow the diff protocol from `shared/review-scaffold.md`. Also read `~/.claude/skills/you-got-skills/skills/shared/gate-integrity.md`: the test-health specialist applies it to the whole diff, whatever the file routing says. Then classify each changed file across 7 dimensions:
 
 | Dimension | Specialist file | Mark ACTIVE when... |
 |-----------|----------------|---------------------|

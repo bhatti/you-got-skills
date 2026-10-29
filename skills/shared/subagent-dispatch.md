@@ -8,6 +8,8 @@ Each subagent gets a self-contained brief — not a dump of session history. A s
 
 **Session history is your context, not the subagent's context.**
 
+Start each subagent in a **fresh context window**, not a fork of yours: a fork carries the parent's conversation and its anchoring. Pass pointers instead of copies: file paths, commit ids and line ranges the subagent can read itself, not pasted file contents. Issue independent dispatches together in one message and wait for them in the foreground so results arrive in one place.
+
 ## Good Prompt Structure
 
 Every subagent brief must contain:

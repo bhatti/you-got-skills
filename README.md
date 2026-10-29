@@ -274,6 +274,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/ticket-readiness.md` | Ticket grading (Pass/Partial/Missing + evidence rule), the single status table, optional `.ygs/readiness.yml`, the lane model, sprint load and carry-over flags, questions with recommendations, idempotent write rules for Jira (ADF) and GitHub, report and JSON — referenced by sprint-ready, enrich-ticket |
 | `shared/confidence-rubric.md` | 0–100 implementation plan confidence scoring (repo evidence + ticket fit − blast radius) with HIGH/MEDIUM/LOW decision thresholds — referenced by enrich-ticket |
 | `shared/hygiene-checks.md` | Pre-PR mechanical checklist: BLOCKER violations (debug artifacts, hardcoded credentials, logic mixed with cleanup) and WARN violations (stale TODOs, commented-out code) — referenced by review-ready, ship |
+| `shared/gate-integrity.md` | Scan for diffs that weaken their own proof (skipped tests, loosened assertions, relaxed thresholds, suppressions, pipeline bypasses, swallowed failures); findings are ASK, never auto-fixed — referenced by code-review, review-pr, review-deep, review-ready, ship |
 | `shared/completion-signals.md` | Canonical DONE/DONE_WITH_CONCERNS/BLOCKED signals |
 | `shared/condition-based-waiting.md` | Replace sleep/timeouts with condition polling — polyglot patterns |
 | `shared/definition-of-done.md` | Project-wide quality bar: Correctness / Quality / Integration / Ship-readiness |

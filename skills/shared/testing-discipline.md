@@ -29,6 +29,8 @@ Reference this file — do not inline these rules.
 
 **Passing tests ≠ correct behavior.** After tests pass, ask: could these pass even if the implementation were wrong? Overly loose assertions (checking that a value is non-null rather than correct) create false confidence.
 
+**Prove the test can fail, by experiment.** Do not answer that question by reading. Copy the file aside, invert one condition in the code under test (flip a comparison, drop a branch, return a constant), run the test, then restore the file and `diff` it against the copy to prove the restore. A test that still passes names the missing case: report it. When a test was made red some other way (an injected delay, a forced interleaving), confirm that the injection actually landed before trusting the red.
+
 ## Red flags to report
 
 - Empty test bodies or `// TODO: add assertions`

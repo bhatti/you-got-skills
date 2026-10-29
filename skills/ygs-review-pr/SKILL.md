@@ -55,10 +55,11 @@ Before reviewing, establish context:
 4. Apply module-local review rules per the protocol in `shared/review-scaffold.md` (tree-walk per changed file, closest-wins precedence, root `.ygs/review-rules.md` as baseline)
 5. Read the PR description fully: what problem is being solved? What approach was chosen?
 6. Read the surrounding code in each changed file to understand existing conventions, abstractions, and patterns before judging any finding
+7. Read `~/.claude/skills/you-got-skills/skills/shared/gate-integrity.md` and scan the diff for hunks that weaken their own proof; report them as findings the author must justify
 
 ## Hard suppression rules
 
-Never report these as findings — they produce systematic false positives:
+Never report these as findings — they produce systematic false positives. The wider list in `shared/review-scaffold.md` ("False-positive suppressions") applies too:
 
 - **Defensive null/nil guards:** never suggest removing null checks (`?.`, nil guards, empty-collection fallbacks such as `?? []`, `|| []`) unless you can prove the value is guaranteed non-nil by the type system or an invariant — removing a correct guard causes crashes; the cost of a wrong suggestion here is an incident
 - **Symmetric API pairs:** never flag one half of a create/delete, get/set, open/close, register/unregister pair as dead code — the pair is the design; the unused half will be called by the counterpart operation

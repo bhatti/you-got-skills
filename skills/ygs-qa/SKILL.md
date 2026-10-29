@@ -34,7 +34,7 @@ BLOCKED with the exact message if credentials or the PR are unavailable. `diff_t
 
 ### 2. Plan, before touching any environment
 Write `qa-out/plan.json` (and a readable `qa-out/plan.md`): every criterion gets a case, plus error and boundary cases; inferred criteria are labelled. Schema and worked example: `references/test-plan.md`. Then:
-`python3 -m scripts.qa.model qa-out/plan.json --url <target> --pr-context qa-out/pr-context.json --tests qa-out/api-tests.sh qa-out/ui-spec.json` (container and worktree targets do not have a URL yet: pass `--url http://127.0.0.1`; add `--allow-mutations` when you will; run it again once the tests are written). NO-GO (exit 2) means fix the plan, the tests or the target. It refuses a plan that has no UI case for a change to UI code, a case id that appears in no test file (it would never run), and a shell syntax error. CAUTION lists gaps (for example backend code changed but no API/CLI/UNIT case) to carry into the report.
+`python3 -m scripts.qa.model qa-out/plan.json --url <target> --pr-context qa-out/pr-context.json --tests qa-out/api-tests.sh qa-out/ui-spec.json` (container and worktree targets do not have a URL yet: pass `--url http://127.0.0.1`; add `--allow-mutations` when you will; run it again once the tests are written). NO-GO (exit 2) means fix the plan, the tests or the target. It refuses a plan that has no UI case for a change to UI code, a case id that appears in no test file or sourced helper (it would never run), and a shell syntax error. Give the plan a `summary` (problem, solution), a `look_for` on every UI case, and `required: true` on every scenario the PR or issue spells out step by step: those are the contract and are never swapped for an easier one. CAUTION lists gaps (for example backend code changed but no API/CLI/UNIT case) to carry into the report.
 
 ### 3. Environment
 Pick the simplest tier that works; flags, defaults and trust rules are in `references/environments.md`:
@@ -68,13 +68,15 @@ Do not trust the PR description. Compare the diff to the criteria, quoting each 
 python3 -m scripts.qa.report --plan qa-out/plan.json --candidate qa-out/candidate/results.jsonl --pr qa-out/pr-context.json \
   --findings qa-out/findings.json --env-failure qa-out/candidate/env-failure.json --target-url <url> --out-dir reports
 ```
-It writes `reports/report.md`, `report.html`, `result.json` (plus `evidence/`) and prints the status line. Do not rewrite its verdict by hand. A planned automated case that left no result at all makes the report Not ready, and a UI change with no UI case blocks it: zero executed checks is never clean.
+It writes `reports/report.md`, `report.html`, `result.json` (plus `evidence/`) and prints the status line. Do not rewrite its verdict by hand. A planned automated case that left no result, was skipped or was inconclusive makes the report Not ready; a `required` case that did not execute, a baseline equal to the candidate, or a UI change with no UI case blocks it: zero executed checks is never clean. Pass `--baseline-url` with `--target-url` so the equality check runs.
 
 ---
 
 ## Regression mode (a baseline was supplied)
 
 Same plan and same `run-all.sh`, two environments, **one at a time**. Full flow: `references/regression.md`. You are here only because a baseline was given (`--baseline-url`, `--baseline-image` or `--baseline-ref`); if it cannot be started, BLOCKED, never a silent fall back to verify mode. Run the wrapper with `--side baseline`, then `--side candidate`; then `scripts.qa.delta` and `scripts.qa.report --mode regression --delta ...`.
+
+Before running anything, confirm the baseline is a different build from the candidate (different URL, image or ref). A baseline failure that is a timeout, connection error, 502-504 or login 429 is INCONCLUSIVE, not a result: a baseline that cannot be set up never turns a candidate pass into FIXED.
 
 REGRESSION means pass on baseline and fail on candidate. A case that could not run is INFRA/INCONCLUSIVE and makes the comparison INCOMPLETE; it is never a regression and never clean. A failure on both sides is PRE_EXISTING: report it, do not blame the PR.
 
