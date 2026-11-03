@@ -1,6 +1,6 @@
 ---
 name: ygs-pr-audit
-argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices] [--state merged|declined|open|all]"
+argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run]"
 description: "Audit PRs for spec gaps, design drift, skills gaps, and industry best practices. Produces gap findings report and skill-improvement recommendations."
 ---
 
@@ -16,10 +16,12 @@ Your job is to surface systemic gaps that no single PR review catches — patter
 | Flag | Values | Default | Description |
 |------|--------|---------|-------------|
 | `--n-prs N` | integer | 50 | Number of PRs to analyze |
-| `--focus` | `all\|spec\|design\|skills\|practices` | `all` | Audit focus area |
+| `--focus` | `all\|spec\|design\|skills\|practices\|learnings` | `all` | Audit focus area (`learnings` = only the review-learnings pass) |
 | `--state` | `merged\|declined\|open\|all` | merged+declined | PR states to include. `all` = merged+declined+open |
 | `--team alice,bob` | comma-sep names | — | Filter to PRs by those contributors |
 | `--tracker github\|jira` | tracker name | config default | Override tracker |
+| `--reviewers a,b` | comma-sep GitHub logins, or Bitbucket nicknames / account ids / uuids (display names work only through the runner's commenter scan) | — | Scope to PRs these people reviewed and learn what they look for: their comments are given in full and a profile is written for each. `--n-prs` still caps the number of PRs |
+| `--dry-run` | flag | off | Pipeline option (handled by the runner, not by you): every report and file is produced, but no PR is created |
 
 ## Scope
 
@@ -69,6 +71,8 @@ Read `~/.claude/skills/you-got-skills/skills/shared/review-scaffold.md` — seve
 
 Read `~/.claude/skills/you-got-skills/skills/shared/pr-audit-context.md` — PR data format, bot detection rules, issue-linking conventions, and skill-to-bot mapping. Use these definitions consistently across all specialists.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/review-knowledge-format.md` — categories and checklist item format for the review-learnings pass.
+
 Read `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md` — blast radius, scope classification, risk dimension definitions. Use for the design-gaps Step 8 blast radius assessment and Metrics Dashboard blast radius rows.
 
 ### 1b. Check for repo-specific skill overrides
@@ -89,13 +93,14 @@ For each dimension where a repo-local file exists:
 
 Never drop ygs checks silently — either apply them or note "repo overrides this check."
 
-### 1c. Load the 4 specialist files
+### 1c. Load the specialist files
 
 Read each specialist reference file:
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/spec-gaps.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/design-gaps.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/skills-gaps.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/industry-practices.md`
+- `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/review-learnings.md` (run when `--focus` is `all` or `learnings`)
 
 ### 1d. Read pre-computed PR data
 
@@ -115,9 +120,9 @@ Pre-computed sections available (use each where relevant):
 
 ---
 
-## Phase 2: Run all 4 specialist passes
+## Phase 2: Run all specialist passes
 
-**Run ALL 4 dimensions, even when early findings seem sparse.** Each dimension surfaces gaps the others miss. Do not stop after finding a few results.
+**Run ALL 4 gap dimensions plus review-learnings, even when early findings seem sparse.** Each dimension surfaces gaps the others miss. Do not stop after finding a few results.
 
 **CRITICAL: Analyze EVERY PR.** You must examine ALL PRs in the pre-computed data — not just 8-10 interesting ones. A common failure mode is deeply analyzing a handful and skimming the rest. The value of this audit is cross-PR pattern detection, which requires touching every single PR. For each PR, at minimum record:
 - Spec: linked issue present? AC present (check `has_acceptance_criteria` field)?
@@ -125,7 +130,7 @@ Pre-computed sections available (use each where relevant):
 - Skills: who reviewed, what categories of feedback?
 - Practices: tests included, review quality, PR size bucket?
 
-If the `--focus` flag limits the audit to a single dimension, run only that specialist. Otherwise, run all 4.
+If the `--focus` flag limits the audit to a single dimension, run only that specialist. Otherwise, run all 4 gap specialists and the review-learnings specialist. The review-learnings pass produces `reports/review_learnings.json` (see 4f), not gap findings.
 
 ### ⚠️ MANDATORY: PR State Gate — check before writing any finding
 
@@ -508,12 +513,20 @@ Write to `reports/skill_improvements.json`:
 
 **CRITICAL rules for `content_to_add` and `full_content`:**
 
-1. **GENERALIZE all content.** Write rules for future developers, not incident reports about specific PRs. PR numbers belong in `reason`, NEVER in the rule/skill text.
+1. **GENERALIZE all content.** Write rules for future developers, not incident reports about specific PRs. PR numbers belong in `reason`, NEVER in the rule/skill text. Keep each rule short, but end it with `Why: <one line>` whenever the reviewers' reasoning is known: the reason lets a reader apply the rule to cases it does not literally cover.
    - BAD: "PR #1628 had a missing null check in the auth handler"
    - GOOD: "Always validate nullable fields before dereferencing, especially in authentication paths"
 2. For `action=update`: put ONLY the new section/rule in `content_to_add`. Read the existing file first — never duplicate what is already there. Set `full_content` to null.
 3. For `action=create`: put the complete new file in `full_content`. Set `content_to_add` to null.
 4. Every rule must be actionable by any developer on any future PR — no references to specific PR numbers, author names, or one-time incidents in the content.
+
+### 4f. Write review learnings JSON
+
+Write to `reports/review_learnings.json` (schema in the audit prompt, REQUIRED OUTPUTS item 4). The runner renders
+`review_learnings.md` from it and, when not in dry-run mode, turns the entries into the repo's
+`.claude/skills/review-knowledge/` checklists (one file per category) and reviewer profiles. Do NOT write those
+checklist files yourself and do NOT duplicate their content in `skill_improvements.json`; reference the
+`review-knowledge` skill from existing skills with a one-line pointer instead.
 
 ---
 

@@ -208,13 +208,14 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 
 Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audit [--target <branch>]`
 
-**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices] [--state merged|declined|open|all]`
+**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run]`
 
 **Usage:**
 ```bash
 /ygs-pr-audit                                                # audit PRs in CWD repo (merged+declined)
 /ygs-pr-audit --n-prs 30 --focus skills                     # focused skills gap audit
 /ygs-pr-audit --state all                                    # include open PRs
+/ygs-pr-audit --reviewers alice,bob --n-prs 40 --dry-run     # learn what these reviewers look for; reports only, no PR
 ```
 
 Via Slack (with Formicary integration): `@bot pr-audit` or `@bot pr-audit <repo-url> [--state all]`
@@ -297,6 +298,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, iron law, rationalization table |
 | `shared/tracker.md` | DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (`acli`) |
 | `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
+| `shared/review-knowledge-format.md` | Categories and checklist-item format for review learnings (what senior reviewers look for) used by pr-audit and the generated `review-knowledge` skill |
 | `shared/pr-audit-context.md` | PR data schema, bot detection rules, issue-linking conventions, skill-to-bot mapping for pr-audit |
 | `shared/verification-gate.md` | Iron law: no completion claims without fresh verification evidence |
 | `shared/sloppiness-metrics.md` | Single source of truth for sloppiness metrics: Verbosity/Mass/Erosion formulas, benchmark numbers (AI-gen vs. established repos), CC thresholds, verbosity anti-pattern catalogue, and tooling (lizard, jscpd). Referenced by codebase-audit, review-deep, code-review, and learn skills. |
