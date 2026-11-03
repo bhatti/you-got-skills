@@ -16,7 +16,9 @@ Drop approvals ("LGTM", "+1"), thanks, and pure nits with no reason. Inline comm
 file path) usually carry the most specific guidance. Ignore bot comments entirely.
 
 If reviewers were requested (a "Reviewer focus" block is in the prompt), their comments are included in full;
-read every one of them. Match names case-insensitively against login, nickname and display name.
+read every one of them and extract learnings ONLY from their comments: other people's comments are context for the thread
+and must not produce entries or appear in `reviewers`/`reviewer_profiles` (the runner drops them anyway). Use the names as
+they appear in the PR data.
 
 ## Step 2: Extract one learning per distinct idea
 
