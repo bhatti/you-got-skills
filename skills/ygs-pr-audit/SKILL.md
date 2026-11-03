@@ -20,7 +20,7 @@ Your job is to surface systemic gaps that no single PR review catches — patter
 | `--state` | `merged\|declined\|open\|all` | merged+declined | PR states to include. `all` = merged+declined+open |
 | `--team alice,bob` | comma-sep names | — | Filter to PRs by those contributors |
 | `--tracker github\|jira` | tracker name | config default | Override tracker |
-| `--reviewers a,b` | comma-sep GitHub logins, or Bitbucket nicknames / account ids / uuids (display names work only through the runner's commenter scan) | — | Scope to PRs these people reviewed and learn what they look for: their comments are given in full and a profile is written for each. `--n-prs` still caps the number of PRs |
+| `--reviewers a,b` | comma-sep names: GitHub logins, or on Bitbucket a name, first/last name, nickname, initials (`CJ`) or id; the runner resolves them to people. A name nobody matches is reported; if none match, learnings come from all reviewers | — | Scope to PRs these people reviewed and learn what they look for: their comments are given in full and a profile is written for each. `--n-prs` still caps the number of PRs |
 | `--dry-run` | flag | off | Pipeline option (handled by the runner, not by you): every report and file is produced, but no PR is created |
 
 ## Scope
