@@ -528,7 +528,7 @@ Write to `reports/skill_improvements.json`:
 ### 4f. Write review learnings JSON
 
 Write to `reports/review_learnings.json` (schema in the audit prompt, REQUIRED OUTPUTS item 4). The runner renders
-`review_learnings.md` from it and, when not in dry-run mode, turns the entries into the repo's
+`review_learnings.{md,html}` from it (always written, with or without `--reviewers`; an empty result says why) and, when not in dry-run mode, turns the entries into the repo's
 `.claude/skills/review-knowledge/` checklists (one file per category) and reviewer profiles. Do NOT write those
 checklist files yourself and do NOT duplicate their content in `skill_improvements.json`; reference the
 `review-knowledge` skill from existing skills with a one-line pointer instead.
@@ -538,7 +538,8 @@ checklist files yourself and do NOT duplicate their content in `skill_improvemen
 When the prompt carries a "Changelog & Blast Radius" block, follow `specialists/changelog-blast-radius.md` and write
 `reports/changelog_model.json` (schema in the audit prompt). The runner merges it with the deterministic facts (CODEOWNERS teams,
 blast radius, breaking-change signals), renders the section "Changelog & Blast Radius" at the end of `pr_audit_report.{md,html}` and writes
-`changelog.{json,md,html}`. Do not write that section or recompute the facts yourself.
+`changelog.{json,md,html}` (themes with one line per PR, breaking-change candidates with a plain-language "what may break") and
+`blast_radius.{md,html}` (per-team impact, suggested tests). Do not write those yourself or recompute the facts.
 
 ---
 
