@@ -1,6 +1,6 @@
 ---
 name: ygs-pr-audit
-argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run]"
+argument-hint: "[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run] [--no-changelog] [--breaking-diffs 25]"
 description: "Audit PRs for spec gaps, design drift, skills gaps, and industry best practices. Produces gap findings report and skill-improvement recommendations."
 ---
 
@@ -18,9 +18,11 @@ Your job is to surface systemic gaps that no single PR review catches — patter
 | `--n-prs N` | integer | 50 | Number of PRs to analyze |
 | `--focus` | `all\|spec\|design\|skills\|practices\|learnings` | `all` | Audit focus area (`learnings` = only the review-learnings pass) |
 | `--state` | `merged\|declined\|open\|all` | merged+declined | PR states to include. `all` = merged+declined+open |
-| `--team alice,bob` | comma-sep names | — | Filter to PRs by those contributors |
+| `--team` | flag, name, `"Two Words"` or `alice,bob` | off | Team scoping is opt-in: nothing is filtered unless `--team` is given. Bare = the requesting user's default team (Jira), a name = that Jira team (GitHub: label), a comma list = PRs authored or reviewed by those people |
 | `--tracker github\|jira` | tracker name | config default | Override tracker |
 | `--reviewers a,b` | comma-sep names: GitHub logins, or on Bitbucket a name, first/last name, nickname, initials (`CJ`) or id; the runner resolves them to people. A name nobody matches is reported; if none match, learnings come from all reviewers | — | Scope to PRs these people reviewed and learn what they look for: their comments are given in full and a profile is written for each. `--n-prs` still caps the number of PRs |
+| `--no-changelog` | flag | off | Skip the "Changelog & Blast Radius" section |
+| `--breaking-diffs N` | integer | 25 | How many risky PRs get their diff read for breaking-change signals (the rest use file paths only; 0 = paths only) |
 | `--dry-run` | flag | off | Pipeline option (handled by the runner, not by you): every report and file is produced, but no PR is created |
 
 ## Scope
@@ -32,7 +34,7 @@ The PR data block in the prompt includes a `state` field for each PR: `open`, `m
 - When a PR's `state` is `declined`: the PR was REJECTED — do NOT generate "merged without review" findings. See the Phase 2 state gate for full rules.
 - When a PR's `state` is `closed`: treat as declined (closed without merging). Note positively if there was review engagement; otherwise note as a process observation only.
 
-If `PR_AUDIT_TEAM_MEMBERS` env var is set, the analysis is scoped to PRs authored or reviewed by those contributors (comma-separated display names / GitHub logins). Note the team scope in the executive summary.
+The runner sets the team variables below only when the Slack text has `--team`; they are never inherited from org configs. If `PR_AUDIT_TEAM_MEMBERS` env var is set, the analysis is scoped to PRs authored or reviewed by those contributors (comma-separated display names / GitHub logins). Note the team scope in the executive summary.
 
 If `JIRA_SPACE` env var is set, the analysis is scoped to PRs referencing Jira issues tagged with that team name (via the `Eng Scrum Team` custom field). For pure-GitHub jobs, `JIRA_SPACE` maps to a GitHub label filter instead. Note the team scope in the executive summary.
 
@@ -73,6 +75,8 @@ Read `~/.claude/skills/you-got-skills/skills/shared/pr-audit-context.md` — PR 
 
 Read `~/.claude/skills/you-got-skills/skills/shared/review-knowledge-format.md` — categories and checklist item format for the review-learnings pass.
 
+Read `~/.claude/skills/you-got-skills/skills/shared/breaking-change-signals.md` — what breaks consumers, blast radius and the tests that fit; used by the changelog specialist.
+
 Read `~/.claude/skills/you-got-skills/skills/shared/merge-queue-metrics.md` — blast radius, scope classification, risk dimension definitions. Use for the design-gaps Step 8 blast radius assessment and Metrics Dashboard blast radius rows.
 
 ### 1b. Check for repo-specific skill overrides
@@ -101,6 +105,7 @@ Read each specialist reference file:
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/skills-gaps.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/industry-practices.md`
 - `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/review-learnings.md` (run when `--focus` is `all` or `learnings`)
+- `~/.claude/skills/you-got-skills/skills/ygs-pr-audit/specialists/changelog-blast-radius.md` (run when the prompt contains a "Changelog & Blast Radius" facts block)
 
 ### 1d. Read pre-computed PR data
 
@@ -527,6 +532,13 @@ Write to `reports/review_learnings.json` (schema in the audit prompt, REQUIRED O
 `.claude/skills/review-knowledge/` checklists (one file per category) and reviewer profiles. Do NOT write those
 checklist files yourself and do NOT duplicate their content in `skill_improvements.json`; reference the
 `review-knowledge` skill from existing skills with a one-line pointer instead.
+
+### 4g. Changelog & Blast Radius (model part)
+
+When the prompt carries a "Changelog & Blast Radius" block, follow `specialists/changelog-blast-radius.md` and write
+`reports/changelog_model.json` (schema in the audit prompt). The runner merges it with the deterministic facts (CODEOWNERS teams,
+blast radius, breaking-change signals), renders the section "Changelog & Blast Radius" at the end of `pr_audit_report.{md,html}` and writes
+`changelog.{json,md,html}`. Do not write that section or recompute the facts yourself.
 
 ---
 

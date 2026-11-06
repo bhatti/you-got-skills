@@ -25,6 +25,7 @@ Write the plan before starting any environment. It is the contract the report is
 - `mutating: true` for anything that creates, changes or deletes data. These are blocked unless `--allow-mutations`. Mark UI cases the same way in `ui-spec.json`.
 - `summary` (optional but wanted): one line each for the problem and the solution; the report opens with them so a reviewer knows what is being judged.
 - `look_for` (UI cases): what a human should see in the case's screenshot. The report shows it beside the screenshot as the caption; a UI case without it is a gap in the plan check.
+- `repro: true` marks a case that reproduces a bug (a security or bug-fix repro). In regression mode it must FAIL on the baseline; a pass on both sides is UNVERIFIED, because the candidate's pass proves nothing about a bug that never showed.
 - `required: true` marks a scenario the PR or issue describes step by step. It is the contract: if it cannot run (pass or fail) the report is **Blocked**. Never replace it with a similar scenario, topology or dataset that is easier to provision; report what is missing instead.
 - `expected` must be observable and falsifiable ("returns 409", not "works correctly").
 - Case ids use letters, digits, `_`, `.`, `-` (they become file names). `SMOKE*` is reserved for generated smoke checks, which are reported separately and never count as verification.

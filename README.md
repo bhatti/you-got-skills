@@ -208,7 +208,7 @@ Long-horizon analysis skills that look across many commits to detect patterns th
 
 Via Slack (with Formicary integration): `@bot code-audit` or `@bot codebase-audit [--target <branch>]`
 
-**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run]`
+**ygs-pr-audit arguments:** `[--n-prs 50] [--focus all|spec|design|skills|practices|learnings] [--state merged|declined|open|all] [--reviewers a,b] [--dry-run] [--no-changelog] [--breaking-diffs 25]`
 
 **Usage:**
 ```bash
@@ -298,6 +298,7 @@ Reusable protocols in `skills/shared/` referenced by individual skills. Not invo
 | `shared/testing-discipline.md` | Testing rules: no flaky tests, no sleeps, iron law, rationalization table |
 | `shared/tracker.md` | DRY query patterns for GitHub (`gh`) and JIRA/Bitbucket (`acli`) |
 | `shared/tracker-config-example.yml` | Starter config for GitHub/JIRA tracker integration |
+| `shared/breaking-change-signals.md` | What breaks consumers (contracts, enums, data, behaviour behind an unchanged contract), blast radius (external/internal, always-large areas) and the tests that fit each; used by pr-audit's changelog, api-review and review-pr |
 | `shared/review-knowledge-format.md` | Categories and checklist-item format for review learnings (what senior reviewers look for) used by pr-audit and the generated `review-knowledge` skill |
 | `shared/pr-audit-context.md` | PR data schema, bot detection rules, issue-linking conventions, skill-to-bot mapping for pr-audit |
 | `shared/verification-gate.md` | Iron law: no completion claims without fresh verification evidence |

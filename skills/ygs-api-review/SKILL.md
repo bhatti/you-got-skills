@@ -23,6 +23,8 @@ Read changed API files and any specs (OpenAPI, proto, GraphQL schemas).
 
 ## Step 2: Breaking change detection
 
+Read `~/.claude/skills/you-got-skills/skills/shared/breaking-change-signals.md` (kinds, blast radius, and the tests that fit each; it also covers behaviour changes behind an unchanged contract).
+
 Check for changes that break existing clients:
 
 - **Removed fields** from responses (even if "unused")

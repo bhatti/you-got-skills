@@ -34,9 +34,10 @@ Keep the same ports, data and credentials on both sides. The report is BLOCKED i
 | any | none | REMOVED | case only exists on the baseline |
 | blocked/infra on either side | | INFRA | not comparable; never a regression |
 | not-run/inconclusive | | INCONCLUSIVE | not comparable |
-| fail (timeout, connection error, 502-504 in the message) | pass | INCONCLUSIVE | a baseline that could not be reached says nothing about the product; never FIXED |
+| fail (timeout, connection error, 502-504, broken harness in the message) | pass | INCONCLUSIVE | a baseline that could not be reached says nothing about the product; never FIXED |
+| pass | pass, case has `repro: true` | UNVERIFIED | the bug never reproduced on the baseline, so the candidate's pass proves nothing |
 
-Run status, in precedence: **BLOCKED** (a side executed no planned case) > **REGRESSION** > **NEW_FAILURES** (a candidate-only case fails) > **INCOMPLETE** (any INFRA, INCONCLUSIVE or REMOVED case) > **PRE_EXISTING** (failures on both sides) > **FIXED** > **CLEAN**. CLEAN means every case passes on both sides.
+Run status, in precedence: **BLOCKED** (a side executed no planned case) > **REGRESSION** > **NEW_FAILURES** (a candidate-only case fails) > **UNVERIFIED** (a repro case passes on the baseline) > **INCOMPLETE** (any INFRA, INCONCLUSIVE or REMOVED case) > **PRE_EXISTING** (failures on both sides) > **FIXED** > **CLEAN**. CLEAN means every case passes on both sides.
 
 ## Reading the result
 
